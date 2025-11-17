@@ -125,13 +125,23 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId }) => {
       ? [post.image_url]
       : [];
 
+  const resolveUrl = (img?: unknown, prefixUploads = false): string => {
+    if (!img || typeof img !== 'string') return '/img/icons/user.svg';
+    const s = img.trim();
+    if (!s) return '/img/icons/user.svg';
+    if (s.startsWith('http://') || s.startsWith('https://')) return s;
+    // if stored like "/uploads/..." or "uploads/..."
+    if (s.startsWith('/')) return `http://localhost:5000${s}`;
+    return `http://localhost:5000/${s}`;
+  };
+
   return (
     <div className="feed-posts-user">
       <div className="feed-user-avatar">
         <Image
           src={
             post.author?.profile_picture
-              ? `http://localhost:5000/uploads${post.author.profile_picture}`
+              ? resolveUrl(post.author.profile_picture.startsWith('/') ? post.author.profile_picture : `/uploads${post.author.profile_picture}`)
               : '/img/icons/user.svg'
           }
           alt={post.author?.username || 'user'}
@@ -169,7 +179,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId }) => {
             {images.map((img, i) => (
               <div key={i} className={`feed-posts-image ${orientation ?? ''}`}>
                 <Image
-                  src={img.startsWith('http') ? img : `http://localhost:5000${img}`}
+                  src={resolveUrl(img)}
                   alt="post"
                   onLoadingComplete={handleImageLoad}
                   width={500}

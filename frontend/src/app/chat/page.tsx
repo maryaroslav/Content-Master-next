@@ -345,7 +345,7 @@ export default function ChatPage() {
                             <h3>
                                 {toUserId
                                     ? `${companionName}`
-                                    : 'Выберите собеседника'}
+                                    : 'Choose companion'}
                             </h3>
                         </div>
                     )}
