@@ -1,7 +1,7 @@
 # 🛠️ Technology Stack
 
 **Frontend**:
-- Next.js (App Router)
+- Next + TS (App Router)
 - React
 - NextAuth (JWT)
 - Redux
@@ -9,7 +9,7 @@
 - Git LFS
 
 **Backend**:
-- Express.js
+- Express + TS
 - MySQL
 - JWT (auth)
 - CORS
