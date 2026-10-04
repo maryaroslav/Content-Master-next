@@ -17,6 +17,7 @@ import followRoutes from './routes/follow';
 import searchRoutes from './routes/search';
 
 import { sequelize } from './models';
+import { migrator } from './db/migrator';
 
 const app = express();
 
@@ -57,8 +58,15 @@ const PORT = Number(process.env.PORT ?? 5001);
 
 const startServer = async () => {
     try {
-        await sequelize.sync();
+        await sequelize.authenticate();
         console.log('database connected');
+
+        // The schema is managed by migrations only (src/db/migrations).
+        const pending = await migrator.pending();
+        if (pending.length > 0) {
+            const names = pending.map((m) => m.name).join(', ');
+            throw new Error(`Pending database migrations: ${names}. Run "pnpm --filter @cm/api db:migrate".`);
+        }
 
         server.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);

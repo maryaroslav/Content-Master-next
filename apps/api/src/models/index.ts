@@ -24,13 +24,4 @@ export type Models = typeof models;
 
 Object.values(models).forEach((model) => model.associate(models));
 
-sequelize
-    .sync({ force: false })
-    .then(() => {
-        console.log('DB SYNC');
-    })
-    .catch((err: unknown) => {
-        console.error('ERR SYNCing DB: ', err);
-    });
-
 export { sequelize, User, Community, UserCommunity, Event, UserEvent, Follow, Message, Post };

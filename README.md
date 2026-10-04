@@ -66,6 +66,16 @@ NEXTAUTH_SECRET=a-string-secret-at-least-256-bits-long
 pnpm dev
 ```
 Starts the frontend on http://localhost:3000 and the backend on http://localhost:5001.
+Pending database migrations are applied automatically before the backend starts.
+
+## Database migrations
+The schema is managed by migrations in `apps/api/src/db/migrations` (run in file name order).
+```
+pnpm --filter @cm/api db:migrate    # apply pending migrations
+pnpm --filter @cm/api db:rollback   # revert the last migration
+pnpm --filter @cm/api db:status     # list pending migrations
+```
+The backend refuses to start while migrations are pending.
 
 ## Checks
 ```

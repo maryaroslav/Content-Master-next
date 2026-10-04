@@ -3,13 +3,22 @@
   "workspaces": {
     ".": {},
     "apps/web": {
-      "entry": ["src/app/**/{page,layout,route,error,loading,not-found}.{ts,tsx}"]
+      "entry": [
+        "src/app/**/{page,layout,route,error,loading,not-found}.{ts,tsx}"
+      ]
     },
     "apps/api": {
-      "ignoreDependencies": ["mysql2"]
+      "ignoreDependencies": [
+        "mysql2"
+      ],
+      "entry": [
+        "src/db/migrations/*.ts"
+      ]
     },
     "packages/config-ts": {
-      "ignoreDependencies": ["next"]
+      "ignoreDependencies": [
+        "next"
+      ]
     },
     "packages/*": {}
   },
