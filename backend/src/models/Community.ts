@@ -27,7 +27,7 @@ export default function CommunityModelFactory(sequelize: Sequelize) {
         'Community',
         {
             community_id: {
-                type: DataTypes.INTEGER.UNSIGNED,
+                type: DataTypes.INTEGER,
                 primaryKey: true,
                 autoIncrement: true,
                 allowNull: false,
@@ -49,7 +49,7 @@ export default function CommunityModelFactory(sequelize: Sequelize) {
                 allowNull: false,
             },
             owner_id: {
-                type: DataTypes.INTEGER.UNSIGNED,
+                type: DataTypes.INTEGER,
                 allowNull: false,
             },
             members_count: {

@@ -26,8 +26,8 @@ const FeedCommunity = () => {
     useEffect(() => {
         const loadMyCommunities = async () => {
             try {
-                const data = await fetchWithAuth<CommunityProps[]>('http://localhost:5000/api/mycommunities');
-                const communitiesUser = await fetchWithAuth<CommunityProps[]>('http://localhost:5000/api/user/usercommunities');
+                const data = await fetchWithAuth<CommunityProps[]>('http://localhost:5001/api/mycommunities');
+                const communitiesUser = await fetchWithAuth<CommunityProps[]>('http://localhost:5001/api/user/usercommunities');
                 setMyCommunities(data ?? []);
                 setUserCommunities(communitiesUser ?? []);
             } catch (err) {
@@ -51,7 +51,7 @@ const FeedCommunity = () => {
                             {myCommunities.map((community) => (
                                 <div key={community.community_id} className="feedcommunity-item my-community-item">
                                     <Image
-                                        src={`http://localhost:5000/uploads/communities_images/${community.photo}`}
+                                        src={`http://localhost:5001/uploads/communities_images/${community.photo}`}
                                         alt={community.name}
                                         width={100}
                                         height={100}
@@ -75,7 +75,7 @@ const FeedCommunity = () => {
                         <h2 className='feedcomunity-section-title'>My communities</h2>
                         {userCommunities.map((community) => (
                             <div key={community.community_id} className="feedcommunity-item">
-                                <Image src={`http://localhost:5000${community.photo}`} alt={community.name} width={100} height={100} />
+                                <Image src={`http://localhost:5001${community.photo}`} alt={community.name} width={100} height={100} />
                                 <div className="feedcommunity-item-title">
                                     <p className="feedcommunity-type">{community.privacy}</p>
                                     <p className="feedcommunity-name">{community.name}</p>

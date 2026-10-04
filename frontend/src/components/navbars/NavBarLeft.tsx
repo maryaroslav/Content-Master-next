@@ -54,7 +54,7 @@ const NavBarLeft = (props: NavBarLeftProps) => {
         <div className="community-list">
           {(showAllCommunities ? communities : communities.slice(0, 4)).map((community, index) => (
             <div key={community.community_id} className="community-item">
-              <Image src={`http://localhost:5000${community.photo}`} width={100} height={100} alt="" />
+              <Image src={`http://localhost:5001${community.photo}`} width={100} height={100} alt="" />
               <div key={index} className='item-title'>
                 <p className="community-type">{community.privacy}</p>
                 <p className="community-name">{community.name}</p>
@@ -72,7 +72,7 @@ const NavBarLeft = (props: NavBarLeftProps) => {
         <div className="event-list">
           {(showAllEvents ? events : events.slice(0, 6)).map((event, index) => (
             <div key={event.event_id} className="event-item">
-              <Image src={`http://localhost:5000${event.image}`} width={100} height={100} alt="" />
+              <Image src={`http://localhost:5001${event.image}`} width={100} height={100} alt="" />
               <div key={index} className='item-title'>
                 <p className="event-date">{formatDate(event.created_at)}</p>
                 <p className="event-name">{event.title}</p>

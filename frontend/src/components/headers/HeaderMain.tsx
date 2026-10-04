@@ -29,7 +29,7 @@ const HeaderMain = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const data = await fetchWithAuth("http://localhost:5000/api/user/me");
+                const data = await fetchWithAuth("http://localhost:5001/api/user/me");
                 if (data) setUser(data);
             } catch (err) {
                 console.error("Error loading user", err);
@@ -82,7 +82,7 @@ const HeaderMain = () => {
                     <div className="user">
                         <div className="user-img" onClick={handleToProfileUser}>
                             {user?.profile_picture ? (
-                                <Image src={`http://localhost:5000/uploads/${user.profile_picture}`} alt="user avatar" width={100} height={100} />
+                                <Image src={`http://localhost:5001/uploads/${user.profile_picture}`} alt="user avatar" width={100} height={100} />
                             ) : (
                                 <Image src={userImg} alt="Default user icon" />
                             )}

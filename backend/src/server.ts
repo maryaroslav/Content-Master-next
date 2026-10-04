@@ -47,7 +47,7 @@ app.use('/api/follow', followRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-const PORT = Number(process.env.PORT ?? 5000);
+const PORT = Number(process.env.PORT ?? 5001);
 
 const startServer = async () => {
     try {

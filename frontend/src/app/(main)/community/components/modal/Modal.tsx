@@ -61,7 +61,7 @@ const Modal = ({ closeModal }: ModalProps) => {
             //     hasImage: !!formData.photo,
             // });
 
-            const res = await fetchWithAuth('http://localhost:5000/api/createcommunity', {
+            const res = await fetchWithAuth('http://localhost:5001/api/createcommunity', {
                 method: 'POST',
                 body: form
             });

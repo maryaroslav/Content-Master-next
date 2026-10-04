@@ -53,14 +53,14 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const current = await fetchWithAuth('http://localhost:5000/api/user/me') as User;
+                const current = await fetchWithAuth('http://localhost:5001/api/user/me') as User;
                 setCurrentUser(current)
 
-                const user = await fetchWithAuth(`http://localhost:5000/api/user/byusername/${username}`) as User;
+                const user = await fetchWithAuth(`http://localhost:5001/api/user/byusername/${username}`) as User;
                 setProfileUser(user)
 
                 if (user.user_id !== current.user_id) {
-                    const followStatus = (await fetchWithAuth(`http://localhost:5000/api/follow/status/${user.user_id}`)) as { isFollowing?: boolean };
+                    const followStatus = (await fetchWithAuth(`http://localhost:5001/api/follow/status/${user.user_id}`)) as { isFollowing?: boolean };
                     setIsFollowing(followStatus?.isFollowing || false)
                 }
             } catch (err) {
@@ -87,7 +87,7 @@ const ProfilePage = () => {
         try {
             setLoadingFollow(true)
             const endpoint = isFollowing ? 'unfollow' : 'follow'
-            await fetchWithAuth(`http://localhost:5000/api/follow/${endpoint}/${profileUser.user_id}`, {
+            await fetchWithAuth(`http://localhost:5001/api/follow/${endpoint}/${profileUser.user_id}`, {
                 method: 'POST'
             })
             setIsFollowing(!isFollowing)
@@ -129,7 +129,7 @@ const ProfilePage = () => {
                                             const token = session?.accessToken;
                                             if (!token) throw new Error('No token found');
 
-                                            const res = await fetch('http://localhost:5000/api/auth/2fa/disable', {
+                                            const res = await fetch('http://localhost:5001/api/auth/2fa/disable', {
                                                 method: 'POST',
                                                 headers: {
                                                     'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ const ProfilePage = () => {
 
                                             alert('2FA deactivated');
                                             setShow2FAModal(false);
-                                            const updatedUser = await fetchWithAuth('http://localhost:5000/api/user/me') as User;
+                                            const updatedUser = await fetchWithAuth('http://localhost:5001/api/user/me') as User;
                                             setCurrentUser(updatedUser);
                                         } catch (err: unknown) {
                                             const message = err instanceof Error ? err.message : String(err);
@@ -168,7 +168,7 @@ const ProfilePage = () => {
                                             const token = session?.accessToken;
                                             if (!token) throw new Error('No token found');
 
-                                            const res = await fetch('http://localhost:5000/api/auth/2fa/setup', {
+                                            const res = await fetch('http://localhost:5001/api/auth/2fa/setup', {
                                                 method: 'POST',
                                                 headers: {
                                                     'Content-Type': 'application/json',
@@ -220,7 +220,7 @@ const ProfilePage = () => {
                                                 const token = session?.accessToken;
                                                 if (!token) throw new Error('No token found');
 
-                                                const res = await fetch('http://localhost:5000/api/auth/2fa/verify', {
+                                                const res = await fetch('http://localhost:5001/api/auth/2fa/verify', {
                                                     method: 'POST',
                                                     headers: {
                                                         'Content-Type': 'application/json',
@@ -233,7 +233,7 @@ const ProfilePage = () => {
                                                 if (!res.ok || !data.verified) throw new Error(data.message || 'Verification failed');
 
                                                 alert('2FA successfully activated!');
-                                                const updatedUser = await fetchWithAuth('http://localhost:5000/api/user/me') as User;
+                                                const updatedUser = await fetchWithAuth('http://localhost:5001/api/user/me') as User;
                                                 console.log('updatedUser:', updatedUser);
                                                 setCurrentUser(updatedUser);
                                                 setQrCode(null);
@@ -318,7 +318,7 @@ const ProfilePage = () => {
                             <div className="profile-info-image-user">
                                 {profileUser.profile_picture ? (
                                     <Image
-                                        src={`http://localhost:5000/uploads/${profileUser.profile_picture}`}
+                                        src={`http://localhost:5001/uploads/${profileUser.profile_picture}`}
                                         width={100}
                                         height={100}
                                         alt={profileUser.username}

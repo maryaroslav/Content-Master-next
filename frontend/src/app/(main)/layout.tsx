@@ -9,7 +9,7 @@ import '../../styles/main.css';
 async function getUserCommunities() {
     const accessToken = await getAccessTokenOrRedirect();
 
-    const res = await fetch('http://localhost:5000/api/user/usercommunities', {
+    const res = await fetch('http://localhost:5001/api/user/usercommunities', {
         headers: {
             Authorization: `Bearer ${accessToken}`
         },
@@ -26,7 +26,7 @@ async function getUserCommunities() {
 async function getUserEvents() {
     const accessToken = await getAccessTokenOrRedirect();
 
-    const res = await fetch('http://localhost:5000/api/user/userevents', {
+    const res = await fetch('http://localhost:5001/api/user/userevents', {
         headers: {
             Authorization: `Bearer ${accessToken}`
         },

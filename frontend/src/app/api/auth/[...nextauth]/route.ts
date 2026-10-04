@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
 
                 try {
                     if (twoFAToken && userId) {
-                        const res = await axios.post('http://localhost:5000/api/auth/2fa/verify-login', {
+                        const res = await axios.post('http://localhost:5001/api/auth/2fa/verify-login', {
                             userId,
                             token: twoFAToken
                         });
@@ -51,7 +51,7 @@ export const authOptions: NextAuthOptions = {
 
                         return returnedUser;
                     } else {
-                        const res = await axios.post('http://localhost:5000/api/auth/login', {
+                        const res = await axios.post('http://localhost:5001/api/auth/login', {
                             email,
                             password
                         });

@@ -26,7 +26,7 @@ const Feed: React.FC = () => {
 
   const fetchPostsFromServer = async () => {
     try {
-      const data: unknown = await fetchWithAuth('http://localhost:5000/api/posts');
+      const data: unknown = await fetchWithAuth('http://localhost:5001/api/posts');
       console.log(data);
 
       // runtime guard: ensure data is an array of objects that contain post_id
@@ -51,7 +51,7 @@ const Feed: React.FC = () => {
 
   const fetchCurrentUser = async () => {
     try {
-      const user: unknown = await fetchWithAuth('http://localhost:5000/api/user/me');
+      const user: unknown = await fetchWithAuth('http://localhost:5001/api/user/me');
 
       if (!isUser(user)) {
         console.error('Invalid user response', user);
@@ -107,7 +107,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId }) => {
 
   const handleDelete = async () => {
     try {
-      await fetchWithAuth(`http://localhost:5000/api/posts/${post.post_id}`, {
+      await fetchWithAuth(`http://localhost:5001/api/posts/${post.post_id}`, {
         method: 'DELETE'
       });
 
@@ -131,8 +131,8 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId }) => {
     if (!s) return '/img/icons/user.svg';
     if (s.startsWith('http://') || s.startsWith('https://')) return s;
     // if stored like "/uploads/..." or "uploads/..."
-    if (s.startsWith('/')) return `http://localhost:5000${s}`;
-    return `http://localhost:5000/${s}`;
+    if (s.startsWith('/')) return `http://localhost:5001${s}`;
+    return `http://localhost:5001/${s}`;
   };
 
   return (

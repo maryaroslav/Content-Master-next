@@ -43,7 +43,7 @@ export default function SearchResults() {
 
         (async () => {
             try {
-                const res: unknown = await fetchWithAuth(`http://localhost:5000/api/search?q=${query}`);
+                const res: unknown = await fetchWithAuth(`http://localhost:5001/api/search?q=${query}`);
 
                 const data = res as SearchResponse;
                 if (typeof data !== 'object' || data === null) {
@@ -96,7 +96,7 @@ export default function SearchResults() {
                     <div className='feedcommunity-my-community-container'>
                         <div className="feedcommunity-item">
                             {u.profile_picture ? (
-                                <Image src={`http://localhost:5000/uploads/${u.profile_picture}`} alt={u.username} width={100} height={100} style={{ borderRadius: '50%' }} />
+                                <Image src={`http://localhost:5001/uploads/${u.profile_picture}`} alt={u.username} width={100} height={100} style={{ borderRadius: '50%' }} />
                             ) : (
                                 <Image src="/img/icons/user.svg" alt="default" width={100} height={100} style={{ borderRadius: '50%' }} />
                             )}
@@ -117,7 +117,7 @@ export default function SearchResults() {
                 <Link key={c.community_id} href={`/community/${c.community_id}`}>
                     <div className='feedcommunity-my-community-container'>
                         <div className="feedcommunity-item">
-                            <Image src={`http://localhost:5000${c.photo}`} alt={c.name} width={100} height={100} />
+                            <Image src={`http://localhost:5001${c.photo}`} alt={c.name} width={100} height={100} />
                             <div className="feedcommunity-item-title">
                                 <p className="feedcommunity-type">{c.privacy}</p>
                                 <p className="feedcommunity-name">{c.name}</p>

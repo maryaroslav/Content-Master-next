@@ -27,7 +27,7 @@ const useFollowedUsers = (chat: unknown[] = []): FollowedUser[] => {
 
         const loadFollowedUser = async (): Promise<void> => {
             try {
-                const raw = (await fetchWithAuth("http://localhost:5000/api/chat/following")) as unknown;
+                const raw = (await fetchWithAuth("http://localhost:5001/api/chat/following")) as unknown;
                 if (!mounted) return;
 
                 if (Array.isArray(raw)) {

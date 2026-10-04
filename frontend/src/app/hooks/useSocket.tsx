@@ -39,7 +39,7 @@ const useSocket = (): RefObject<Socket | null> => {
             const token = extractToken(session);
             if (!token) return;
 
-            const socket: Socket = io("http://localhost:5000", {
+            const socket: Socket = io("http://localhost:5001", {
                 auth: {
                     token: `Bearer ${token}`,
                 },

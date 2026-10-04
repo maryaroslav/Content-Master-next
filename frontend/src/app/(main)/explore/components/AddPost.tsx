@@ -50,7 +50,7 @@ const AddPost: React.FC<AddPostProps> = ({ onPostCreated }) => {
             const session = await getSession();
             const token = (session as unknown as { accessToken?: string } | null)?.accessToken;
 
-            const res = await fetch('http://localhost:5000/api/posts', {
+            const res = await fetch('http://localhost:5001/api/posts', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -75,7 +75,7 @@ const AddPost: React.FC<AddPostProps> = ({ onPostCreated }) => {
                 const session = await getSession();
                 const token = (session as unknown as { accessToken?: string } | null)?.accessToken;
 
-                const res = await fetch('http://localhost:5000/api/user/me', {
+                const res = await fetch('http://localhost:5001/api/user/me', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -101,7 +101,7 @@ const AddPost: React.FC<AddPostProps> = ({ onPostCreated }) => {
                     <div className="addpost-user-img">
                         {userData?.profile_picture ? (
                             <Image
-                                src={`http://localhost:5000/uploads${userData.profile_picture}`}
+                                src={`http://localhost:5001/uploads${userData.profile_picture}`}
                                 alt="user-avatar"
                                 width={40}
                                 height={40}

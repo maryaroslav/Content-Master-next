@@ -87,7 +87,7 @@ export default function ChatPage() {
                 const token = getTokenFromSession(session);
                 if (!token) return;
 
-                const res = await fetch(`http://localhost:5000/api/chat/message/${toUserId}`, {
+                const res = await fetch(`http://localhost:5001/api/chat/message/${toUserId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -129,7 +129,7 @@ export default function ChatPage() {
                 const token = getTokenFromSession(session);
                 if (!token) return;
 
-                newSocket = io('http://localhost:5000', {
+                newSocket = io('http://localhost:5001', {
                     auth: {
                         token: `Bearer ${token}`
                     }
@@ -139,7 +139,7 @@ export default function ChatPage() {
                 const userId = payload && typeof payload.user_id === 'number' ? payload.user_id : undefined;
                 if (typeof userId === 'number') setCurrentUserId(userId);
 
-                const profileRaw = await fetchWithAuth('http://localhost:5000/api/user/me', {
+                const profileRaw = await fetchWithAuth('http://localhost:5001/api/user/me', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -255,7 +255,7 @@ export default function ChatPage() {
         const token = getTokenFromSession(session);
         if (!token) return;
 
-        const res = await fetch('http://localhost:5000/api/chat/upload', {
+        const res = await fetch('http://localhost:5001/api/chat/upload', {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`
@@ -304,7 +304,7 @@ export default function ChatPage() {
                                 <Image
                                     src={
                                         user.profile_picture
-                                            ? `http://localhost:5000/uploads/${user.profile_picture}`
+                                            ? `http://localhost:5001/uploads/${user.profile_picture}`
                                             : userImg
                                     }
                                     alt={user.username}
@@ -334,7 +334,7 @@ export default function ChatPage() {
                             <Image
                                 src={
                                     companion?.profile_picture
-                                        ? `http://localhost:5000/uploads/${companion.profile_picture}`
+                                        ? `http://localhost:5001/uploads/${companion.profile_picture}`
                                         : userImg
                                 }
                                 alt={companionName}
@@ -366,10 +366,10 @@ export default function ChatPage() {
                                         : msg.FromUser?.username || `User ${msg.from_user_id}`;
                                     const avatarUrl = isCurrentUser
                                         ? (currentUserProfile?.profile_picture
-                                            ? `http://localhost:5000/uploads/${currentUserProfile.profile_picture}`
+                                            ? `http://localhost:5001/uploads/${currentUserProfile.profile_picture}`
                                             : userImg)
                                         : (msg.FromUser?.profile_picture
-                                            ? `http://localhost:5000/uploads/${msg.FromUser.profile_picture}`
+                                            ? `http://localhost:5001/uploads/${msg.FromUser.profile_picture}`
                                             : userImg);
 
                                     return (
@@ -386,7 +386,7 @@ export default function ChatPage() {
                                                     <div className="message-container">
                                                         {msg.type === 'image' && msg.media_url ? (
                                                             <Image
-                                                                src={`http://localhost:5000${msg.media_url}`}
+                                                                src={`http://localhost:5001${msg.media_url}`}
                                                                 alt="photo"
                                                                 width={200}
                                                                 height={200}
