@@ -1,11 +1,10 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+
+import { env } from './config/env';
 
 import initializeSocket from './sockets';
 import authRoutes from './routes/auth';
@@ -26,7 +25,7 @@ initializeSocket(server);
 
 app.use(
     cors({
-        origin: 'http://localhost:3000',
+        origin: env.CORS_ORIGINS,
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization'],
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -54,8 +53,6 @@ app.use(
     })
 );
 
-const PORT = Number(process.env.PORT ?? 5001);
-
 const startServer = async () => {
     try {
         await sequelize.authenticate();
@@ -68,8 +65,8 @@ const startServer = async () => {
             throw new Error(`Pending database migrations: ${names}. Run "pnpm --filter @cm/api db:migrate".`);
         }
 
-        server.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
+        server.listen(env.PORT, () => {
+            console.log(`Server running on port ${env.PORT}`);
         });
     } catch (err) {
         console.error(err);

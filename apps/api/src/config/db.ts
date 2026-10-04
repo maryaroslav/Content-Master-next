@@ -1,18 +1,10 @@
-import dotenv from 'dotenv';
-import { Sequelize, Dialect } from 'sequelize';
+import { Sequelize } from 'sequelize';
+import { env } from './env';
 
-dotenv.config({ path: '.env' });
-
-const { DB_NAME, DB_USER, DB_PASS, DB_HOST } = process.env;
-if (!DB_NAME || !DB_USER || DB_HOST == null) {
-    throw new Error('Database environment variables DB_NAME, DB_USER and DB_HOST must be set');
-}
-
-const dialect: Dialect = 'mysql';
-
-const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS ?? '', {
-    host: DB_HOST,
-    dialect,
+const sequelize = new Sequelize(env.DB_NAME, env.DB_USER, env.DB_PASS, {
+    host: env.DB_HOST,
+    port: env.DB_PORT,
+    dialect: 'mysql',
     logging: false,
 });
 

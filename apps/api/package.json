@@ -27,7 +27,8 @@
     "sequelize": "6.37.8",
     "socket.io": "4.8.4",
     "speakeasy": "2.0.0",
-    "umzug": "3.8.3"
+    "umzug": "3.8.3",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@cm/config-eslint": "workspace:*",

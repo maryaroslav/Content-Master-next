@@ -68,6 +68,9 @@ importers:
       umzug:
         specifier: 3.8.3
         version: 3.8.3(@types/node@24.19.1)
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@cm/config-eslint':
         specifier: workspace:*

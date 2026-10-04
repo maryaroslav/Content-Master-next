@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { env } from "../config/env";
 
 declare global {
     namespace Express {
@@ -19,13 +20,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
         const token = authHeader.split(" ")[1];
 
-        const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            console.error("JWT_SECRET is not defined in environment");
-            return res.status(500).json({ message: "Server configuration error" });
-        }
-
-        const decoded = jwt.verify(token, secret) as JwtPayload | string;
+        const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload | string;
         req.user = decoded;
         next();
     } catch (error) {

@@ -47,13 +47,10 @@ pnpm install
 
 **apps/api/.env**
 ```
-DB_NAME=
-DB_USER=
-DB_PASS=
-DB_HOST=
-JWT_SECRET=a-string-secret-at-least-256-bits-long
+cp apps/api/.env.example apps/api/.env
 ```
-`JWT_SECRET` is required, the backend does not start without it.
+Fill in the database credentials and `JWT_SECRET` (at least 32 characters, e.g. `openssl rand -hex 32`).
+The variables are validated on startup: the backend refuses to start and lists what is wrong.
 
 **apps/web/.env.local**
 ```

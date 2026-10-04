@@ -5,18 +5,13 @@ import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
 import authToken from '../middlewares/authToken';
 import { User } from '../models';
+import { env } from '../config/env';
 import { toPublicUser } from '../utils/userDto';
 
 const router = Router();
 
-const secretFromEnv = process.env.JWT_SECRET;
-if (!secretFromEnv) {
-    throw new Error('JWT_SECRET is not defined');
-}
-const SECRET_KEY: string = secretFromEnv;
-
 const signToken = (user: { user_id: number; email: string }) =>
-    jwt.sign({ user_id: user.user_id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+    jwt.sign({ user_id: user.user_id, email: user.email }, env.JWT_SECRET, { expiresIn: '1h' });
 
 function getReqUser(req: Request): { user_id?: number; email?: string } {
     const u = (req as any).user;
