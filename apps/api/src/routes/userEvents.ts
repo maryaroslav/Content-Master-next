@@ -1,9 +1,8 @@
 import { Router, Request, Response } from 'express';
 import authToken from '../middlewares/authToken';
-import db from '../models';
+import { UserEvent, Event } from '../models';
 
 const router = Router();
-const { UserEvent, Event } = db as any;
 
 function getReqUserId(req: Request): number | null {
     const u = (req as any).user;
@@ -34,7 +33,7 @@ router.get('/userevents', authToken, async (req: Request, res: Response) => {
             },
         });
 
-        const events = userEvents.map((uc: any) => uc.Event);
+        const events = userEvents.map((ue) => ue.Event);
         return res.json(events);
     } catch (err: unknown) {
         console.error('Error loading events: ', err);

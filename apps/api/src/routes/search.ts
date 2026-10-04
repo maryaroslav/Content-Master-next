@@ -1,11 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { Op } from 'sequelize';
-import db from '../models';
+import { User, Community } from '../models';
 import authToken from '../middlewares/authToken';
 
 const router = Router();
-
-const { User, Community } = db as any;
 
 router.get('/search', authToken, async (req: Request, res: Response) => {
     const q = String(req.query.q ?? '').trim().toLowerCase();

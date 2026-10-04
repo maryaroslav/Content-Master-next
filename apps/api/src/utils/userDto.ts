@@ -1,4 +1,4 @@
-import type { UserInstance } from '../models/User';
+import type { User } from '../models/User';
 
 export interface PublicUserDto {
     user_id: number;
@@ -12,7 +12,7 @@ export interface PublicUserDto {
     created_at?: Date;
 }
 
-export function toPublicUser(user: UserInstance): PublicUserDto {
+export function toPublicUser(user: User): PublicUserDto {
     return {
         user_id: user.user_id,
         username: user.username,

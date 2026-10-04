@@ -1,10 +1,9 @@
 import { Router, Request, Response } from 'express';
 import authToken from '../middlewares/authToken';
 import upload from '../middlewares/uploadPostImage';
-import db from '../models';
+import { Post, User } from '../models';
 
 const router = Router();
-const { Post, User } = db as any;
 
 router.post(
     '/',

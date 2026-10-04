@@ -1,11 +1,10 @@
 import { Router, Request, Response } from 'express';
 import authToken from '../middlewares/authToken';
-import db from '../models';
+import { User } from '../models';
 import userCommunitiesRoutes from './userCommunities';
 import userEventsRoutes from './userEvents';
 
 const router = Router();
-const { User } = db as any;
 
 function getReqUser(req: Request): { email?: string } | null {
     const u = (req as any).user;

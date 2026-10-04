@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
 import authToken from '../middlewares/authToken';
-import db from '../models';
+import { User } from '../models';
 import { toPublicUser } from '../utils/userDto';
 
 const router = Router();
@@ -38,14 +38,14 @@ router.post('/register', async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
-        const existingUser = await db.User.findOne({ where: { email } });
+        const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const user = await db.User.create({ email, password_hash: hashedPassword, username });
+        const user = await User.create({ email, password_hash: hashedPassword, username });
 
         res.status(201).json({ message: 'User created successfully', user: toPublicUser(user) });
     } catch (err) {
@@ -57,7 +57,7 @@ router.post('/register', async (req: Request, res: Response) => {
 router.post('/login', async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
-        const user = await db.User.findOne({ where: { email } });
+        const user = await User.findOne({ where: { email } });
 
         if (!user) {
             return res.status(401).json({ message: 'Invalid email or password' });
@@ -86,7 +86,7 @@ router.post('/login', async (req: Request, res: Response) => {
 router.post('/2fa/verify-login', async (req: Request, res: Response) => {
     try {
         const { userId, token } = req.body;
-        const user = await db.User.findByPk(userId);
+        const user = await User.findByPk(userId);
 
         if (!user || !user.twoFactorEnabled || !user.twoFactorSecret) {
             return res.status(400).json({ message: '2FA not enabled for user' });
@@ -115,7 +115,7 @@ router.post('/2fa/setup', authToken, async (req: Request, res: Response) => {
         const { user_id } = getReqUser(req);
         if (!user_id) return res.status(401).json({ message: 'Unauthorized' });
 
-        const user = await db.User.findByPk(user_id);
+        const user = await User.findByPk(user_id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -139,7 +139,7 @@ router.post('/2fa/disable', authToken, async (req: Request, res: Response) => {
         const { user_id } = getReqUser(req);
         if (!user_id) return res.status(401).json({ message: 'Unauthorized' });
 
-        const user = await db.User.findByPk(user_id);
+        const user = await User.findByPk(user_id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         await user.update({
@@ -160,7 +160,7 @@ router.post('/2fa/verify', authToken, async (req: Request, res: Response) => {
         if (!user_id) return res.status(401).json({ message: 'Unauthorized' });
 
         const { token } = req.body;
-        const user = await db.User.findByPk(user_id);
+        const user = await User.findByPk(user_id);
 
         if (!user || !user.twoFactorSecret) {
             return res.status(400).json({ message: 'User or secret not found' });

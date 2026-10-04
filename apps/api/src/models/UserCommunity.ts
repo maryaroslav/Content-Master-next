@@ -1,52 +1,61 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
+import {
+    Model,
+    DataTypes,
+    type Sequelize,
+    type InferAttributes,
+    type InferCreationAttributes,
+    type NonAttribute,
+} from 'sequelize';
+import type { User } from './User';
+import type { Community } from './Community';
+import type { Models } from './index';
 
-export interface UserCommunityAttributes {
-    user_id: number;
-    community_id: number;
-}
+export class UserCommunity extends Model<
+    InferAttributes<UserCommunity, { omit: 'User' | 'Community' }>,
+    InferCreationAttributes<UserCommunity, { omit: 'User' | 'Community' }>
+> {
+    declare user_id: number;
+    declare community_id: number;
 
-export type UserCommunityCreationAttributes = Optional<UserCommunityAttributes, never>;
+    declare User?: NonAttribute<User>;
+    declare Community?: NonAttribute<Community>;
 
-export interface UserCommunityInstance
-    extends Model<UserCommunityAttributes, UserCommunityCreationAttributes>,
-    UserCommunityAttributes { }
-
-export default function UserCommunityModelFactory(sequelize: Sequelize) {
-    const UserCommunity = sequelize.define<UserCommunityInstance>(
-        'UserCommunity',
-        {
-            user_id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                allowNull: false,
+    static initModel(sequelize: Sequelize) {
+        UserCommunity.init(
+            {
+                user_id: {
+                    type: DataTypes.INTEGER,
+                    primaryKey: true,
+                    allowNull: false,
+                },
+                community_id: {
+                    type: DataTypes.INTEGER,
+                    primaryKey: true,
+                    allowNull: false,
+                },
             },
-            community_id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                allowNull: false,
-            },
-        },
-        {
-            tableName: 'users_communities',
-            timestamps: false,
-            charset: 'utf8mb4',
-            collate: 'utf8mb4_0900_ai_ci',
-        }
-    );
+            {
+                sequelize,
+                modelName: 'UserCommunity',
+                tableName: 'users_communities',
+                timestamps: false,
+                charset: 'utf8mb4',
+                collate: 'utf8mb4_0900_ai_ci',
+            }
+        );
+        return UserCommunity;
+    }
 
-    (UserCommunity as any).associate = (models: any) => {
+    static associate(models: Models) {
         UserCommunity.belongsTo(models.User, {
             foreignKey: 'user_id',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
         });
-
         UserCommunity.belongsTo(models.Community, {
             foreignKey: 'community_id',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
         });
-    };
-
-    return UserCommunity;
+    }
 }

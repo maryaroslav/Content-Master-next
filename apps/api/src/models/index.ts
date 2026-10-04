@@ -1,34 +1,28 @@
-import { Sequelize } from 'sequelize';
 import sequelize from '../config/db';
 
-import UserModel from './User';
-import CommunityModel from './Community';
-import UserCommunityModel from './UserCommunity';
-import EventModel from './Event';
-import UserEventModel from './UserEvent';
-import FollowModel from './Follow';
-import MessageModel from './Message';
-import PostModel from './Post';
+import { User } from './User';
+import { Community } from './Community';
+import { UserCommunity } from './UserCommunity';
+import { Event } from './Event';
+import { UserEvent } from './UserEvent';
+import { Follow } from './Follow';
+import { Message } from './Message';
+import { Post } from './Post';
 
-const db: Record<string, any> = {};
+const models = {
+    User: User.initModel(sequelize),
+    Community: Community.initModel(sequelize),
+    UserCommunity: UserCommunity.initModel(sequelize),
+    Event: Event.initModel(sequelize),
+    UserEvent: UserEvent.initModel(sequelize),
+    Follow: Follow.initModel(sequelize),
+    Message: Message.initModel(sequelize),
+    Post: Post.initModel(sequelize),
+};
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
+export type Models = typeof models;
 
-db.User = UserModel(sequelize);
-db.Community = CommunityModel(sequelize);
-db.UserCommunity = UserCommunityModel(sequelize);
-db.Event = EventModel(sequelize);
-db.UserEvent = UserEventModel(sequelize);
-db.Follow = FollowModel(sequelize);
-db.Message = MessageModel(sequelize);
-db.Post = PostModel(sequelize);
-
-Object.values(db).forEach((model) => {
-    if (model && typeof model.associate === 'function') {
-        model.associate(db);
-    }
-});
+Object.values(models).forEach((model) => model.associate(models));
 
 sequelize
     .sync({ force: false })
@@ -39,4 +33,4 @@ sequelize
         console.error('ERR SYNCing DB: ', err);
     });
 
-export default db;
+export { sequelize, User, Community, UserCommunity, Event, UserEvent, Follow, Message, Post };

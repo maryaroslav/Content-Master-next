@@ -16,7 +16,7 @@ import postRoutes from './routes/posts';
 import followRoutes from './routes/follow';
 import searchRoutes from './routes/search';
 
-import db from './models';
+import { sequelize } from './models';
 
 const app = express();
 
@@ -57,7 +57,7 @@ const PORT = Number(process.env.PORT ?? 5001);
 
 const startServer = async () => {
     try {
-        await db.sequelize.sync();
+        await sequelize.sync();
         console.log('database connected');
 
         server.listen(PORT, () => {

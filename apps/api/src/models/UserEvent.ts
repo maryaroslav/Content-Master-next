@@ -1,52 +1,61 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
+import {
+    Model,
+    DataTypes,
+    type Sequelize,
+    type InferAttributes,
+    type InferCreationAttributes,
+    type NonAttribute,
+} from 'sequelize';
+import type { User } from './User';
+import type { Event } from './Event';
+import type { Models } from './index';
 
-export interface UserEventAttributes {
-    user_id: number;
-    event_id: number;
-}
+export class UserEvent extends Model<
+    InferAttributes<UserEvent, { omit: 'User' | 'Event' }>,
+    InferCreationAttributes<UserEvent, { omit: 'User' | 'Event' }>
+> {
+    declare user_id: number;
+    declare event_id: number;
 
-export type UserEventCreationAttributes = Optional<UserEventAttributes, never>;
+    declare User?: NonAttribute<User>;
+    declare Event?: NonAttribute<Event>;
 
-export interface UserEventInstance
-    extends Model<UserEventAttributes, UserEventCreationAttributes>,
-    UserEventAttributes { }
-
-export default function UserEventModelFactory(sequelize: Sequelize) {
-    const UserEvent = sequelize.define<UserEventInstance>(
-        'UserEvent',
-        {
-            user_id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                allowNull: false,
+    static initModel(sequelize: Sequelize) {
+        UserEvent.init(
+            {
+                user_id: {
+                    type: DataTypes.INTEGER,
+                    primaryKey: true,
+                    allowNull: false,
+                },
+                event_id: {
+                    type: DataTypes.INTEGER,
+                    primaryKey: true,
+                    allowNull: false,
+                },
             },
-            event_id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                allowNull: false,
-            },
-        },
-        {
-            tableName: 'users_events',
-            timestamps: false,
-            charset: 'utf8mb4',
-            collate: 'utf8mb4_0900_ai_ci',
-        }
-    );
+            {
+                sequelize,
+                modelName: 'UserEvent',
+                tableName: 'users_events',
+                timestamps: false,
+                charset: 'utf8mb4',
+                collate: 'utf8mb4_0900_ai_ci',
+            }
+        );
+        return UserEvent;
+    }
 
-    (UserEvent as any).associate = (models: any) => {
+    static associate(models: Models) {
         UserEvent.belongsTo(models.User, {
             foreignKey: 'user_id',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
         });
-
         UserEvent.belongsTo(models.Event, {
             foreignKey: 'event_id',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
         });
-    };
-
-    return UserEvent;
+    }
 }

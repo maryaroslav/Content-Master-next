@@ -1,7 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import db from '../../models';
-
-const { Message, User } = db as any;
+import { Message, User } from '../../models';
 
 interface AuthUser {
     user_id: number;

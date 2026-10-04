@@ -1,69 +1,81 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
+import {
+    Model,
+    DataTypes,
+    type Sequelize,
+    type InferAttributes,
+    type InferCreationAttributes,
+    type CreationOptional,
+    type ForeignKey,
+    type NonAttribute,
+} from 'sequelize';
+import type { User } from './User';
+import type { Models } from './index';
 
 export type MessageType = 'text' | 'image';
 
-export interface MessageAttributes {
-    message_id: number;
-    from_user_id: number;
-    to_user_id: number;
-    content?: string | null;
-    media_url?: string | null;
-    type: MessageType;
-    created_at?: Date;
-    updated_at?: Date;
-}
+export class Message extends Model<
+    InferAttributes<Message, { omit: 'FromUser' | 'ToUser' }>,
+    InferCreationAttributes<Message, { omit: 'FromUser' | 'ToUser' }>
+> {
+    declare message_id: CreationOptional<number>;
+    declare from_user_id: ForeignKey<User['user_id']>;
+    declare to_user_id: ForeignKey<User['user_id']>;
+    declare content: CreationOptional<string | null>;
+    declare media_url: CreationOptional<string | null>;
+    declare type: CreationOptional<MessageType>;
+    declare created_at: CreationOptional<Date>;
+    declare updated_at: CreationOptional<Date>;
 
-export type MessageCreationAttributes = Optional<
-    MessageAttributes,
-    'message_id' | 'content' | 'media_url' | 'created_at' | 'updated_at'
->;
+    declare FromUser?: NonAttribute<User>;
+    declare ToUser?: NonAttribute<User>;
 
-export interface MessageInstance
-    extends Model<MessageAttributes, MessageCreationAttributes>,
-    MessageAttributes { }
+    static initModel(sequelize: Sequelize) {
+        Message.init(
+            {
+                message_id: {
+                    type: DataTypes.INTEGER,
+                    primaryKey: true,
+                    autoIncrement: true,
+                },
+                from_user_id: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,
+                },
+                to_user_id: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,
+                },
+                content: {
+                    type: DataTypes.TEXT,
+                    allowNull: true,
+                },
+                media_url: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
+                },
+                type: {
+                    type: DataTypes.ENUM('text', 'image'),
+                    allowNull: false,
+                    defaultValue: 'text',
+                },
+                created_at: DataTypes.DATE,
+                updated_at: DataTypes.DATE,
+            },
+            {
+                sequelize,
+                modelName: 'Message',
+                tableName: 'messages',
+                timestamps: true,
+                createdAt: 'created_at',
+                updatedAt: 'updated_at',
+                charset: 'utf8mb4',
+                collate: 'utf8mb4_0900_ai_ci',
+            }
+        );
+        return Message;
+    }
 
-export default function MessageModelFactory(sequelize: Sequelize) {
-    const Message = sequelize.define<MessageInstance>(
-        'Message',
-        {
-            message_id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                autoIncrement: true,
-            },
-            from_user_id: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
-            to_user_id: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
-            content: {
-                type: DataTypes.TEXT,
-                allowNull: true,
-            },
-            media_url: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            type: {
-                type: DataTypes.ENUM('text', 'image'),
-                allowNull: false,
-                defaultValue: 'text',
-            },
-        },
-        {
-            tableName: 'messages',
-            timestamps: true,
-            createdAt: 'created_at',
-            updatedAt: 'updated_at',
-            charset: 'utf8mb4',
-            collate: 'utf8mb4_0900_ai_ci',
-        }
-    );
-
-    (Message as any).associate = (models: any) => {
+    static associate(models: Models) {
         Message.belongsTo(models.User, {
             foreignKey: 'from_user_id',
             as: 'FromUser',
@@ -76,7 +88,5 @@ export default function MessageModelFactory(sequelize: Sequelize) {
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
         });
-    };
-
-    return Message;
+    }
 }

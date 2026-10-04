@@ -1,61 +1,72 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
+import {
+    Model,
+    DataTypes,
+    type Sequelize,
+    type InferAttributes,
+    type InferCreationAttributes,
+    type CreationOptional,
+    type ForeignKey,
+    type NonAttribute,
+} from 'sequelize';
+import type { User } from './User';
+import type { Models } from './index';
 
-export interface FollowAttributes {
-  follow_id: number;
-  follower_id: number;
-  following_id: number;
-  created_at?: Date;
-}
+export class Follow extends Model<
+    InferAttributes<Follow, { omit: 'Follower' | 'Following' }>,
+    InferCreationAttributes<Follow, { omit: 'Follower' | 'Following' }>
+> {
+    declare follow_id: CreationOptional<number>;
+    declare follower_id: ForeignKey<User['user_id']>;
+    declare following_id: ForeignKey<User['user_id']>;
+    declare created_at: CreationOptional<Date>;
 
-export type FollowCreationAttributes = Optional<FollowAttributes, 'follow_id' | 'created_at'>;
+    declare Follower?: NonAttribute<User>;
+    declare Following?: NonAttribute<User>;
 
-export interface FollowInstance
-  extends Model<FollowAttributes, FollowCreationAttributes>,
-  FollowAttributes { }
-
-export default function FollowModelFactory(sequelize: Sequelize) {
-  const Follow = sequelize.define<FollowInstance>(
-    'Follow',
-    {
-      follow_id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      follower_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      following_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      created_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      },
-    },
-    {
-      tableName: 'follows',
-      timestamps: false,
+    static initModel(sequelize: Sequelize) {
+        Follow.init(
+            {
+                follow_id: {
+                    type: DataTypes.INTEGER,
+                    autoIncrement: true,
+                    primaryKey: true,
+                },
+                follower_id: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,
+                },
+                following_id: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,
+                },
+                created_at: {
+                    type: DataTypes.DATE,
+                    allowNull: false,
+                    defaultValue: DataTypes.NOW,
+                },
+            },
+            {
+                sequelize,
+                modelName: 'Follow',
+                tableName: 'follows',
+                timestamps: false,
+            }
+        );
+        return Follow;
     }
-  );
 
-  (Follow as any).associate = (models: any) => {
-    Follow.belongsTo(models.User, {
-      foreignKey: 'follower_id',
-      as: 'Follower',
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    });
-    Follow.belongsTo(models.User, {
-      foreignKey: 'following_id',
-      as: 'Following',
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    });
-  };
-
-  return Follow;
+    static associate(models: Models) {
+        Follow.belongsTo(models.User, {
+            foreignKey: 'follower_id',
+            as: 'Follower',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+        });
+        Follow.belongsTo(models.User, {
+            foreignKey: 'following_id',
+            as: 'Following',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+        });
+    }
 }

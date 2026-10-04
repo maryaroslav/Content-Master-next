@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import authToken from '../middlewares/authToken';
 import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
-import db from '../models';
+import { User, Follow, Message } from '../models';
 import { Op } from 'sequelize';
 
 const router = Router();
@@ -23,8 +23,6 @@ const storage = multer.diskStorage({
     },
 });
 const upload = multer({ storage, limits: { fileSize: IMAGE_MAX_SIZE }, fileFilter: imageFileFilter });
-
-const { User, Follow, Message } = db as any;
 
 interface FollowedUser {
     user_id: number;
@@ -83,18 +81,20 @@ router.get('/following', authToken, async (req: Request, res: Response) => {
             ],
         });
 
-        const followedUsers: FollowedUser[] = follows.map((f: any) => {
-            const u = f.Following as any;
-            const sent = u?.SentMessages?.[0]?.updated_at ?? null;
-            const received = u?.ReceivedMessages?.[0]?.updated_at ?? null;
-            const last = [sent, received].filter(Boolean).sort((a: Date, b: Date) => +new Date(b) - +new Date(a))[0] ?? null;
+        const followedUsers = follows.flatMap((f): FollowedUser[] => {
+            const u = f.Following;
+            if (!u) return [];
 
-            return {
+            const last = [u.SentMessages?.[0]?.updated_at, u.ReceivedMessages?.[0]?.updated_at]
+                .filter((time): time is Date => time != null)
+                .sort((a, b) => +new Date(b) - +new Date(a))[0] ?? null;
+
+            return [{
                 user_id: u.user_id,
                 username: u.username,
                 profile_picture: u.profile_picture,
                 last_message_time: last,
-            };
+            }];
         });
 
         followedUsers.sort((a, b) => {

@@ -1,9 +1,8 @@
 import { Router, Request, Response } from 'express';
 import authToken from '../middlewares/authToken';
-import db from '../models';
+import { Follow } from '../models';
 
 const router = Router();
-const { Follow } = db as any;
 
 function getReqUserId(req: Request): number | null {
     const u = (req as any).user;

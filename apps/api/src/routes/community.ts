@@ -4,10 +4,9 @@ import path from 'path';
 import fs from 'fs';
 import authToken from '../middlewares/authToken';
 import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
-import db from '../models';
+import { Community } from '../models';
 
 const router = Router();
-const { Community } = db as any;
 
 const uploadDir = path.join(__dirname, '../../uploads/communities_images');
 if (!fs.existsSync(uploadDir)) {

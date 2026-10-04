@@ -1,9 +1,8 @@
 import { Router, Request, Response } from 'express';
 import authToken from '../middlewares/authToken';
-import db from '../models';
+import { UserCommunity, Community } from '../models';
 
 const router = Router();
-const { UserCommunity, Community } = db as any;
 
 function getReqUserId(req: Request): number | null {
     const u = (req as any).user;
@@ -41,7 +40,7 @@ router.get('/usercommunities', authToken, async (req: Request, res: Response) =>
             console.log('Communities found:', userCommunities.length);
         }
 
-        const communities = userCommunities.map((uc: any) => uc.Community);
+        const communities = userCommunities.map((uc) => uc.Community);
         return res.json(communities);
     } catch (err: unknown) {
         console.error('Error loading communities: ', err);

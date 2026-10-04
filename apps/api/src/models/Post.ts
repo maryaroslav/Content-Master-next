@@ -1,91 +1,86 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
+import {
+    Model,
+    DataTypes,
+    type Sequelize,
+    type InferAttributes,
+    type InferCreationAttributes,
+    type CreationOptional,
+    type ForeignKey,
+    type NonAttribute,
+} from 'sequelize';
+import type { User } from './User';
+import type { Models } from './index';
 
-export interface PostAttributes {
-    post_id: number;
-    title?: string | null;
-    content?: string | null;
-    image_url: string;
-    author_id: number;
-    created_at?: Date;
-    updated_at?: Date;
-}
+export class Post extends Model<
+    InferAttributes<Post, { omit: 'author' }>,
+    InferCreationAttributes<Post, { omit: 'author' }>
+> {
+    declare post_id: CreationOptional<number>;
+    declare title: CreationOptional<string | null>;
+    declare content: CreationOptional<string | null>;
+    /** Stored as a JSON array in a TEXT column (moved to its own table in migration phase 2.3). */
+    declare image_url: string[];
+    declare author_id: ForeignKey<User['user_id']>;
+    declare created_at: CreationOptional<Date>;
+    declare updated_at: CreationOptional<Date>;
 
-export type PostCreationAttributes = Optional<
-    PostAttributes,
-    'post_id' | 'title' | 'content' | 'created_at' | 'updated_at'
->;
+    declare author?: NonAttribute<User>;
 
-export interface PostInstance
-    extends Model<PostAttributes, PostCreationAttributes>,
-    PostAttributes {
-    getImages(): string[];
-    setImages(images: string[]): void;
-}
-
-export default function PostModelFactory(sequelize: Sequelize) {
-    const Post = sequelize.define<PostInstance>(
-        'Post',
-        {
-            post_id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                autoIncrement: true,
-            },
-            title: {
-                type: DataTypes.STRING(100),
-                allowNull: true,
-            },
-            content: {
-                type: DataTypes.TEXT,
-                allowNull: true,
-            },
-            image_url: {
-                type: DataTypes.TEXT,
-                allowNull: false,
-                get(this: PostInstance) {
-                    const rawValue = (this as any).getDataValue('image_url');
-                    try {
-                        return rawValue ? JSON.parse(rawValue) : [];
-                    } catch {
-                        return [];
-                    }
+    static initModel(sequelize: Sequelize) {
+        Post.init(
+            {
+                post_id: {
+                    type: DataTypes.INTEGER,
+                    primaryKey: true,
+                    autoIncrement: true,
                 },
-                set(this: PostInstance, value: string[] | string) {
-                    const toStore = Array.isArray(value) ? JSON.stringify(value) : value;
-                    (this as any).setDataValue('image_url', toStore);
+                title: {
+                    type: DataTypes.STRING(100),
+                    allowNull: true,
                 },
+                content: {
+                    type: DataTypes.TEXT,
+                    allowNull: true,
+                },
+                image_url: {
+                    type: DataTypes.TEXT,
+                    allowNull: false,
+                    get(this: Post): string[] {
+                        const rawValue = this.getDataValue('image_url') as unknown as string | null;
+                        try {
+                            return rawValue ? JSON.parse(rawValue) : [];
+                        } catch {
+                            return [];
+                        }
+                    },
+                    set(this: Post, value: string[] | string) {
+                        const toStore = Array.isArray(value) ? JSON.stringify(value) : value;
+                        this.setDataValue('image_url', toStore as unknown as string[]);
+                    },
+                },
+                author_id: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,
+                },
+                created_at: DataTypes.DATE,
+                updated_at: DataTypes.DATE,
             },
-            author_id: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
-        },
-        {
-            tableName: 'posts',
-            timestamps: true,
-            createdAt: 'created_at',
-            updatedAt: 'updated_at',
-        }
-    );
+            {
+                sequelize,
+                modelName: 'Post',
+                tableName: 'posts',
+                timestamps: true,
+                createdAt: 'created_at',
+                updatedAt: 'updated_at',
+            }
+        );
+        return Post;
+    }
 
-    (Post as any).prototype.getImages = function (this: PostInstance): string[] {
-        const raw = (this as any).getDataValue('image_url') as string | null;
-        try {
-            return raw ? JSON.parse(raw) : [];
-        } catch {
-            return [];
-        }
-    };
-    (Post as any).prototype.setImages = function (this: PostInstance, images: string[]) {
-        (this as any).setDataValue('image_url', JSON.stringify(images));
-    };
-
-    (Post as any).associate = (models: any) => {
+    static associate(models: Models) {
         Post.belongsTo(models.User, {
             foreignKey: 'author_id',
             as: 'author',
         });
-    };
-
-    return Post;
+    }
 }
