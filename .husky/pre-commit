@@ -1,0 +1,3 @@
+# Checks only the packages affected by the change (and their dependents).
+pnpm turbo run typecheck lint circular test --filter="...[HEAD]"
+pnpm syncpack lint

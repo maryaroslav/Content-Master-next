@@ -1,12 +1,17 @@
 **/node_modules/
 
 /coverage
+**/coverage/
 
 **/.next/
+**/dist/
+**/.turbo/
+*.tsbuildinfo
 
 test.js
 
 .env*
+!.env.example
 
 **/data/
 
@@ -14,6 +19,9 @@ test.js
 
 **/uploads/
 
+# pnpm is the only package manager; lockfile is pnpm-lock.yaml
 **/package-lock.json
+**/yarn.lock
 
 .idea/
+.DS_Store

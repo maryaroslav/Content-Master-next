@@ -1,0 +1,23 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {},
+    "apps/web": {
+      "entry": ["src/app/**/{page,layout,route,error,loading,not-found}.{ts,tsx}"]
+    },
+    "apps/api": {
+      "entry": ["src/server.ts"],
+      "ignoreDependencies": ["mysql2"]
+    },
+    "packages/config-ts": {
+      "ignoreDependencies": ["next"]
+    },
+    "packages/*": {}
+  },
+  "rules": {
+    "files": "warn",
+    "exports": "warn",
+    "types": "warn",
+    "duplicates": "warn"
+  }
+}
