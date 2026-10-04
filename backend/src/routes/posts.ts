@@ -56,7 +56,7 @@ router.get('/', authToken, async (req: Request, res: Response) => {
     }
 });
 
-router.delete('/:id', authToken, async (req: Request, res: Response) => {
+router.delete('/:id', authToken, async (req: Request<{ id: string }>, res: Response) => {
     try {
         const postId = parseInt(req.params.id, 10);
         if (Number.isNaN(postId)) return res.status(400).json({ message: 'Invalid post id' });

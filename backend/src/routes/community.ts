@@ -3,6 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import authToken from '../middlewares/authToken';
+import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
 import db from '../models';
 
 const router = Router();
@@ -19,11 +20,11 @@ const storage = multer.diskStorage({
     },
     filename: (req: Request, file: Express.Multer.File, cb: (err: Error | null, filename: string) => void) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+        cb(null, uniqueSuffix + extFromMime(file.mimetype));
     },
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage, limits: { fileSize: IMAGE_MAX_SIZE }, fileFilter: imageFileFilter });
 
 function getReqUserId(req: Request): number | null {
     const u = (req as any).user;

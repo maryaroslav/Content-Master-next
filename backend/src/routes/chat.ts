@@ -3,6 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import authToken from '../middlewares/authToken';
+import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
 import db from '../models';
 import { Op } from 'sequelize';
 
@@ -18,10 +19,10 @@ const storage = multer.diskStorage({
         cb(null, uploadDir);
     },
     filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
-        cb(null, String(Date.now()) + path.extname(file.originalname));
+        cb(null, Date.now() + '-' + Math.round(Math.random() * 1e9) + extFromMime(file.mimetype));
     },
 });
-const upload = multer({ storage });
+const upload = multer({ storage, limits: { fileSize: IMAGE_MAX_SIZE }, fileFilter: imageFileFilter });
 
 const { User, Follow, Message } = db as any;
 
@@ -102,7 +103,7 @@ router.get('/following', authToken, async (req: Request, res: Response) => {
     }
 });
 
-router.get('/message/:userId', authToken, async (req: Request, res: Response) => {
+router.get('/message/:userId', authToken, async (req: Request<{ userId: string }>, res: Response) => {
     try {
         const fromId = getReqUserId(req);
         if (!fromId) return res.status(401).json({ message: 'Unauthorized' });

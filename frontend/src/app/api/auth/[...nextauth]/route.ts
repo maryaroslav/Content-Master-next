@@ -32,8 +32,6 @@ export const authOptions: NextAuthOptions = {
                 const twoFAToken = credentials?.twoFAToken;
                 const userId = credentials?.userId;
 
-                console.log('[NEXTAUTH] JWT_SECRET:', process.env.JWT_SECRET);
-
                 try {
                     if (twoFAToken && userId) {
                         const res = await axios.post('http://localhost:5001/api/auth/2fa/verify-login', {

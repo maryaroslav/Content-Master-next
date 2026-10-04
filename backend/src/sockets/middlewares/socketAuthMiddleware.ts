@@ -10,8 +10,6 @@ type SocketWithUser = Socket & { user?: AuthUser };
 
 const socketAuthMiddleware = (socket: SocketWithUser, next: (err?: Error) => void) => {
     const tokenRaw = (socket.handshake as any)?.auth?.token;
-    console.log('[socket.io] RAW token:', tokenRaw);
-
     if (!tokenRaw) {
         return next(new Error('No token provided'));
     }
@@ -28,8 +26,6 @@ const socketAuthMiddleware = (socket: SocketWithUser, next: (err?: Error) => voi
             : tokenRaw as string;
 
         const decoded = jwt.verify(pureToken, secret) as JwtPayload | string;
-        console.log('[socket.io] decoded:', decoded);
-
         const decodedObj = typeof decoded === 'string' ? tryParseJwtString(decoded) : decoded as JwtPayload;
 
         socket.user = {

@@ -13,8 +13,6 @@ export { };
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {
         const authHeader = req.headers.authorization;
-        console.log("Authorization header:", authHeader);
-
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return res.status(401).json({ message: "Unauthorized: No token provided" });
         }

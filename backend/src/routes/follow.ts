@@ -19,7 +19,7 @@ function getReqUserId(req: Request): number | null {
     return (u as any).user_id ?? null;
 }
 
-router.post('/follow/:userId', authToken, async (req: Request, res: Response) => {
+router.post('/follow/:userId', authToken, async (req: Request<{ userId: string }>, res: Response) => {
     try {
         const followerId = getReqUserId(req);
         if (!followerId) return res.status(401).json({ message: 'Unauthorized' });
@@ -41,7 +41,7 @@ router.post('/follow/:userId', authToken, async (req: Request, res: Response) =>
     }
 });
 
-router.post('/unfollow/:userId', authToken, async (req: Request, res: Response) => {
+router.post('/unfollow/:userId', authToken, async (req: Request<{ userId: string }>, res: Response) => {
     try {
         const followerId = getReqUserId(req);
         if (!followerId) return res.status(401).json({ message: 'Unauthorized' });
@@ -63,7 +63,7 @@ router.post('/unfollow/:userId', authToken, async (req: Request, res: Response) 
     }
 });
 
-router.get('/status/:userId', authToken, async (req: Request, res: Response) => {
+router.get('/status/:userId', authToken, async (req: Request<{ userId: string }>, res: Response) => {
     try {
         const followerId = getReqUserId(req);
         if (!followerId) return res.status(401).json({ message: 'Unauthorized' });

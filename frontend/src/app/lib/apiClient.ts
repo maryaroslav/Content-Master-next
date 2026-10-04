@@ -14,9 +14,6 @@ export async function fetchWithAuth<T = unknown>(url: string, options: RequestIn
         headers,
     });
 
-    console.log('Request sent to:', url);
-    console.log('Request headers:', Object.fromEntries(headers.entries()));
-
     if (!res.ok) {
         let errorBody: unknown;
         try {

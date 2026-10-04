@@ -20,8 +20,6 @@ import db from './models';
 
 const app = express();
 
-console.log('[BACKEND] JWT_SECRET:', process.env.JWT_SECRET);
-
 const server = http.createServer(app);
 initializeSocket(server);
 
@@ -45,7 +43,15 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/follow', followRoutes);
 
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use(
+    '/uploads',
+    express.static(path.join(__dirname, '../uploads'), {
+        setHeaders: (res) => {
+            res.setHeader('X-Content-Type-Options', 'nosniff');
+            res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+        },
+    })
+);
 
 const PORT = Number(process.env.PORT ?? 5001);
 

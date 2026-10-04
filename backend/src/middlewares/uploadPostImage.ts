@@ -14,22 +14,26 @@ const storage = multer.diskStorage({
     },
     filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
         const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, uniqueName + ext);
+        cb(null, uniqueName + extFromMime(file.mimetype));
     }
 });
 
-const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+const extByMime: Record<string, string> = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif',
+};
 const allowedExt = ['.jpg', '.jpeg', '.png', '.gif'];
 
-const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
-    console.log('[UPLOAD DEBUG] mimetype:', file.mimetype);
-    console.log('[UPLOAD DEBUG] originalname:', file.originalname);
+export const IMAGE_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
-    const mimetypeOk = allowedTypes.includes(file.mimetype);
+export const extFromMime = (mimetype: string): string => extByMime[mimetype] ?? '';
+
+export const imageFileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+    const mimetypeOk = file.mimetype in extByMime;
     const extOk = allowedExt.includes(path.extname(file.originalname).toLowerCase());
 
-    if (mimetypeOk || extOk) {
+    if (mimetypeOk && extOk) {
         cb(null, true);
     } else {
         cb(new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.'));
@@ -38,8 +42,8 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallb
 
 const upload = multer({
     storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
-    fileFilter
+    limits: { fileSize: IMAGE_MAX_SIZE },
+    fileFilter: imageFileFilter
 });
 
 export default upload;
