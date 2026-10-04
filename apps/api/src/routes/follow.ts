@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import authToken from '../middlewares/authToken';
 import { Follow } from '../models';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -35,7 +36,7 @@ router.post('/follow/:userId', authToken, async (req: Request<{ userId: string }
 
         res.json({ success: true, created });
     } catch (err) {
-        console.error('[follow/follow] Error:', err);
+        logger.error({ err }, '[follow/follow] Error');
         res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -57,7 +58,7 @@ router.post('/unfollow/:userId', authToken, async (req: Request<{ userId: string
 
         res.json({ success: true, removed: result > 0 });
     } catch (err) {
-        console.error('[follow/unfollow] Error:', err);
+        logger.error({ err }, '[follow/unfollow] Error');
         res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -79,7 +80,7 @@ router.get('/status/:userId', authToken, async (req: Request<{ userId: string }>
 
         res.json({ isFollowing: !!isFollowing });
     } catch (err) {
-        console.error('[follow/status] Error:', err);
+        logger.error({ err }, '[follow/status] Error');
         res.status(500).json({ message: 'Internal server error' });
     }
 });

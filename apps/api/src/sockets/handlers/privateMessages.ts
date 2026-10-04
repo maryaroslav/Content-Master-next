@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import { Message, User } from '../../models';
+import { logger } from '../../lib/logger';
 
 interface AuthUser {
     user_id: number;
@@ -47,12 +48,12 @@ export default function privateMessagesHandler(io: Server, socket: Authenticated
                 io.to(`user_${socket.user.user_id}`).emit('private_message', out);
                 io.to(`user_${toUserId}`).emit('private_message', out);
             } catch (err: unknown) {
-                console.error('[socket.io] Failed to save message:', (err as Error)?.message ?? String(err));
+                logger.error({ err }, '[socket.io] Failed to save message');
             }
         }
     );
 
     socket.on('disconnect', () => {
-        console.log(`User ${socket.user?.user_id ?? 'unknown'} disconnect`);
+        logger.debug({ userId: socket.user?.user_id }, '[socket.io] Disconnected');
     });
 }

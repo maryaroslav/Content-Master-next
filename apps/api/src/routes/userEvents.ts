@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import authToken from '../middlewares/authToken';
 import { UserEvent, Event } from '../models';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -36,7 +37,7 @@ router.get('/userevents', authToken, async (req: Request, res: Response) => {
         const events = userEvents.map((ue) => ue.Event);
         return res.json(events);
     } catch (err: unknown) {
-        console.error('Error loading events: ', err);
+        logger.error({ err }, 'Error loading events');
         return res.status(500).json({ message: 'Server error', err: (err as Error)?.message ?? String(err) });
     }
 });

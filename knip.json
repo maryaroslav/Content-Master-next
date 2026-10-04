@@ -9,7 +9,8 @@
     },
     "apps/api": {
       "ignoreDependencies": [
-        "mysql2"
+        "mysql2",
+        "pino-pretty"
       ],
       "entry": [
         "src/db/migrations/*.ts"

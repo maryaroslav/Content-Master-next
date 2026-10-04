@@ -7,6 +7,7 @@ import authToken from '../middlewares/authToken';
 import { User } from '../models';
 import { env } from '../config/env';
 import { toPublicUser } from '../utils/userDto';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -44,7 +45,7 @@ router.post('/register', async (req: Request, res: Response) => {
 
         res.status(201).json({ message: 'User created successfully', user: toPublicUser(user) });
     } catch (err) {
-        console.error('Error during registration:', err);
+        logger.error({ err }, 'Error during registration');
         res.status(500).json({ message: 'Error creating user' });
     }
 });
@@ -73,7 +74,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
         res.json({ token: signToken(user), user: toPublicUser(user) });
     } catch (err) {
-        console.error(err);
+        logger.error({ err }, '[auth] Request failed');
         res.status(500).json({ message: 'Error logging in' });
     }
 });
@@ -100,7 +101,7 @@ router.post('/2fa/verify-login', async (req: Request, res: Response) => {
 
         res.json({ message: '2FA verified', token: signToken(user), user: toPublicUser(user) });
     } catch (err) {
-        console.error(err);
+        logger.error({ err }, '[auth] Request failed');
         res.status(500).json({ message: 'Error verifying 2FA token' });
     }
 });
@@ -124,7 +125,7 @@ router.post('/2fa/setup', authToken, async (req: Request, res: Response) => {
         const qrCode = await qrcode.toDataURL(secret.otpauth_url || '');
         res.json({ qrCode });
     } catch (err) {
-        console.error(err);
+        logger.error({ err }, '[auth] Request failed');
         res.status(500).json({ message: 'Error generating 2FA secret' });
     }
 });
@@ -144,7 +145,7 @@ router.post('/2fa/disable', authToken, async (req: Request, res: Response) => {
 
         res.json({ message: '2FA disabled successfully' });
     } catch (err) {
-        console.error(err);
+        logger.error({ err }, '[auth] Request failed');
         res.status(500).json({ message: 'Error disabling 2FA' });
     }
 });
@@ -175,7 +176,7 @@ router.post('/2fa/verify', authToken, async (req: Request, res: Response) => {
         }
         res.json({ verified });
     } catch (err) {
-        console.error(err);
+        logger.error({ err }, '[auth] Request failed');
         res.status(500).json({ message: 'Error verifying 2FA token' });
     }
 });

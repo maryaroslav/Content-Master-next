@@ -1,5 +1,6 @@
 import { Umzug, SequelizeStorage } from 'umzug';
 import sequelize from '../config/db';
+import { logger } from '../lib/logger';
 
 /**
  * Migrations live in `src/db/migrations` (compiled to `dist/db/migrations`) and run in file name order.
@@ -16,7 +17,7 @@ export const migrator = new Umzug({
     },
     context: sequelize.getQueryInterface(),
     storage: new SequelizeStorage({ sequelize, modelName: 'SequelizeMeta' }),
-    logger: console,
+    logger: logger.child({ component: 'migrations' }),
 });
 
 export type Migration = typeof migrator._types.migration;

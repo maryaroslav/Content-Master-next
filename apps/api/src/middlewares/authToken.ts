@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { env } from "../config/env";
+import { logger } from '../lib/logger';
 
 declare global {
     namespace Express {
@@ -25,7 +26,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
         next();
     } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error);
-        console.error("Token error:", errMsg);
+        logger.debug({ err: errMsg }, "Invalid token");
         return res.status(403).json({ message: "Forbidden: Invalid token", error: errMsg });
     }
 };

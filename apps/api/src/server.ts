@@ -1,77 +1,45 @@
-import express from 'express';
-import cors from 'cors';
 import http from 'http';
-import path from 'path';
-import cookieParser from 'cookie-parser';
 
+import { app } from './app';
 import { env } from './config/env';
-
+import { logger } from './lib/logger';
 import initializeSocket from './sockets';
-import authRoutes from './routes/auth';
-import userRoutes from './routes/user';
-import createCommunityRoutes from './routes/community';
-import chatRoutes from './routes/chat';
-import postRoutes from './routes/posts';
-import followRoutes from './routes/follow';
-import searchRoutes from './routes/search';
-
 import { sequelize } from './models';
 import { migrator } from './db/migrator';
 
-const app = express();
-
 const server = http.createServer(app);
-initializeSocket(server);
+const io = initializeSocket(server);
 
-app.use(
-    cors({
-        origin: env.CORS_ORIGINS,
-        credentials: true,
-        allowedHeaders: ['Content-Type', 'Authorization'],
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    })
-);
+const start = async () => {
+    await sequelize.authenticate();
+    logger.info('Database connected');
 
-app.use(cookieParser());
-app.use(express.json());
-
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api', createCommunityRoutes);
-app.use('/api', searchRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/posts', postRoutes);
-app.use('/api/follow', followRoutes);
-
-app.use(
-    '/uploads',
-    express.static(path.join(__dirname, '../uploads'), {
-        setHeaders: (res) => {
-            res.setHeader('X-Content-Type-Options', 'nosniff');
-            res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
-        },
-    })
-);
-
-const startServer = async () => {
-    try {
-        await sequelize.authenticate();
-        console.log('database connected');
-
-        // The schema is managed by migrations only (src/db/migrations).
-        const pending = await migrator.pending();
-        if (pending.length > 0) {
-            const names = pending.map((m) => m.name).join(', ');
-            throw new Error(`Pending database migrations: ${names}. Run "pnpm --filter @cm/api db:migrate".`);
-        }
-
-        server.listen(env.PORT, () => {
-            console.log(`Server running on port ${env.PORT}`);
-        });
-    } catch (err) {
-        console.error(err);
-        process.exit(1);
+    // The schema is managed by migrations only (src/db/migrations).
+    const pending = await migrator.pending();
+    if (pending.length > 0) {
+        const names = pending.map((m) => m.name).join(', ');
+        throw new Error(`Pending database migrations: ${names}. Run "pnpm --filter @cm/api db:migrate".`);
     }
+
+    server.listen(env.PORT, () => {
+        logger.info(`Server running on port ${env.PORT}`);
+    });
 };
 
-startServer();
+const shutdown = (signal: NodeJS.Signals) => {
+    logger.info({ signal }, 'Shutting down');
+    // Force exit if open connections keep the server alive for too long.
+    setTimeout(() => process.exit(1), 10_000).unref();
+    // Closes Socket.IO connections and the underlying HTTP server.
+    io.close(() => {
+        sequelize.close().finally(() => process.exit(0));
+    });
+};
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
+start().catch((err: unknown) => {
+    logger.fatal({ err }, 'Failed to start the server');
+    process.exit(1);
+});

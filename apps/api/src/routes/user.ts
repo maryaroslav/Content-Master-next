@@ -3,6 +3,7 @@ import authToken from '../middlewares/authToken';
 import { User } from '../models';
 import userCommunitiesRoutes from './userCommunities';
 import userEventsRoutes from './userEvents';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -46,7 +47,7 @@ router.get('/me', authToken, async (req: Request, res: Response) => {
             twoFactorEnabled: user.twoFactorEnabled,
         });
     } catch (error) {
-        console.error(error);
+        logger.error({ err: error }, '[user] Request failed');
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -67,7 +68,7 @@ router.get('/byusername/:username', authToken, async (req: Request, res: Respons
             profile_picture: user.profile_picture,
         });
     } catch (err) {
-        console.error(err);
+        logger.error({ err }, '[user] Request failed');
         return res.status(500).json({ message: 'Internal server error' });
     }
 });

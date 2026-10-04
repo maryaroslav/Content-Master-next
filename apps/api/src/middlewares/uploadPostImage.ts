@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import multer, { FileFilterCallback } from "multer";
 import { Request } from 'express';
+import { AppError } from '../lib/errors';
 
 const uploadPath = path.join(__dirname, '../../uploads/user_posts');
 if (!fs.existsSync(uploadPath)) {
@@ -36,7 +37,7 @@ export const imageFileFilter = (req: Request, file: Express.Multer.File, cb: Fil
     if (mimetypeOk && extOk) {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.'));
+        cb(new AppError(400, 'INVALID_FILE_TYPE', 'Invalid file type. Only JPEG, PNG and GIF are allowed.'));
     }
 };
 

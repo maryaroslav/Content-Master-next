@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Op } from 'sequelize';
 import { User, Community } from '../models';
 import authToken from '../middlewares/authToken';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -28,7 +29,7 @@ router.get('/search', authToken, async (req: Request, res: Response) => {
 
         return res.json({ users, communities });
     } catch (err) {
-        console.error('Search error:', err);
+        logger.error({ err }, 'Search error');
         return res.status(500).json({ message: 'Search error' });
     }
 });

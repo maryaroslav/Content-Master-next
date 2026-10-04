@@ -6,6 +6,7 @@ dotenv.config({ quiet: true });
 const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     PORT: z.coerce.number().int().positive().default(5001),
+    LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 
     DB_HOST: z.string().min(1),
     DB_PORT: z.coerce.number().int().positive().default(3306),

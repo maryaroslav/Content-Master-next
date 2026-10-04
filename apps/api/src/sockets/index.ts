@@ -3,6 +3,7 @@ import { Server, Socket } from 'socket.io';
 import socketAuthMiddleware from './middlewares/socketAuthMiddleware';
 import privateMessagesHandler from './handlers/privateMessages';
 import { env } from '../config/env';
+import { logger } from '../lib/logger';
 
 type SocketWithUser = Socket & {
     user?: {
@@ -22,7 +23,7 @@ export default function initializeSocket(server: http.Server) {
     io.use((socket: SocketWithUser, next) => socketAuthMiddleware(socket, next));
 
     io.on('connection', (socket: SocketWithUser) => {
-        console.log(`Socket connected: ${socket.user?.user_id ?? 'unknown'}`);
+        logger.debug({ userId: socket.user?.user_id }, '[socket.io] Connected');
         privateMessagesHandler(io, socket as any);
     });
 

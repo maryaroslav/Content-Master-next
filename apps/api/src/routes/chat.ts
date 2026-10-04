@@ -6,6 +6,7 @@ import authToken from '../middlewares/authToken';
 import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
 import { User, Follow, Message } from '../models';
 import { Op } from 'sequelize';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -105,7 +106,7 @@ router.get('/following', authToken, async (req: Request, res: Response) => {
 
         res.json(followedUsers);
     } catch (err) {
-        console.error('[chat/following] Error: ', err);
+        logger.error({ err }, '[chat/following] Error');
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -137,7 +138,7 @@ router.get('/message/:userId', authToken, async (req: Request<{ userId: string }
 
         res.json(messages);
     } catch (err) {
-        console.error('[chat/message] Error: ', err);
+        logger.error({ err }, '[chat/message] Error');
         res.status(500).json({ message: 'Failed to load messages' });
     }
 });

@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { env } from "../../config/env";
+import { logger } from '../../lib/logger';
 
 type AuthUser = {
     user_id?: number;
@@ -30,7 +31,7 @@ const socketAuthMiddleware = (socket: SocketWithUser, next: (err?: Error) => voi
 
         next();
     } catch (err: any) {
-        console.error('[socket.io] verify error:', err?.message ?? err);
+        logger.debug({ err }, '[socket.io] Invalid token');
         next(new Error('Invalid token'));
     }
 };

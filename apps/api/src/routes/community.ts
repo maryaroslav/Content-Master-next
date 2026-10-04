@@ -5,6 +5,7 @@ import fs from 'fs';
 import authToken from '../middlewares/authToken';
 import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
 import { Community } from '../models';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -45,9 +46,6 @@ router.post('/createcommunity', authToken, upload.single('photo'), async (req: R
         const photo = req.file;
         const owner_id = getReqUserId(req);
 
-        console.log('uploadDir:', uploadDir);
-        console.log('req.file:', req.file);
-
         if (!name || !privacy || !theme || !photo || !owner_id) {
             return res.status(400).json({ message: 'Name, privacy, theme, photo and authenticated owner are required' });
         }
@@ -63,7 +61,7 @@ router.post('/createcommunity', authToken, upload.single('photo'), async (req: R
 
         return res.status(201).json({ message: 'Community created successfully', community: newCommunity });
     } catch (err: unknown) {
-        console.error('Error creating community: ', err);
+        logger.error({ err }, 'Error creating community');
         return res.status(500).json({ message: 'Internal server error', error: (err as Error)?.message ?? String(err) });
     }
 });
@@ -79,7 +77,7 @@ router.get('/mycommunities', authToken, async (req: Request, res: Response) => {
 
         return res.json(communities);
     } catch (err: unknown) {
-        console.error('Error fetching communities: ', err);
+        logger.error({ err }, 'Error fetching communities');
         return res.status(500).json({ message: 'Internal server error', error: (err as Error)?.message ?? String(err) });
     }
 });

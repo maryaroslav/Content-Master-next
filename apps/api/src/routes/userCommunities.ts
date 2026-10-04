@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import authToken from '../middlewares/authToken';
 import { UserCommunity, Community } from '../models';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -24,7 +25,6 @@ router.get('/usercommunities', authToken, async (req: Request, res: Response) =>
         if (!userId) {
             return res.status(401).json({ message: 'User not authenticated' });
         }
-        console.log('User ID:', userId);
 
         const userCommunities = await UserCommunity.findAll({
             where: { user_id: userId },
@@ -34,16 +34,10 @@ router.get('/usercommunities', authToken, async (req: Request, res: Response) =>
             },
         });
 
-        if (!userCommunities || userCommunities.length === 0) {
-            console.log('No communities found for user:', userId);
-        } else {
-            console.log('Communities found:', userCommunities.length);
-        }
-
         const communities = userCommunities.map((uc) => uc.Community);
         return res.json(communities);
     } catch (err: unknown) {
-        console.error('Error loading communities: ', err);
+        logger.error({ err }, 'Error loading communities');
         return res.status(500).json({ message: 'Server error', err: (err as Error)?.message ?? String(err) });
     }
 });

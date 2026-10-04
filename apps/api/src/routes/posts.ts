@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import authToken from '../middlewares/authToken';
 import upload from '../middlewares/uploadPostImage';
 import { Post, User } from '../models';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -11,12 +12,10 @@ router.post(
     upload.array('images', 5),
     async (req: Request, res: Response) => {
         try {
-            console.log('[posts.upload] req.file(s):', req.files);
             const { title, content } = req.body;
             const files = (req.files as Express.Multer.File[] | undefined) ?? [];
 
             const imagePaths = files.map((file) => `/uploads/user_posts/${file.filename}`);
-            console.log('[posts.upload] saved imagePaths:', imagePaths);
 
             const authorId = (req as any).user?.user_id;
             if (!authorId) return res.status(401).json({ message: 'Unauthorized' });
@@ -30,7 +29,7 @@ router.post(
 
             res.status(201).json(newPost);
         } catch (err: unknown) {
-            console.error('[post error]', err);
+            logger.error({ err }, '[post error]');
             res.status(500).json({ message: 'Error creating a post', error: (err as Error)?.message ?? String(err) });
         }
     }
@@ -50,7 +49,7 @@ router.get('/', authToken, async (req: Request, res: Response) => {
         });
         res.json(posts);
     } catch (err: unknown) {
-        console.error('[get posts error]', err);
+        logger.error({ err }, '[get posts error]');
         res.status(500).json({ message: 'Error in getting posts', error: (err as Error)?.message ?? String(err) });
     }
 });
@@ -73,7 +72,7 @@ router.delete('/:id', authToken, async (req: Request<{ id: string }>, res: Respo
         await post.destroy();
         res.status(200).json({ message: 'Post deleted' });
     } catch (err: unknown) {
-        console.error('[delete post error]', err);
+        logger.error({ err }, '[delete post error]');
         res.status(500).json({ message: 'Error deleting post', error: (err as Error)?.message ?? String(err) });
     }
 });
