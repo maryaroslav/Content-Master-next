@@ -2,9 +2,7 @@
   "extends": "@cm/config-ts/node.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
-    // Temporary: removed in migration phase 2.1 together with the `any` cleanup.
-    "noImplicitAny": false
+    "rootDir": "src"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

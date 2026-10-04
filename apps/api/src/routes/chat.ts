@@ -26,6 +26,13 @@ const upload = multer({ storage, limits: { fileSize: IMAGE_MAX_SIZE }, fileFilte
 
 const { User, Follow, Message } = db as any;
 
+interface FollowedUser {
+    user_id: number;
+    username: string;
+    profile_picture: string | null;
+    last_message_time: Date | null;
+}
+
 function getReqUserId(req: Request): number | null {
     const u = (req as any).user;
     if (!u) return null;
@@ -76,7 +83,7 @@ router.get('/following', authToken, async (req: Request, res: Response) => {
             ],
         });
 
-        const followedUsers = follows.map((f: any) => {
+        const followedUsers: FollowedUser[] = follows.map((f: any) => {
             const u = f.Following as any;
             const sent = u?.SentMessages?.[0]?.updated_at ?? null;
             const received = u?.ReceivedMessages?.[0]?.updated_at ?? null;
