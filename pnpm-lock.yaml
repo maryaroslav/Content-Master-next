@@ -74,6 +74,9 @@ importers:
       sequelize:
         specifier: 6.37.8
         version: 6.37.8(mysql2@3.24.5(@types/node@24.19.1))
+      sharp:
+        specifier: 0.34.5
+        version: 0.34.5
       socket.io:
         specifier: 4.8.4
         version: 4.8.4
@@ -3996,8 +3999,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@img/colour@1.1.0':
-    optional: true
+  '@img/colour@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.34.5':
     optionalDependencies:
@@ -6820,7 +6822,6 @@ snapshots:
       '@img/sharp-win32-arm64': 0.34.5
       '@img/sharp-win32-ia32': 0.34.5
       '@img/sharp-win32-x64': 0.34.5
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:

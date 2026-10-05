@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { CommunityIdParamsSchema, CommunityListQuerySchema, CreateCommunityRequestSchema } from '@cm/contracts';
-import { communityPhotoUpload } from '../../middlewares/uploads';
+import { imageUpload } from '../../middlewares/upload';
 import { withValidation } from '../../middlewares/validate';
 import { requireAuth, currentUserId } from '../../middlewares/requireAuth';
 import { toCommunityDto } from './mapper';
@@ -15,7 +15,7 @@ router.get('/', withValidation({ query: CommunityListQuerySchema }, async (_inpu
     res.json(communities.map(toCommunityDto));
 }));
 
-router.post('/', communityPhotoUpload.single('photo'), withValidation({ body: CreateCommunityRequestSchema }, async ({ body }, req, res) => {
+router.post('/', imageUpload.single('photo'), withValidation({ body: CreateCommunityRequestSchema }, async ({ body }, req, res) => {
     const community = await communitiesService.createCommunity(currentUserId(req), body, req.file);
     res.status(201).json(toCommunityDto(community));
 }));

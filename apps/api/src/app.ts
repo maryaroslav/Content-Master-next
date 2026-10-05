@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import path from 'path';
 import cookieParser from 'cookie-parser';
 import { pinoHttp } from 'pino-http';
 
@@ -9,6 +8,7 @@ import { env } from './config/env';
 import { logger } from './lib/logger';
 import { apiRateLimit, authRateLimit } from './middlewares/rateLimit';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
+import { UPLOAD_ROOT, UPLOAD_URL_PREFIX } from './storage/storage';
 
 import v1Routes from './modules/v1';
 import authRoutes from './routes/auth';
@@ -29,7 +29,7 @@ app.use(
             if (res.statusCode >= 400) return 'warn';
             return 'info';
         },
-        autoLogging: { ignore: (req) => req.url?.startsWith('/uploads') ?? false },
+        autoLogging: { ignore: (req) => req.url?.startsWith(UPLOAD_URL_PREFIX) ?? false },
         customSuccessMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
         customErrorMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
         serializers: {
@@ -68,8 +68,8 @@ app.use('/api/posts', postRoutes);
 app.use('/api/follow', followRoutes);
 
 app.use(
-    '/uploads',
-    express.static(path.join(__dirname, '../uploads'), {
+    UPLOAD_URL_PREFIX,
+    express.static(UPLOAD_ROOT, {
         setHeaders: (res) => {
             res.setHeader('X-Content-Type-Options', 'nosniff');
             res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");

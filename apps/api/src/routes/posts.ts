@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { CreatePostRequestSchema, PostIdParamsSchema } from '@cm/contracts/legacy';
 import { requireAuth, currentUserId } from '../middlewares/requireAuth';
-import upload from '../middlewares/uploadPostImage';
+import { imageUpload } from '../middlewares/upload';
 import { withValidation } from '../middlewares/validate';
 import * as postsService from '../modules/posts/service';
 
 const router = Router();
 
-router.post('/', requireAuth, upload.array('images', 5), withValidation({ body: CreatePostRequestSchema }, async ({ body }, req, res) => {
+router.post('/', requireAuth, imageUpload.array('images', 5), withValidation({ body: CreatePostRequestSchema }, async ({ body }, req, res) => {
     const files = (req.files as Express.Multer.File[] | undefined) ?? [];
     res.status(201).json(await postsService.createPost(currentUserId(req), body, files));
 }));

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { UserIdParamsSchema } from '@cm/contracts/legacy';
 import { requireAuth, currentUserId } from '../middlewares/requireAuth';
-import { chatImageUpload } from '../middlewares/uploads';
+import { imageUpload } from '../middlewares/upload';
 import { withValidation } from '../middlewares/validate';
 import { AppError } from '../lib/errors';
 import * as chatService from '../modules/chat/service';
@@ -23,9 +23,9 @@ router.get('/message/:userId', requireAuth, withValidation({ params: UserIdParam
     res.json(messages);
 }));
 
-router.post('/upload', requireAuth, chatImageUpload.single('image'), (req, res) => {
+router.post('/upload', requireAuth, imageUpload.single('image'), async (req, res) => {
     if (!req.file) throw new AppError(400, 'VALIDATION_ERROR', 'No file uploaded');
-    res.json({ url: chatService.attachmentUrl(req.file) });
+    res.json({ url: await chatService.saveAttachment(req.file) });
 });
 
 export default router;

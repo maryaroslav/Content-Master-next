@@ -1,5 +1,7 @@
 import { Op, fn, col } from 'sequelize';
 import { Follow, Message, User } from '../../models';
+import { storage } from '../../storage/storage';
+import { saveImage } from '../../storage/images';
 
 interface Conversation {
     user: User;
@@ -70,4 +72,6 @@ export async function listMessages(userId: number, otherUserId: number, { cursor
     return { messages: page, nextCursor: newest.length > limit ? page[0]!.message_id : null };
 }
 
-export const attachmentUrl = (file: Express.Multer.File) => `/uploads/chat_images/${file.filename}`;
+export async function saveAttachment(file: Express.Multer.File): Promise<string> {
+    return storage.url(await saveImage(file, 'chat_images'));
+}

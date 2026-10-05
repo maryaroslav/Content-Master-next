@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { CreatePostRequestSchema, PaginationQuerySchema, PostIdParamsSchema } from '@cm/contracts';
-import upload from '../../middlewares/uploadPostImage';
+import { imageUpload } from '../../middlewares/upload';
 import { withValidation } from '../../middlewares/validate';
 import { requireAuth, currentUserId } from '../../middlewares/requireAuth';
 import { toPostDto } from './mapper';
@@ -15,7 +15,7 @@ router.get('/', withValidation({ query: PaginationQuerySchema }, async ({ query 
     res.json({ items: posts.map(toPostDto), nextCursor });
 }));
 
-router.post('/', upload.array('images', 5), withValidation({ body: CreatePostRequestSchema }, async ({ body }, req, res) => {
+router.post('/', imageUpload.array('images', 5), withValidation({ body: CreatePostRequestSchema }, async ({ body }, req, res) => {
     const files = (req.files as Express.Multer.File[] | undefined) ?? [];
     const post = await postsService.createPost(currentUserId(req), body, files);
     res.status(201).json(toPostDto(post));

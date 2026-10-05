@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PaginationQuerySchema, UserIdParamsSchema } from '@cm/contracts';
-import { chatImageUpload } from '../../middlewares/uploads';
+import { imageUpload } from '../../middlewares/upload';
 import { withValidation } from '../../middlewares/validate';
 import { requireAuth, currentUserId } from '../../middlewares/requireAuth';
 import { AppError } from '../../lib/errors';
@@ -34,9 +34,9 @@ router.get('/conversations/:userId/messages', withValidation({ params: UserIdPar
     });
 }));
 
-router.post('/attachments', chatImageUpload.single('image'), (req, res) => {
+router.post('/attachments', imageUpload.single('image'), async (req, res) => {
     if (!req.file) throw new AppError(400, 'VALIDATION_ERROR', 'No file uploaded');
-    res.status(201).json({ url: chatService.attachmentUrl(req.file) });
+    res.status(201).json({ url: await chatService.saveAttachment(req.file) });
 });
 
 export default router;

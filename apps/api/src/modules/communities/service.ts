@@ -1,7 +1,9 @@
 import type { Transaction } from 'sequelize';
 import type { CreateCommunityRequest } from '@cm/contracts';
 import { sequelize, Community, UserCommunity } from '../../models';
+import path from 'path';
 import { AppError } from '../../lib/errors';
+import { deleteFiles, saveImage } from '../../storage/images';
 
 const SUMMARY_ATTRIBUTES = ['community_id', 'name', 'privacy', 'photo', 'members_count'];
 
@@ -20,23 +22,30 @@ async function lockCommunity(communityId: number, transaction: Transaction): Pro
 
 export async function createCommunity(ownerId: number, input: CreateCommunityRequest, photo: Express.Multer.File | undefined) {
     if (!photo) throw new AppError(400, 'VALIDATION_ERROR', 'Community photo is required');
+    const photoKey = await saveImage(photo, 'communities_images');
 
-    return sequelize.transaction(async (transaction) => {
-        const community = await Community.create(
-            {
-                name: input.name,
-                privacy: input.privacy,
-                theme: input.theme,
-                description: input.description ?? null,
-                photo: photo.filename,
-                owner_id: ownerId,
-                members_count: 1,
-            },
-            { transaction }
-        );
-        await UserCommunity.create({ user_id: ownerId, community_id: community.community_id }, { transaction });
-        return community;
-    });
+    try {
+        return await sequelize.transaction(async (transaction) => {
+            const community = await Community.create(
+                {
+                    name: input.name,
+                    privacy: input.privacy,
+                    theme: input.theme,
+                    description: input.description ?? null,
+                    // communities.photo still holds the bare file name; it becomes the storage key in the next migration.
+                    photo: path.basename(photoKey),
+                    owner_id: ownerId,
+                    members_count: 1,
+                },
+                { transaction }
+            );
+            await UserCommunity.create({ user_id: ownerId, community_id: community.community_id }, { transaction });
+            return community;
+        });
+    } catch (err) {
+        await deleteFiles([photoKey]);
+        throw err;
+    }
 }
 
 export function listOwnedCommunities(ownerId: number) {

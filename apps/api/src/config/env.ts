@@ -18,6 +18,9 @@ const envSchema = z.object({
     // Stays at 1h until the frontend can refresh tokens itself (migration phase 4), then 15m.
     ACCESS_TOKEN_TTL: z.string().regex(/^\d+[smhd]$/, 'must look like 15m, 1h or 7d').default('1h'),
     REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
+    // Relative paths are resolved against apps/api.
+    UPLOAD_DIR: z.string().min(1).default('uploads'),
+
     TWOFA_ENCRYPTION_KEY: z.string().regex(/^[0-9a-f]{64}$/i, 'must be 64 hex characters (openssl rand -hex 32)'),
 
     /** Comma-separated list of frontend origins allowed by CORS and Socket.IO. */
