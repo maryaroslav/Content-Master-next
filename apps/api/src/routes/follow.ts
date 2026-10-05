@@ -1,7 +1,9 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request } from 'express';
 import authToken from '../middlewares/authToken';
 import { Follow } from '../models';
+import { UserIdParamsSchema } from '@cm/contracts';
 import { logger } from '../lib/logger';
+import { withValidation } from '../middlewares/validate';
 
 const router = Router();
 
@@ -19,15 +21,14 @@ function getReqUserId(req: Request): number | null {
     return (u as any).user_id ?? null;
 }
 
-router.post('/follow/:userId', authToken, async (req: Request<{ userId: string }>, res: Response) => {
+router.post('/follow/:userId', authToken, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
     try {
         const followerId = getReqUserId(req);
         if (!followerId) return res.status(401).json({ message: 'Unauthorized' });
 
-        const followingId = parseInt(req.params.userId, 10);
-        if (Number.isNaN(followingId)) return res.status(400).json({ message: 'Invalid userId' });
+        const followingId = params.userId;
 
-        const [follow, created] = await Follow.findOrCreate({
+        const [, created] = await Follow.findOrCreate({
             where: {
                 follower_id: followerId,
                 following_id: followingId,
@@ -39,15 +40,14 @@ router.post('/follow/:userId', authToken, async (req: Request<{ userId: string }
         logger.error({ err }, '[follow/follow] Error');
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+}));
 
-router.post('/unfollow/:userId', authToken, async (req: Request<{ userId: string }>, res: Response) => {
+router.post('/unfollow/:userId', authToken, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
     try {
         const followerId = getReqUserId(req);
         if (!followerId) return res.status(401).json({ message: 'Unauthorized' });
 
-        const followingId = parseInt(req.params.userId, 10);
-        if (Number.isNaN(followingId)) return res.status(400).json({ message: 'Invalid userId' });
+        const followingId = params.userId;
 
         const result = await Follow.destroy({
             where: {
@@ -61,15 +61,14 @@ router.post('/unfollow/:userId', authToken, async (req: Request<{ userId: string
         logger.error({ err }, '[follow/unfollow] Error');
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+}));
 
-router.get('/status/:userId', authToken, async (req: Request<{ userId: string }>, res: Response) => {
+router.get('/status/:userId', authToken, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
     try {
         const followerId = getReqUserId(req);
         if (!followerId) return res.status(401).json({ message: 'Unauthorized' });
 
-        const followingId = parseInt(req.params.userId, 10);
-        if (Number.isNaN(followingId)) return res.status(400).json({ message: 'Invalid userId' });
+        const followingId = params.userId;
 
         const isFollowing = await Follow.findOne({
             where: {
@@ -83,6 +82,6 @@ router.get('/status/:userId', authToken, async (req: Request<{ userId: string }>
         logger.error({ err }, '[follow/status] Error');
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+}));
 
 export default router;

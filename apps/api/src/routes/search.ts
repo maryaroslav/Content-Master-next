@@ -1,13 +1,15 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import { Op } from 'sequelize';
 import { User, Community } from '../models';
 import authToken from '../middlewares/authToken';
+import { SearchQuerySchema } from '@cm/contracts';
 import { logger } from '../lib/logger';
+import { withValidation } from '../middlewares/validate';
 
 const router = Router();
 
-router.get('/search', authToken, async (req: Request, res: Response) => {
-    const q = String(req.query.q ?? '').trim().toLowerCase();
+router.get('/search', authToken, withValidation({ query: SearchQuerySchema }, async ({ query }, req, res) => {
+    const q = query.q.toLowerCase();
     const userId = (req as any).user?.user_id ?? null;
 
     try {
@@ -32,6 +34,6 @@ router.get('/search', authToken, async (req: Request, res: Response) => {
         logger.error({ err }, 'Search error');
         return res.status(500).json({ message: 'Search error' });
     }
-});
+}));
 
 export default router;

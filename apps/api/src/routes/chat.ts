@@ -6,7 +6,9 @@ import authToken from '../middlewares/authToken';
 import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
 import { User, Follow, Message } from '../models';
 import { Op } from 'sequelize';
+import { UserIdParamsSchema } from '@cm/contracts';
 import { logger } from '../lib/logger';
+import { withValidation } from '../middlewares/validate';
 
 const router = Router();
 
@@ -111,13 +113,12 @@ router.get('/following', authToken, async (req: Request, res: Response) => {
     }
 });
 
-router.get('/message/:userId', authToken, async (req: Request<{ userId: string }>, res: Response) => {
+router.get('/message/:userId', authToken, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
     try {
         const fromId = getReqUserId(req);
         if (!fromId) return res.status(401).json({ message: 'Unauthorized' });
 
-        const toId = parseInt(req.params.userId, 10);
-        if (Number.isNaN(toId)) return res.status(400).json({ message: 'Invalid userId' });
+        const toId = params.userId;
 
         const messages = await Message.findAll({
             where: {
@@ -141,7 +142,7 @@ router.get('/message/:userId', authToken, async (req: Request<{ userId: string }
         logger.error({ err }, '[chat/message] Error');
         res.status(500).json({ message: 'Failed to load messages' });
     }
-});
+}));
 
 router.post('/upload', authToken, upload.single('image'), (req: Request, res: Response) => {
     if (!req.file) {

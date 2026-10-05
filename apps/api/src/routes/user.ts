@@ -3,7 +3,10 @@ import authToken from '../middlewares/authToken';
 import { User } from '../models';
 import userCommunitiesRoutes from './userCommunities';
 import userEventsRoutes from './userEvents';
+import { UsernameParamsSchema } from '@cm/contracts';
 import { logger } from '../lib/logger';
+import { toPublicUser } from '../utils/userDto';
+import { withValidation } from '../middlewares/validate';
 
 const router = Router();
 
@@ -35,27 +38,17 @@ router.get('/me', authToken, async (req: Request, res: Response) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        return res.json({
-            user_id: user.user_id,
-            username: user.username,
-            email: user.email,
-            full_name: user.full_name,
-            bio: user.bio,
-            profile_picture: user.profile_picture,
-            created_at: user.created_at,
-            role: user.role,
-            twoFactorEnabled: user.twoFactorEnabled,
-        });
+        return res.json(toPublicUser(user));
     } catch (error) {
         logger.error({ err: error }, '[user] Request failed');
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
 
-router.get('/byusername/:username', authToken, async (req: Request, res: Response) => {
+router.get('/byusername/:username', authToken, withValidation({ params: UsernameParamsSchema }, async ({ params }, _req, res) => {
     try {
         const user = await User.findOne({
-            where: { username: req.params.username },
+            where: { username: params.username },
         });
 
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -71,7 +64,7 @@ router.get('/byusername/:username', authToken, async (req: Request, res: Respons
         logger.error({ err }, '[user] Request failed');
         return res.status(500).json({ message: 'Internal server error' });
     }
-});
+}));
 
 router.use(userCommunitiesRoutes);
 router.use(userEventsRoutes);

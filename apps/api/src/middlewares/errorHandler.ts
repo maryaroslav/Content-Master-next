@@ -1,4 +1,5 @@
 import type { ErrorRequestHandler, RequestHandler } from 'express';
+import type { ErrorResponse } from '@cm/contracts';
 import multer from 'multer';
 import { AppError } from '../lib/errors';
 
@@ -25,7 +26,8 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     }
 
     if (err instanceof AppError) {
-        res.status(err.status).json({ code: err.code, message: err.message });
+        const body: ErrorResponse = { code: err.code, message: err.message, details: err.details };
+        res.status(err.status).json(body);
         return;
     }
 

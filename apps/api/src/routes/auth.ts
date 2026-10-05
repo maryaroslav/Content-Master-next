@@ -7,7 +7,15 @@ import authToken from '../middlewares/authToken';
 import { User } from '../models';
 import { env } from '../config/env';
 import { toPublicUser } from '../utils/userDto';
+import { Op } from 'sequelize';
+import {
+    LoginRequestSchema,
+    RegisterRequestSchema,
+    TwoFactorLoginRequestSchema,
+    TwoFactorVerifyRequestSchema,
+} from '@cm/contracts';
 import { logger } from '../lib/logger';
+import { withValidation } from '../middlewares/validate';
 
 const router = Router();
 
@@ -27,16 +35,14 @@ function getReqUser(req: Request): { user_id?: number; email?: string } {
     return u as any;
 }
 
-router.post('/register', async (req: Request, res: Response) => {
+router.post('/register', withValidation({ body: RegisterRequestSchema }, async ({ body }, _req, res) => {
     try {
-        const { email, password, username } = req.body;
-        if (!email || !password || !username) {
-            return res.status(400).json({ message: 'All fields are required' });
-        }
+        const { email, password, username } = body;
 
-        const existingUser = await User.findOne({ where: { email } });
+        const existingUser = await User.findOne({ where: { [Op.or]: [{ email }, { username }] } });
         if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+            const field = existingUser.email === email ? 'email' : 'username';
+            return res.status(409).json({ code: 'USER_EXISTS', message: `A user with this ${field} already exists` });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -48,11 +54,11 @@ router.post('/register', async (req: Request, res: Response) => {
         logger.error({ err }, 'Error during registration');
         res.status(500).json({ message: 'Error creating user' });
     }
-});
+}));
 
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', withValidation({ body: LoginRequestSchema }, async ({ body }, _req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password } = body;
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
@@ -77,11 +83,11 @@ router.post('/login', async (req: Request, res: Response) => {
         logger.error({ err }, '[auth] Request failed');
         res.status(500).json({ message: 'Error logging in' });
     }
-});
+}));
 
-router.post('/2fa/verify-login', async (req: Request, res: Response) => {
+router.post('/2fa/verify-login', withValidation({ body: TwoFactorLoginRequestSchema }, async ({ body }, _req, res) => {
     try {
-        const { userId, token } = req.body;
+        const { userId, token } = body;
         const user = await User.findByPk(userId);
 
         if (!user || !user.twoFactorEnabled || !user.twoFactorSecret) {
@@ -104,7 +110,7 @@ router.post('/2fa/verify-login', async (req: Request, res: Response) => {
         logger.error({ err }, '[auth] Request failed');
         res.status(500).json({ message: 'Error verifying 2FA token' });
     }
-});
+}));
 
 router.post('/2fa/setup', authToken, async (req: Request, res: Response) => {
     try {
@@ -150,12 +156,12 @@ router.post('/2fa/disable', authToken, async (req: Request, res: Response) => {
     }
 });
 
-router.post('/2fa/verify', authToken, async (req: Request, res: Response) => {
+router.post('/2fa/verify', authToken, withValidation({ body: TwoFactorVerifyRequestSchema }, async ({ body }, req, res) => {
     try {
         const { user_id } = getReqUser(req);
         if (!user_id) return res.status(401).json({ message: 'Unauthorized' });
 
-        const { token } = req.body;
+        const { token } = body;
         const user = await User.findByPk(user_id);
 
         if (!user || !user.twoFactorSecret) {
@@ -179,6 +185,6 @@ router.post('/2fa/verify', authToken, async (req: Request, res: Response) => {
         logger.error({ err }, '[auth] Request failed');
         res.status(500).json({ message: 'Error verifying 2FA token' });
     }
-});
+}));
 
 export default router;

@@ -5,7 +5,9 @@ import fs from 'fs';
 import authToken from '../middlewares/authToken';
 import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
 import { Community } from '../models';
+import { CreateCommunityRequestSchema } from '@cm/contracts';
 import { logger } from '../lib/logger';
+import { withValidation } from '../middlewares/validate';
 
 const router = Router();
 
@@ -40,14 +42,15 @@ function getReqUserId(req: Request): number | null {
     return (u as any).user_id ?? null;
 }
 
-router.post('/createcommunity', authToken, upload.single('photo'), async (req: Request, res: Response) => {
+router.post('/createcommunity', authToken, upload.single('photo'), withValidation({ body: CreateCommunityRequestSchema }, async ({ body }, req, res) => {
     try {
-        const { name, privacy, theme, description } = req.body;
+        const { name, privacy, theme, description } = body;
         const photo = req.file;
         const owner_id = getReqUserId(req);
 
-        if (!name || !privacy || !theme || !photo || !owner_id) {
-            return res.status(400).json({ message: 'Name, privacy, theme, photo and authenticated owner are required' });
+        if (!owner_id) return res.status(401).json({ message: 'Unauthorized' });
+        if (!photo) {
+            return res.status(400).json({ code: 'VALIDATION_ERROR', message: 'Community photo is required' });
         }
 
         const newCommunity = await Community.create({
@@ -64,7 +67,7 @@ router.post('/createcommunity', authToken, upload.single('photo'), async (req: R
         logger.error({ err }, 'Error creating community');
         return res.status(500).json({ message: 'Internal server error', error: (err as Error)?.message ?? String(err) });
     }
-});
+}));
 
 router.get('/mycommunities', authToken, async (req: Request, res: Response) => {
     try {

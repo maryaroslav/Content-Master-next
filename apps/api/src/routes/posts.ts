@@ -2,7 +2,9 @@ import { Router, Request, Response } from 'express';
 import authToken from '../middlewares/authToken';
 import upload from '../middlewares/uploadPostImage';
 import { Post, User } from '../models';
+import { CreatePostRequestSchema, PostIdParamsSchema } from '@cm/contracts';
 import { logger } from '../lib/logger';
+import { withValidation } from '../middlewares/validate';
 
 const router = Router();
 
@@ -10,9 +12,9 @@ router.post(
     '/',
     authToken,
     upload.array('images', 5),
-    async (req: Request, res: Response) => {
+    withValidation({ body: CreatePostRequestSchema }, async ({ body }, req, res) => {
         try {
-            const { title, content } = req.body;
+            const { title, content } = body;
             const files = (req.files as Express.Multer.File[] | undefined) ?? [];
 
             const imagePaths = files.map((file) => `/uploads/user_posts/${file.filename}`);
@@ -32,7 +34,7 @@ router.post(
             logger.error({ err }, '[post error]');
             res.status(500).json({ message: 'Error creating a post', error: (err as Error)?.message ?? String(err) });
         }
-    }
+    })
 );
 
 router.get('/', authToken, async (req: Request, res: Response) => {
@@ -54,10 +56,9 @@ router.get('/', authToken, async (req: Request, res: Response) => {
     }
 });
 
-router.delete('/:id', authToken, async (req: Request<{ id: string }>, res: Response) => {
+router.delete('/:id', authToken, withValidation({ params: PostIdParamsSchema }, async ({ params }, req, res) => {
     try {
-        const postId = parseInt(req.params.id, 10);
-        if (Number.isNaN(postId)) return res.status(400).json({ message: 'Invalid post id' });
+        const postId = params.id;
 
         const post = await Post.findByPk(postId);
         if (!post) return res.status(404).json({ message: 'Post not found' });
@@ -75,6 +76,6 @@ router.delete('/:id', authToken, async (req: Request<{ id: string }>, res: Respo
         logger.error({ err }, '[delete post error]');
         res.status(500).json({ message: 'Error deleting post', error: (err as Error)?.message ?? String(err) });
     }
-});
+}));
 
 export default router;
