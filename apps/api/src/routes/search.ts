@@ -1,16 +1,16 @@
 import { Router } from 'express';
 import { Op } from 'sequelize';
 import { User, Community } from '../models';
-import authToken from '../middlewares/authToken';
+import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import { SearchQuerySchema } from '@cm/contracts';
 import { logger } from '../lib/logger';
 import { withValidation } from '../middlewares/validate';
 
 const router = Router();
 
-router.get('/search', authToken, withValidation({ query: SearchQuerySchema }, async ({ query }, req, res) => {
+router.get('/search', requireAuth, withValidation({ query: SearchQuerySchema }, async ({ query }, req, res) => {
     const q = query.q.toLowerCase();
-    const userId = (req as any).user?.user_id ?? null;
+    const userId = currentUserId(req);
 
     try {
         const users = await User.findAll({

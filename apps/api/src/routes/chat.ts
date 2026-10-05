@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import authToken from '../middlewares/authToken';
+import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
 import { User, Follow, Message } from '../models';
 import { Op } from 'sequelize';
@@ -34,27 +34,12 @@ interface FollowedUser {
     last_message_time: Date | null;
 }
 
-function getReqUserId(req: Request): number | null {
-    const u = (req as any).user;
-    if (!u) return null;
-    if (typeof u === 'string') {
-        try {
-            const parsed = JSON.parse(u);
-            return parsed?.user_id ?? null;
-        } catch {
-            return null;
-        }
-    }
-    return (u as any).user_id ?? null;
-}
-
-router.get('/following', authToken, async (req: Request, res: Response) => {
+router.get('/following', requireAuth, async (req: Request, res: Response) => {
     try {
-        const currentUserId = getReqUserId(req);
-        if (!currentUserId) return res.status(401).json({ message: 'Unauthorized' });
+        const userId = currentUserId(req);
 
         const follows = await Follow.findAll({
-            where: { follower_id: currentUserId },
+            where: { follower_id: userId },
             include: [
                 {
                     model: User,
@@ -64,7 +49,7 @@ router.get('/following', authToken, async (req: Request, res: Response) => {
                         {
                             model: Message,
                             as: 'SentMessages',
-                            where: { to_user_id: currentUserId },
+                            where: { to_user_id: userId },
                             required: false,
                             attributes: ['updated_at'],
                             limit: 1,
@@ -73,7 +58,7 @@ router.get('/following', authToken, async (req: Request, res: Response) => {
                         {
                             model: Message,
                             as: 'ReceivedMessages',
-                            where: { from_user_id: currentUserId },
+                            where: { from_user_id: userId },
                             required: false,
                             attributes: ['updated_at'],
                             limit: 1,
@@ -113,10 +98,9 @@ router.get('/following', authToken, async (req: Request, res: Response) => {
     }
 });
 
-router.get('/message/:userId', authToken, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
+router.get('/message/:userId', requireAuth, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
     try {
-        const fromId = getReqUserId(req);
-        if (!fromId) return res.status(401).json({ message: 'Unauthorized' });
+        const fromId = currentUserId(req);
 
         const toId = params.userId;
 
@@ -144,7 +128,7 @@ router.get('/message/:userId', authToken, withValidation({ params: UserIdParamsS
     }
 }));
 
-router.post('/upload', authToken, upload.single('image'), (req: Request, res: Response) => {
+router.post('/upload', requireAuth, upload.single('image'), (req: Request, res: Response) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }

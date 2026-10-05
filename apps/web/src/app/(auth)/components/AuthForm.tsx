@@ -15,7 +15,7 @@ interface Credentials {
     email: string;
     password: string;
     twoFAToken?: string;
-    userId?: string;
+    challengeToken?: string;
 }
 
 interface AuthFormProps {
@@ -32,7 +32,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
 
     const [is2FARequired, setIs2FARequired] = useState(false);
     const [twoFACode, setTwoFACode] = useState('');
-    const [userId, setUserId] = useState<string | null>(null);
+    const [challengeToken, setChallengeToken] = useState<string | null>(null);
 
     const router = useRouter();
 
@@ -63,7 +63,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
             const credentials: Credentials = { email, password }
             if (is2FARequired) {
                 credentials.twoFAToken = twoFACode;
-                credentials.userId = userId ?? undefined;
+                credentials.challengeToken = challengeToken ?? undefined;
             }
 
             const result = await signIn('credentials', {
@@ -84,7 +84,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
 
                 if (parsedError?.twofaRequired) {
                     setIs2FARequired(true);
-                    setUserId(parsedError.userId);
+                    setChallengeToken(parsedError.challengeToken);
                     setError('Enter your 2FA code');
                     setLoading(false);
                     return;

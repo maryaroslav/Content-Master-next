@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import authToken from '../middlewares/authToken';
+import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import { User } from '../models';
 import userCommunitiesRoutes from './userCommunities';
 import userEventsRoutes from './userEvents';
@@ -10,29 +10,10 @@ import { withValidation } from '../middlewares/validate';
 
 const router = Router();
 
-function getReqUser(req: Request): { email?: string } | null {
-    const u = (req as any).user;
-    if (!u) return null;
-    if (typeof u === 'string') {
-        try {
-            return JSON.parse(u);
-        } catch {
-            return null;
-        }
-    }
-    return u as any;
-}
 
-router.get('/me', authToken, async (req: Request, res: Response) => {
+router.get('/me', requireAuth, async (req: Request, res: Response) => {
     try {
-        const userPayload = getReqUser(req);
-        if (!userPayload?.email) {
-            return res.status(401).json({ message: 'Unauthorized: Invalid user data' });
-        }
-
-        const user = await User.findOne({
-            where: { email: userPayload.email },
-        });
+        const user = await User.findByPk(currentUserId(req));
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -45,7 +26,7 @@ router.get('/me', authToken, async (req: Request, res: Response) => {
     }
 });
 
-router.get('/byusername/:username', authToken, withValidation({ params: UsernameParamsSchema }, async ({ params }, _req, res) => {
+router.get('/byusername/:username', requireAuth, withValidation({ params: UsernameParamsSchema }, async ({ params }, _req, res) => {
     try {
         const user = await User.findOne({
             where: { username: params.username },

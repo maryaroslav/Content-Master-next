@@ -125,6 +125,9 @@ const ProfilePage = () => {
                                 <button
                                     onClick={async () => {
                                         try {
+                                            const code = window.prompt('Enter the code from your authenticator app to disable 2FA');
+                                            if (!code) return;
+
                                             const session = await getSession();
                                             const token = session?.accessToken;
                                             if (!token) throw new Error('No token found');
@@ -134,7 +137,8 @@ const ProfilePage = () => {
                                                 headers: {
                                                     'Content-Type': 'application/json',
                                                     Authorization: `Bearer ${token}`
-                                                }
+                                                },
+                                                body: JSON.stringify({ token: code })
                                             });
 
                                             const data = await res.json();

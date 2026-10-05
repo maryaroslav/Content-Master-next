@@ -8,6 +8,7 @@ import { UserEvent } from './UserEvent';
 import { Follow } from './Follow';
 import { Message } from './Message';
 import { Post } from './Post';
+import { RefreshToken } from './RefreshToken';
 
 const models = {
     User: User.initModel(sequelize),
@@ -18,10 +19,11 @@ const models = {
     Follow: Follow.initModel(sequelize),
     Message: Message.initModel(sequelize),
     Post: Post.initModel(sequelize),
+    RefreshToken: RefreshToken.initModel(sequelize),
 };
 
 export type Models = typeof models;
 
 Object.values(models).forEach((model) => model.associate(models));
 
-export { sequelize, User, Community, UserCommunity, Event, UserEvent, Follow, Message, Post };
+export { sequelize, User, Community, UserCommunity, Event, UserEvent, Follow, Message, Post, RefreshToken };

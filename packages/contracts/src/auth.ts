@@ -35,7 +35,7 @@ export type AuthTokenResponse = z.infer<typeof AuthTokenResponseSchema>;
 export const TwoFactorRequiredResponseSchema = z.object({
     message: z.string(),
     twofaRequired: z.literal(true),
-    userId: z.number().int(),
+    challengeToken: z.string(),
 });
 export type TwoFactorRequiredResponse = z.infer<typeof TwoFactorRequiredResponseSchema>;
 
@@ -43,7 +43,7 @@ export const LoginResponseSchema = z.union([AuthTokenResponseSchema, TwoFactorRe
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
 
 export const TwoFactorLoginRequestSchema = z.object({
-    userId: z.coerce.number().int().positive(),
+    challengeToken: z.string().min(1),
     token: TotpCodeSchema,
 });
 export type TwoFactorLoginRequest = z.infer<typeof TwoFactorLoginRequestSchema>;
@@ -58,16 +58,20 @@ export const TwoFactorSetupResponseSchema = z.object({
 });
 export type TwoFactorSetupResponse = z.infer<typeof TwoFactorSetupResponseSchema>;
 
-export const TwoFactorVerifyRequestSchema = z.object({
+// Enabling and disabling 2FA both require a current code from the authenticator app.
+export const TwoFactorCodeRequestSchema = z.object({
     token: TotpCodeSchema,
 });
-export type TwoFactorVerifyRequest = z.infer<typeof TwoFactorVerifyRequestSchema>;
+export type TwoFactorCodeRequest = z.infer<typeof TwoFactorCodeRequestSchema>;
 
 export const TwoFactorVerifyResponseSchema = z.object({
     verified: z.boolean(),
     token: z.string().optional(),
 });
 export type TwoFactorVerifyResponse = z.infer<typeof TwoFactorVerifyResponseSchema>;
+
+export const RefreshResponseSchema = AuthTokenResponseSchema;
+export type RefreshResponse = z.infer<typeof RefreshResponseSchema>;
 
 export const MessageResponseSchema = z.object({
     message: z.string(),

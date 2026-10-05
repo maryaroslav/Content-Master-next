@@ -1,190 +1,160 @@
-import { Router, Request, Response } from 'express';
+import { Router, type Request, type Response } from 'express';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
-import authToken from '../middlewares/authToken';
-import { User } from '../models';
-import { env } from '../config/env';
-import { toPublicUser } from '../utils/userDto';
 import { Op } from 'sequelize';
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import {
     LoginRequestSchema,
     RegisterRequestSchema,
+    TwoFactorCodeRequestSchema,
     TwoFactorLoginRequestSchema,
-    TwoFactorVerifyRequestSchema,
 } from '@cm/contracts';
-import { logger } from '../lib/logger';
+import { User } from '../models';
+import { env } from '../config/env';
+import { AppError } from '../lib/errors';
+import { toPublicUser } from '../utils/userDto';
 import { withValidation } from '../middlewares/validate';
+import { requireAuth, currentUserId } from '../middlewares/requireAuth';
+import { signAccessToken, signTwoFactorChallenge, verifyTwoFactorChallenge } from '../auth/tokens';
+import { decryptSecret, encryptSecret } from '../auth/secretBox';
+import {
+    REFRESH_COOKIE,
+    clearRefreshCookie,
+    revokeRefreshToken,
+    rotateRefreshToken,
+    setRefreshCookie,
+    startSession,
+} from '../auth/refreshTokens';
 
 const router = Router();
 
-const signToken = (user: { user_id: number; email: string }) =>
-    jwt.sign({ user_id: user.user_id, email: user.email }, env.JWT_SECRET, { expiresIn: '1h' });
+// Compared against when the email is unknown, so both cases take the same time.
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync('dummy-password', 10);
 
-function getReqUser(req: Request): { user_id?: number; email?: string } {
-    const u = (req as any).user;
-    if (!u) return {};
-    if (typeof u === 'string') {
-        try {
-            return JSON.parse(u);
-        } catch {
-            return {};
-        }
-    }
-    return u as any;
+// Keyed by challenge: 5 code attempts per challenge, and a new challenge requires the password again.
+const twoFactorLoginLimit = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 5,
+    keyGenerator: (req) =>
+        typeof req.body?.challengeToken === 'string' ? req.body.challengeToken : ipKeyGenerator(req.ip ?? ''),
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    message: { code: 'TOO_MANY_REQUESTS', message: 'Too many attempts, please log in again.' },
+    skip: () => env.NODE_ENV === 'test',
+});
+
+const isValidCode = (encryptedSecret: string, token: string) =>
+    speakeasy.totp.verify({ secret: decryptSecret(encryptedSecret), encoding: 'base32', token, window: 1 });
+
+async function completeLogin(user: User, req: Request, res: Response) {
+    setRefreshCookie(res, await startSession(user.user_id, req.get('user-agent')));
+    return { token: signAccessToken(user), user: toPublicUser(user) };
 }
 
 router.post('/register', withValidation({ body: RegisterRequestSchema }, async ({ body }, _req, res) => {
-    try {
-        const { email, password, username } = body;
+    const { email, password, username } = body;
 
-        const existingUser = await User.findOne({ where: { [Op.or]: [{ email }, { username }] } });
-        if (existingUser) {
-            const field = existingUser.email === email ? 'email' : 'username';
-            return res.status(409).json({ code: 'USER_EXISTS', message: `A user with this ${field} already exists` });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const user = await User.create({ email, password_hash: hashedPassword, username });
-
-        res.status(201).json({ message: 'User created successfully', user: toPublicUser(user) });
-    } catch (err) {
-        logger.error({ err }, 'Error during registration');
-        res.status(500).json({ message: 'Error creating user' });
+    const existingUser = await User.findOne({ where: { [Op.or]: [{ email }, { username }] } });
+    if (existingUser) {
+        const field = existingUser.email === email ? 'email' : 'username';
+        throw new AppError(409, 'USER_EXISTS', `A user with this ${field} already exists`);
     }
+
+    const user = await User.create({ email, password_hash: await bcrypt.hash(password, 10), username });
+    res.status(201).json({ message: 'User created successfully', user: toPublicUser(user) });
 }));
 
-router.post('/login', withValidation({ body: LoginRequestSchema }, async ({ body }, _req, res) => {
-    try {
-        const { email, password } = body;
-        const user = await User.findOne({ where: { email } });
-
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
-        }
-
-        const isValid = await bcrypt.compare(password, user.password_hash);
-        if (!isValid) {
-            return res.status(401).json({ message: 'Invalid email or password' });
-        }
-
-        if (user.twoFactorEnabled) {
-            return res.status(200).json({
-                message: '2FA required',
-                twofaRequired: true,
-                userId: user.user_id,
-            });
-        }
-
-        res.json({ token: signToken(user), user: toPublicUser(user) });
-    } catch (err) {
-        logger.error({ err }, '[auth] Request failed');
-        res.status(500).json({ message: 'Error logging in' });
+router.post('/login', withValidation({ body: LoginRequestSchema }, async ({ body }, req, res) => {
+    const user = await User.findOne({ where: { email: body.email } });
+    const passwordMatches = await bcrypt.compare(body.password, user?.password_hash ?? DUMMY_PASSWORD_HASH);
+    if (!user || !passwordMatches) {
+        throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
     }
+
+    if (user.twoFactorEnabled) {
+        res.json({ message: '2FA required', twofaRequired: true, challengeToken: signTwoFactorChallenge(user.user_id) });
+        return;
+    }
+
+    res.json(await completeLogin(user, req, res));
 }));
 
-router.post('/2fa/verify-login', withValidation({ body: TwoFactorLoginRequestSchema }, async ({ body }, _req, res) => {
+router.post('/2fa/verify-login', twoFactorLoginLimit, withValidation({ body: TwoFactorLoginRequestSchema }, async ({ body }, req, res) => {
+    const user = await User.findByPk(verifyTwoFactorChallenge(body.challengeToken));
+    if (!user?.twoFactorEnabled || !user.twoFactorSecret) {
+        throw new AppError(400, 'TWO_FACTOR_NOT_ENABLED', '2FA is not enabled for this user');
+    }
+    if (!isValidCode(user.twoFactorSecret, body.token)) {
+        throw new AppError(401, 'INVALID_2FA_CODE', 'Invalid 2FA code');
+    }
+
+    res.json({ message: '2FA verified', ...(await completeLogin(user, req, res)) });
+}));
+
+router.post('/refresh', async (req, res) => {
+    const current: unknown = req.cookies?.[REFRESH_COOKIE];
+    if (typeof current !== 'string') {
+        throw new AppError(401, 'INVALID_REFRESH_TOKEN', 'Session expired, please log in again');
+    }
+
     try {
-        const { userId, token } = body;
+        const { userId, token } = await rotateRefreshToken(current, req.get('user-agent'));
         const user = await User.findByPk(userId);
+        if (!user) throw new AppError(401, 'INVALID_REFRESH_TOKEN', 'Session expired, please log in again');
 
-        if (!user || !user.twoFactorEnabled || !user.twoFactorSecret) {
-            return res.status(400).json({ message: '2FA not enabled for user' });
-        }
-
-        const verified = speakeasy.totp.verify({
-            secret: user.twoFactorSecret,
-            encoding: 'base32',
-            token,
-            window: 1,
-        });
-
-        if (!verified) {
-            return res.status(401).json({ message: 'Invalid 2FA token' });
-        }
-
-        res.json({ message: '2FA verified', token: signToken(user), user: toPublicUser(user) });
+        setRefreshCookie(res, token);
+        res.json({ token: signAccessToken(user), user: toPublicUser(user) });
     } catch (err) {
-        logger.error({ err }, '[auth] Request failed');
-        res.status(500).json({ message: 'Error verifying 2FA token' });
+        clearRefreshCookie(res);
+        throw err;
     }
+});
+
+router.post('/logout', async (req, res) => {
+    const current: unknown = req.cookies?.[REFRESH_COOKIE];
+    if (typeof current === 'string') await revokeRefreshToken(current);
+
+    clearRefreshCookie(res);
+    res.status(204).end();
+});
+
+router.post('/2fa/setup', requireAuth, async (req, res) => {
+    const user = await User.findByPk(currentUserId(req));
+    if (!user) throw new AppError(404, 'USER_NOT_FOUND', 'User not found');
+    if (user.twoFactorEnabled) throw new AppError(409, 'TWO_FACTOR_ALREADY_ENABLED', '2FA is already enabled');
+
+    const secret = speakeasy.generateSecret({ name: `Content-Master (${user.email})` });
+    await user.update({ twoFactorSecret: encryptSecret(secret.base32) });
+
+    res.json({ qrCode: await qrcode.toDataURL(secret.otpauth_url ?? '') });
+});
+
+router.post('/2fa/verify', requireAuth, withValidation({ body: TwoFactorCodeRequestSchema }, async ({ body }, req, res) => {
+    const user = await User.findByPk(currentUserId(req));
+    if (!user?.twoFactorSecret) {
+        throw new AppError(400, 'TWO_FACTOR_NOT_SET_UP', 'Start the 2FA setup first');
+    }
+    if (!isValidCode(user.twoFactorSecret, body.token)) {
+        res.json({ verified: false });
+        return;
+    }
+
+    await user.update({ twoFactorEnabled: true });
+    res.json({ verified: true, token: signAccessToken(user) });
 }));
 
-router.post('/2fa/setup', authToken, async (req: Request, res: Response) => {
-    try {
-        const { user_id } = getReqUser(req);
-        if (!user_id) return res.status(401).json({ message: 'Unauthorized' });
-
-        const user = await User.findByPk(user_id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        const secret = speakeasy.generateSecret({
-            name: `Content-Master (${user.email})`,
-        });
-
-        await user.update({ twoFactorSecret: secret.base32 });
-
-        const qrCode = await qrcode.toDataURL(secret.otpauth_url || '');
-        res.json({ qrCode });
-    } catch (err) {
-        logger.error({ err }, '[auth] Request failed');
-        res.status(500).json({ message: 'Error generating 2FA secret' });
+router.post('/2fa/disable', requireAuth, withValidation({ body: TwoFactorCodeRequestSchema }, async ({ body }, req, res) => {
+    const user = await User.findByPk(currentUserId(req));
+    if (!user?.twoFactorEnabled || !user.twoFactorSecret) {
+        throw new AppError(400, 'TWO_FACTOR_NOT_ENABLED', '2FA is not enabled');
     }
-});
-
-router.post('/2fa/disable', authToken, async (req: Request, res: Response) => {
-    try {
-        const { user_id } = getReqUser(req);
-        if (!user_id) return res.status(401).json({ message: 'Unauthorized' });
-
-        const user = await User.findByPk(user_id);
-        if (!user) return res.status(404).json({ message: 'User not found' });
-
-        await user.update({
-            twoFactorEnabled: false,
-            twoFactorSecret: null,
-        });
-
-        res.json({ message: '2FA disabled successfully' });
-    } catch (err) {
-        logger.error({ err }, '[auth] Request failed');
-        res.status(500).json({ message: 'Error disabling 2FA' });
+    if (!isValidCode(user.twoFactorSecret, body.token)) {
+        throw new AppError(401, 'INVALID_2FA_CODE', 'Invalid 2FA code');
     }
-});
 
-router.post('/2fa/verify', authToken, withValidation({ body: TwoFactorVerifyRequestSchema }, async ({ body }, req, res) => {
-    try {
-        const { user_id } = getReqUser(req);
-        if (!user_id) return res.status(401).json({ message: 'Unauthorized' });
-
-        const { token } = body;
-        const user = await User.findByPk(user_id);
-
-        if (!user || !user.twoFactorSecret) {
-            return res.status(400).json({ message: 'User or secret not found' });
-        }
-
-        const verified = speakeasy.totp.verify({
-            secret: user.twoFactorSecret,
-            encoding: 'base32',
-            token,
-            window: 1,
-        });
-
-        if (verified) {
-            await user.update({ twoFactorEnabled: true });
-
-            return res.json({ verified: true, token: signToken(user) });
-        }
-        res.json({ verified });
-    } catch (err) {
-        logger.error({ err }, '[auth] Request failed');
-        res.status(500).json({ message: 'Error verifying 2FA token' });
-    }
+    await user.update({ twoFactorEnabled: false, twoFactorSecret: null });
+    res.json({ message: '2FA disabled successfully' });
 }));
 
 export default router;

@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import authToken from '../middlewares/authToken';
+import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
 import { Community } from '../models';
 import { CreateCommunityRequestSchema } from '@cm/contracts';
@@ -28,27 +28,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage, limits: { fileSize: IMAGE_MAX_SIZE }, fileFilter: imageFileFilter });
 
-function getReqUserId(req: Request): number | null {
-    const u = (req as any).user;
-    if (!u) return null;
-    if (typeof u === 'string') {
-        try {
-            const parsed = JSON.parse(u);
-            return parsed?.user_id ?? null;
-        } catch {
-            return null;
-        }
-    }
-    return (u as any).user_id ?? null;
-}
-
-router.post('/createcommunity', authToken, upload.single('photo'), withValidation({ body: CreateCommunityRequestSchema }, async ({ body }, req, res) => {
+router.post('/createcommunity', requireAuth, upload.single('photo'), withValidation({ body: CreateCommunityRequestSchema }, async ({ body }, req, res) => {
     try {
         const { name, privacy, theme, description } = body;
         const photo = req.file;
-        const owner_id = getReqUserId(req);
-
-        if (!owner_id) return res.status(401).json({ message: 'Unauthorized' });
+        const owner_id = currentUserId(req);
         if (!photo) {
             return res.status(400).json({ code: 'VALIDATION_ERROR', message: 'Community photo is required' });
         }
@@ -69,10 +53,9 @@ router.post('/createcommunity', authToken, upload.single('photo'), withValidatio
     }
 }));
 
-router.get('/mycommunities', authToken, async (req: Request, res: Response) => {
+router.get('/mycommunities', requireAuth, async (req: Request, res: Response) => {
     try {
-        const owner_id = getReqUserId(req);
-        if (!owner_id) return res.status(401).json({ message: 'Unauthorized' });
+        const owner_id = currentUserId(req);
 
         const communities = await Community.findAll({
             where: { owner_id },

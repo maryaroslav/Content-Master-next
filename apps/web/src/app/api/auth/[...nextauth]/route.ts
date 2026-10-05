@@ -22,20 +22,20 @@ export const authOptions: NextAuthOptions = {
                 email: { label: 'Email', type: 'text' },
                 password: { label: 'Password', type: 'password' },
                 twoFAToken: { label: '2FA Token', type: 'text' },
-                userId: { label: 'UserId', type: 'text' },
+                challengeToken: { label: 'Challenge token', type: 'text' },
             },
             async authorize(
-                credentials: Record<'email' | 'password' | 'twoFAToken' | 'userId', string> | undefined,
+                credentials: Record<'email' | 'password' | 'twoFAToken' | 'challengeToken', string> | undefined,
             ): Promise<NextAuthUser | null> {
                 const email = credentials?.email;
                 const password = credentials?.password;
                 const twoFAToken = credentials?.twoFAToken;
-                const userId = credentials?.userId;
+                const challengeToken = credentials?.challengeToken;
 
                 try {
-                    if (twoFAToken && userId) {
+                    if (twoFAToken && challengeToken) {
                         const res = await axios.post('http://localhost:5001/api/auth/2fa/verify-login', {
-                            userId,
+                            challengeToken,
                             token: twoFAToken
                         });
                         const { token, user } = res.data as { token?: string; user: { id: string | number; email?: string; name?: string;[k: string]: unknown } };
@@ -57,7 +57,7 @@ export const authOptions: NextAuthOptions = {
                         if (res.data?.twofaRequired) {
                             const error = new Error('2FA Required');
                             error.name = 'TwoFA';
-                            error.message = JSON.stringify({ twofaRequired: true, userId: res.data.userId });
+                            error.message = JSON.stringify({ twofaRequired: true, challengeToken: res.data.challengeToken });
                             throw error;
                         }
 

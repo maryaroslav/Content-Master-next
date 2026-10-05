@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import authToken from '../middlewares/authToken';
+import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import upload from '../middlewares/uploadPostImage';
 import { Post, User } from '../models';
 import { CreatePostRequestSchema, PostIdParamsSchema } from '@cm/contracts';
@@ -10,7 +10,7 @@ const router = Router();
 
 router.post(
     '/',
-    authToken,
+    requireAuth,
     upload.array('images', 5),
     withValidation({ body: CreatePostRequestSchema }, async ({ body }, req, res) => {
         try {
@@ -19,8 +19,7 @@ router.post(
 
             const imagePaths = files.map((file) => `/uploads/user_posts/${file.filename}`);
 
-            const authorId = (req as any).user?.user_id;
-            if (!authorId) return res.status(401).json({ message: 'Unauthorized' });
+            const authorId = currentUserId(req);
 
             const newPost = await Post.create({
                 title,
@@ -37,7 +36,7 @@ router.post(
     })
 );
 
-router.get('/', authToken, async (req: Request, res: Response) => {
+router.get('/', requireAuth, async (req: Request, res: Response) => {
     try {
         const posts = await Post.findAll({
             include: [
@@ -56,15 +55,14 @@ router.get('/', authToken, async (req: Request, res: Response) => {
     }
 });
 
-router.delete('/:id', authToken, withValidation({ params: PostIdParamsSchema }, async ({ params }, req, res) => {
+router.delete('/:id', requireAuth, withValidation({ params: PostIdParamsSchema }, async ({ params }, req, res) => {
     try {
         const postId = params.id;
 
         const post = await Post.findByPk(postId);
         if (!post) return res.status(404).json({ message: 'Post not found' });
 
-        const userId = (req as any).user?.user_id;
-        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+        const userId = currentUserId(req);
 
         if (post.author_id !== userId) {
             return res.status(403).json({ message: 'You are not allowed to delete this post.' });

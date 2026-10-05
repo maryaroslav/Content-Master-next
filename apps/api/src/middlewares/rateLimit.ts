@@ -18,5 +18,6 @@ export const authRateLimit = rateLimit({
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     message: tooManyRequests,
-    skip: () => env.NODE_ENV === 'test',
+    // Refreshing and logging out happen on every page load / session end and guess nothing.
+    skip: (req) => env.NODE_ENV === 'test' || req.path === '/refresh' || req.path === '/logout',
 });

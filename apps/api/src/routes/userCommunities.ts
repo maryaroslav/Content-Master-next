@@ -1,30 +1,13 @@
 import { Router, Request, Response } from 'express';
-import authToken from '../middlewares/authToken';
+import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import { UserCommunity, Community } from '../models';
 import { logger } from '../lib/logger';
 
 const router = Router();
 
-function getReqUserId(req: Request): number | null {
-    const u = (req as any).user;
-    if (!u) return null;
-    if (typeof u === 'string') {
-        try {
-            const parsed = JSON.parse(u);
-            return parsed?.user_id ?? null;
-        } catch {
-            return null;
-        }
-    }
-    return (u as any).user_id ?? null;
-}
-
-router.get('/usercommunities', authToken, async (req: Request, res: Response) => {
+router.get('/usercommunities', requireAuth, async (req: Request, res: Response) => {
     try {
-        const userId = getReqUserId(req);
-        if (!userId) {
-            return res.status(401).json({ message: 'User not authenticated' });
-        }
+        const userId = currentUserId(req);
 
         const userCommunities = await UserCommunity.findAll({
             where: { user_id: userId },

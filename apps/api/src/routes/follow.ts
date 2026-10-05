@@ -1,5 +1,5 @@
 import { Router, Request } from 'express';
-import authToken from '../middlewares/authToken';
+import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import { Follow } from '../models';
 import { UserIdParamsSchema } from '@cm/contracts';
 import { logger } from '../lib/logger';
@@ -7,24 +7,9 @@ import { withValidation } from '../middlewares/validate';
 
 const router = Router();
 
-function getReqUserId(req: Request): number | null {
-    const u = (req as any).user;
-    if (!u) return null;
-    if (typeof u === 'string') {
-        try {
-            const parsed = JSON.parse(u);
-            return parsed?.user_id ?? null;
-        } catch {
-            return null;
-        }
-    }
-    return (u as any).user_id ?? null;
-}
-
-router.post('/follow/:userId', authToken, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
+router.post('/follow/:userId', requireAuth, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
     try {
-        const followerId = getReqUserId(req);
-        if (!followerId) return res.status(401).json({ message: 'Unauthorized' });
+        const followerId = currentUserId(req);
 
         const followingId = params.userId;
 
@@ -42,10 +27,9 @@ router.post('/follow/:userId', authToken, withValidation({ params: UserIdParamsS
     }
 }));
 
-router.post('/unfollow/:userId', authToken, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
+router.post('/unfollow/:userId', requireAuth, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
     try {
-        const followerId = getReqUserId(req);
-        if (!followerId) return res.status(401).json({ message: 'Unauthorized' });
+        const followerId = currentUserId(req);
 
         const followingId = params.userId;
 
@@ -63,10 +47,9 @@ router.post('/unfollow/:userId', authToken, withValidation({ params: UserIdParam
     }
 }));
 
-router.get('/status/:userId', authToken, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
+router.get('/status/:userId', requireAuth, withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
     try {
-        const followerId = getReqUserId(req);
-        if (!followerId) return res.status(401).json({ message: 'Unauthorized' });
+        const followerId = currentUserId(req);
 
         const followingId = params.userId;
 
