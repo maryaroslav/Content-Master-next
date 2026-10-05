@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DateTimeSchema } from './common';
+import { DateTimeSchema } from '../common';
 
 export const EventSummarySchema = z.object({
     event_id: z.number().int(),

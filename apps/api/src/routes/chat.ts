@@ -6,7 +6,7 @@ import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
 import { User, Follow, Message } from '../models';
 import { Op } from 'sequelize';
-import { UserIdParamsSchema } from '@cm/contracts';
+import { UserIdParamsSchema } from '@cm/contracts/legacy';
 import { logger } from '../lib/logger';
 import { withValidation } from '../middlewares/validate';
 

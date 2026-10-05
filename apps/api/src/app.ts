@@ -10,6 +10,7 @@ import { logger } from './lib/logger';
 import { apiRateLimit, authRateLimit } from './middlewares/rateLimit';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
 
+import v1Routes from './modules/v1';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
 import createCommunityRoutes from './routes/community';
@@ -57,6 +58,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: '100kb' }));
 
 app.use('/api', apiRateLimit);
+app.use('/api/v1', v1Routes);
 app.use('/api/auth', authRateLimit, authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api', createCommunityRoutes);

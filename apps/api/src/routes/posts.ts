@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import upload from '../middlewares/uploadPostImage';
 import { Post, User } from '../models';
-import { CreatePostRequestSchema, PostIdParamsSchema } from '@cm/contracts';
+import { CreatePostRequestSchema, PostIdParamsSchema } from '@cm/contracts/legacy';
 import { logger } from '../lib/logger';
 import { withValidation } from '../middlewares/validate';
 

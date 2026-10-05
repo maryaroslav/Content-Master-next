@@ -1,4 +1,4 @@
-import type { PublicUser } from '@cm/contracts';
+import type { PublicUser } from '@cm/contracts/legacy';
 import type { User } from '../models/User';
 
 // Dates are still `Date` objects here; they become strings in the JSON response.

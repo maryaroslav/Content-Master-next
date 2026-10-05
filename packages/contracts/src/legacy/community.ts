@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DateTimeSchema } from './common';
+import { DateTimeSchema } from '../common';
 
 export const CommunityPrivacySchema = z.enum(['public', 'private']);
 export type CommunityPrivacy = z.infer<typeof CommunityPrivacySchema>;

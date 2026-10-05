@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DateTimeSchema } from './common';
+import { DateTimeSchema } from '../common';
 
 export const MessageTypeSchema = z.enum(['text', 'image']);
 export type MessageType = z.infer<typeof MessageTypeSchema>;

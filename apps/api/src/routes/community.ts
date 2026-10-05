@@ -5,7 +5,7 @@ import fs from 'fs';
 import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import { imageFileFilter, extFromMime, IMAGE_MAX_SIZE } from '../middlewares/uploadPostImage';
 import { Community } from '../models';
-import { CreateCommunityRequestSchema } from '@cm/contracts';
+import { CreateCommunityRequestSchema } from '@cm/contracts/legacy';
 import { logger } from '../lib/logger';
 import { withValidation } from '../middlewares/validate';
 

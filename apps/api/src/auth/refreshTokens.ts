@@ -57,16 +57,17 @@ async function revokeFamily(familyId: string): Promise<void> {
     await RefreshToken.update({ revoked_at: new Date() }, { where: { family_id: familyId, revoked_at: { [Op.is]: null } } });
 }
 
-export function setRefreshCookie(res: Response, token: string): void {
+// Each API version keeps its own cookie, scoped to that version's auth routes.
+export function setRefreshCookie(res: Response, token: string, path: string): void {
     res.cookie(REFRESH_COOKIE, token, {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
         sameSite: 'lax',
-        path: '/api/auth',
+        path,
         maxAge: ttlMs(),
     });
 }
 
-export function clearRefreshCookie(res: Response): void {
-    res.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
+export function clearRefreshCookie(res: Response, path: string): void {
+    res.clearCookie(REFRESH_COOKIE, { path });
 }

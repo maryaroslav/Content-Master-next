@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DateTimeSchema, IdSchema } from './common';
+import { DateTimeSchema, IdSchema } from '../common';
 
 export const PostSchema = z.object({
     post_id: z.number().int(),

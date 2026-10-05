@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PublicUserSchema, UsernameSchema } from './user';
+import { UserSchema, UsernameSchema } from './user';
 
 export const TotpCodeSchema = z
     .string()
@@ -14,66 +14,39 @@ export const RegisterRequestSchema = z.object({
 });
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
 
-export const RegisterResponseSchema = z.object({
-    message: z.string(),
-    user: PublicUserSchema,
-});
-export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;
-
 export const LoginRequestSchema = z.object({
     email: z.string().trim().min(1, 'Email is required').max(255),
     password: z.string().min(1, 'Password is required').max(72),
 });
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 
-export const AuthTokenResponseSchema = z.object({
-    token: z.string(),
-    user: PublicUserSchema,
+export const AuthSessionSchema = z.object({
+    accessToken: z.string(),
+    user: UserSchema,
 });
-export type AuthTokenResponse = z.infer<typeof AuthTokenResponseSchema>;
+export type AuthSession = z.infer<typeof AuthSessionSchema>;
 
-export const TwoFactorRequiredResponseSchema = z.object({
-    message: z.string(),
-    twofaRequired: z.literal(true),
+export const TwoFactorChallengeSchema = z.object({
+    twoFactorRequired: z.literal(true),
     challengeToken: z.string(),
 });
-export type TwoFactorRequiredResponse = z.infer<typeof TwoFactorRequiredResponseSchema>;
+export type TwoFactorChallenge = z.infer<typeof TwoFactorChallengeSchema>;
 
-export const LoginResponseSchema = z.union([AuthTokenResponseSchema, TwoFactorRequiredResponseSchema]);
+export const LoginResponseSchema = z.union([AuthSessionSchema, TwoFactorChallengeSchema]);
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
 
 export const TwoFactorLoginRequestSchema = z.object({
     challengeToken: z.string().min(1),
-    token: TotpCodeSchema,
+    code: TotpCodeSchema,
 });
 export type TwoFactorLoginRequest = z.infer<typeof TwoFactorLoginRequestSchema>;
 
-export const TwoFactorLoginResponseSchema = AuthTokenResponseSchema.extend({
-    message: z.string(),
+export const TwoFactorCodeRequestSchema = z.object({
+    code: TotpCodeSchema,
 });
-export type TwoFactorLoginResponse = z.infer<typeof TwoFactorLoginResponseSchema>;
+export type TwoFactorCodeRequest = z.infer<typeof TwoFactorCodeRequestSchema>;
 
 export const TwoFactorSetupResponseSchema = z.object({
     qrCode: z.string(),
 });
 export type TwoFactorSetupResponse = z.infer<typeof TwoFactorSetupResponseSchema>;
-
-// Enabling and disabling 2FA both require a current code from the authenticator app.
-export const TwoFactorCodeRequestSchema = z.object({
-    token: TotpCodeSchema,
-});
-export type TwoFactorCodeRequest = z.infer<typeof TwoFactorCodeRequestSchema>;
-
-export const TwoFactorVerifyResponseSchema = z.object({
-    verified: z.boolean(),
-    token: z.string().optional(),
-});
-export type TwoFactorVerifyResponse = z.infer<typeof TwoFactorVerifyResponseSchema>;
-
-export const RefreshResponseSchema = AuthTokenResponseSchema;
-export type RefreshResponse = z.infer<typeof RefreshResponseSchema>;
-
-export const MessageResponseSchema = z.object({
-    message: z.string(),
-});
-export type MessageResponse = z.infer<typeof MessageResponseSchema>;

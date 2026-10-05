@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Op } from 'sequelize';
 import { User, Community } from '../models';
 import { requireAuth, currentUserId } from '../middlewares/requireAuth';
-import { SearchQuerySchema } from '@cm/contracts';
+import { SearchQuerySchema } from '@cm/contracts/legacy';
 import { logger } from '../lib/logger';
 import { withValidation } from '../middlewares/validate';
 
