@@ -1,5 +1,8 @@
 import { z } from 'zod';
 import { DateTimeSchema, IdSchema } from '../common';
+import { CreatePostRequestSchema, type CreatePostRequest } from '../post';
+
+export { CreatePostRequestSchema, type CreatePostRequest };
 
 export const PostSchema = z.object({
     post_id: z.number().int(),
@@ -17,13 +20,6 @@ export const PostSchema = z.object({
         .optional(),
 });
 export type Post = z.infer<typeof PostSchema>;
-
-// Multipart text fields only: the images arrive as files.
-export const CreatePostRequestSchema = z.object({
-    title: z.string().trim().max(100).optional(),
-    content: z.string().trim().max(10_000).optional(),
-});
-export type CreatePostRequest = z.infer<typeof CreatePostRequestSchema>;
 
 export const PostIdParamsSchema = z.object({
     id: IdSchema,
