@@ -1,8 +1,13 @@
 import { z } from 'zod';
 import { DateTimeSchema } from '../common';
+import {
+    CommunityPrivacySchema,
+    CreateCommunityRequestSchema,
+    type CommunityPrivacy,
+    type CreateCommunityRequest,
+} from '../community';
 
-export const CommunityPrivacySchema = z.enum(['public', 'private']);
-export type CommunityPrivacy = z.infer<typeof CommunityPrivacySchema>;
+export { CommunityPrivacySchema, CreateCommunityRequestSchema, type CommunityPrivacy, type CreateCommunityRequest };
 
 export const CommunitySchema = z.object({
     community_id: z.number().int(),
@@ -27,14 +32,6 @@ export const CommunitySummarySchema = CommunitySchema.pick({
 });
 export type CommunitySummary = z.infer<typeof CommunitySummarySchema>;
 
-// Multipart text fields only: the photo arrives as a file.
-export const CreateCommunityRequestSchema = z.object({
-    name: z.string().trim().min(1, 'Name is required').max(255),
-    privacy: CommunityPrivacySchema,
-    theme: z.string().trim().min(1, 'Theme is required').max(255),
-    description: z.string().trim().max(2000).optional(),
-});
-export type CreateCommunityRequest = z.infer<typeof CreateCommunityRequestSchema>;
 
 export const CreateCommunityResponseSchema = z.object({
     message: z.string(),

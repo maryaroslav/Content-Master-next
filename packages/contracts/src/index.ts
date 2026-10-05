@@ -4,3 +4,5 @@ export * from './auth';
 export * from './post';
 export * from './community';
 export * from './search';
+export * from './event';
+export * from './chat';
