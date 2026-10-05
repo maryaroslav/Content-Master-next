@@ -3,6 +3,7 @@ import { SearchQuerySchema } from '@cm/contracts';
 import { withValidation } from '../../middlewares/validate';
 import { requireAuth, currentUserId } from '../../middlewares/requireAuth';
 import * as searchService from './service';
+import { publicUrl, storage } from '../../storage/storage';
 
 const RESULTS_PER_TYPE = 20;
 
@@ -15,13 +16,13 @@ router.get('/', requireAuth, withValidation({ query: SearchQuerySchema }, async 
             id: user.user_id,
             username: user.username,
             bio: user.bio ?? null,
-            profilePicture: user.profile_picture ?? null,
+            profilePicture: publicUrl(user.profile_picture),
         })),
         communities: communities.map((community) => ({
             id: community.community_id,
             name: community.name,
             privacy: community.privacy,
-            photo: community.photo,
+            photo: storage.url(community.photo),
             membersCount: community.members_count,
         })),
     });

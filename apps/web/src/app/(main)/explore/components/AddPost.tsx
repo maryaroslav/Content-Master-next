@@ -101,7 +101,7 @@ const AddPost: React.FC<AddPostProps> = ({ onPostCreated }) => {
                     <div className="addpost-user-img">
                         {userData?.profile_picture ? (
                             <Image
-                                src={`http://localhost:5001/uploads${userData.profile_picture}`}
+                                src={`http://localhost:5001/uploads/${userData.profile_picture}`}
                                 alt="user-avatar"
                                 width={40}
                                 height={40}

@@ -51,7 +51,7 @@ const FeedCommunity = () => {
                             {myCommunities.map((community) => (
                                 <div key={community.community_id} className="feedcommunity-item my-community-item">
                                     <Image
-                                        src={`http://localhost:5001/uploads/communities_images/${community.photo}`}
+                                        src={`http://localhost:5001${community.photo}`}
                                         alt={community.name}
                                         width={100}
                                         height={100}

@@ -7,6 +7,7 @@ import * as usersService from './service';
 import * as communitiesService from '../communities/service';
 import * as eventsService from '../events/service';
 import { toCommunitySummary } from '../communities/mapper';
+import { storage } from '../../storage/storage';
 
 const router = Router();
 
@@ -26,7 +27,7 @@ router.get('/me/events', async (req, res) => {
     res.json(events.map((event) => ({
         id: event.event_id,
         title: event.title,
-        image: event.image,
+        image: storage.url(event.image),
         createdAt: event.created_at,
         membersCount: event.members_count ?? null,
     })));

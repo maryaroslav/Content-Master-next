@@ -9,22 +9,22 @@ import {
     type NonAttribute,
 } from 'sequelize';
 import type { User } from './User';
+import type { PostImage } from './PostImage';
 import type { Models } from './index';
 
 export class Post extends Model<
-    InferAttributes<Post, { omit: 'author' }>,
-    InferCreationAttributes<Post, { omit: 'author' }>
+    InferAttributes<Post, { omit: 'author' | 'images' }>,
+    InferCreationAttributes<Post, { omit: 'author' | 'images' }>
 > {
     declare post_id: CreationOptional<number>;
     declare title: CreationOptional<string | null>;
     declare content: CreationOptional<string | null>;
-    /** Stored as a JSON array in a TEXT column (moved to its own table in migration phase 2.3). */
-    declare image_url: string[];
     declare author_id: ForeignKey<User['user_id']>;
     declare created_at: CreationOptional<Date>;
     declare updated_at: CreationOptional<Date>;
 
     declare author?: NonAttribute<User>;
+    declare images?: NonAttribute<PostImage[]>;
 
     static initModel(sequelize: Sequelize) {
         Post.init(
@@ -41,22 +41,6 @@ export class Post extends Model<
                 content: {
                     type: DataTypes.TEXT,
                     allowNull: true,
-                },
-                image_url: {
-                    type: DataTypes.TEXT,
-                    allowNull: false,
-                    get(this: Post): string[] {
-                        const rawValue = this.getDataValue('image_url') as unknown as string | null;
-                        try {
-                            return rawValue ? JSON.parse(rawValue) : [];
-                        } catch {
-                            return [];
-                        }
-                    },
-                    set(this: Post, value: string[] | string) {
-                        const toStore = Array.isArray(value) ? JSON.stringify(value) : value;
-                        this.setDataValue('image_url', toStore as unknown as string[]);
-                    },
                 },
                 author_id: {
                     type: DataTypes.INTEGER,
@@ -81,6 +65,11 @@ export class Post extends Model<
         Post.belongsTo(models.User, {
             foreignKey: 'author_id',
             as: 'author',
+        });
+        Post.hasMany(models.PostImage, {
+            foreignKey: 'post_id',
+            as: 'images',
+            onDelete: 'CASCADE',
         });
     }
 }

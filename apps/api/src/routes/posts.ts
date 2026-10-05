@@ -4,17 +4,18 @@ import { requireAuth, currentUserId } from '../middlewares/requireAuth';
 import { imageUpload } from '../middlewares/upload';
 import { withValidation } from '../middlewares/validate';
 import * as postsService from '../modules/posts/service';
+import { legacyPost } from './legacyFormat';
 
 const router = Router();
 
 router.post('/', requireAuth, imageUpload.array('images', 5), withValidation({ body: CreatePostRequestSchema }, async ({ body }, req, res) => {
     const files = (req.files as Express.Multer.File[] | undefined) ?? [];
-    res.status(201).json(await postsService.createPost(currentUserId(req), body, files));
+    res.status(201).json(legacyPost(await postsService.createPost(currentUserId(req), body, files)));
 }));
 
 router.get('/', requireAuth, async (_req, res) => {
     const { posts } = await postsService.listPosts();
-    res.json(posts);
+    res.json(posts.map(legacyPost));
 });
 
 router.delete('/:id', requireAuth, withValidation({ params: PostIdParamsSchema }, async ({ params }, req, res) => {

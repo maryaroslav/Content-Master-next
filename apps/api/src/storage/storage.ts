@@ -29,3 +29,5 @@ export const storage: Storage = {
     },
     url: (key) => `${UPLOAD_URL_PREFIX}/${key}`,
 };
+
+export const publicUrl = (key: string | null | undefined): string | null => (key ? storage.url(key) : null);

@@ -1,7 +1,6 @@
 import type { Transaction } from 'sequelize';
 import type { CreateCommunityRequest } from '@cm/contracts';
 import { sequelize, Community, UserCommunity } from '../../models';
-import path from 'path';
 import { AppError } from '../../lib/errors';
 import { deleteFiles, saveImage } from '../../storage/images';
 
@@ -32,8 +31,7 @@ export async function createCommunity(ownerId: number, input: CreateCommunityReq
                     privacy: input.privacy,
                     theme: input.theme,
                     description: input.description ?? null,
-                    // communities.photo still holds the bare file name; it becomes the storage key in the next migration.
-                    photo: path.basename(photoKey),
+                    photo: photoKey,
                     owner_id: ownerId,
                     members_count: 1,
                 },

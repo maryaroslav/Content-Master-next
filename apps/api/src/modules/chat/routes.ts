@@ -5,6 +5,7 @@ import { withValidation } from '../../middlewares/validate';
 import { requireAuth, currentUserId } from '../../middlewares/requireAuth';
 import { AppError } from '../../lib/errors';
 import * as chatService from './service';
+import { publicUrl } from '../../storage/storage';
 
 const router = Router();
 
@@ -13,7 +14,7 @@ router.use(requireAuth);
 router.get('/conversations', async (req, res) => {
     const conversations = await chatService.listConversations(currentUserId(req));
     res.json(conversations.map(({ user, lastMessageAt }) => ({
-        user: { id: user.user_id, username: user.username, profilePicture: user.profile_picture ?? null },
+        user: { id: user.user_id, username: user.username, profilePicture: publicUrl(user.profile_picture) },
         lastMessageAt,
     })));
 });
