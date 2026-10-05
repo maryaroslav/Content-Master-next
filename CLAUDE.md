@@ -1,0 +1,75 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Overview
+
+Content Master is a social/community app (posts, communities, events, follows, private chat) being migrated from two separate projects into a pnpm + Turborepo monorepo on branch `migration/monorepo`. The step-by-step plan lives in `docs/MIGRATION_PLAN.md`, which is intentionally untracked and must not be committed. `Content Master SRS.docx` / `SDD.docx` are the original requirements and design documents.
+
+- `apps/api` (`@cm/api`): Express 5 + Sequelize (MySQL 8) + Socket.IO, port 5001
+- `apps/web` (`@cm/web`): Next.js 16 App Router + NextAuth (credentials) + Redux Toolkit, port 3000
+- `packages/contracts` (`@cm/contracts`): zod schemas and inferred types for API requests/responses, compiled to `dist/`
+- `packages/config-ts`, `packages/config-eslint`: shared tsconfig presets (`base`, `node`, `library`, `nextjs`) and ESLint configs
+
+## Commands
+
+Node 24 (`.nvmrc`), pnpm version pinned in `package.json` (`corepack enable`). `.npmrc` sets `save-exact` and `engine-strict`; syncpack enforces exact versions and `workspace:*` for internal packages.
+
+```sh
+pnpm install
+pnpm dev                 # all apps; api runs pending migrations first, then tsx watch
+pnpm build | typecheck | lint | circular | test   # via turbo, all packages
+pnpm knip                # unused files/exports/deps
+pnpm syncpack:check      # dependency version rules
+
+pnpm --filter @cm/api <script>                     # one package
+pnpm turbo run typecheck lint --filter="...[HEAD]" # only changed packages + dependents
+
+pnpm --filter @cm/api db:migrate | db:rollback | db:status
+```
+
+There are no tests yet (no package defines a `test` script). The husky pre-commit hook runs `typecheck lint circular test` for affected packages plus `syncpack lint`; CI additionally runs `build` and `knip`.
+
+Every turbo task `dependsOn: ["^build"]`, so `@cm/contracts` must be built before consumers typecheck — turbo handles this, but running `tsc` directly in `apps/api` after changing contracts requires `pnpm --filter @cm/contracts build` first.
+
+## API (apps/api)
+Express 5 + Sequelize + Socket.IO. Entry: server.ts → app.ts.
+Detailed rules load from .claude/rules/api.md when working in apps/api.
+
+## Web architecture (`apps/web/src`)
+
+Still largely pre-migration code. NextAuth credentials provider (`app/api/auth/[...nextauth]/route.ts`) calls the API's `/api/auth/login` and `/api/auth/2fa/verify-login` and stores the API access token in the NextAuth JWT session as `session.accessToken`. Client calls go through `fetchWithAuth` (`app/lib/apiClient.ts`); server components use `getAccessTokenOrRedirect` (`app/lib/apiClient.server.ts`). The API base URL `http://localhost:5001` is currently hardcoded in several places. Route groups `(auth)` and `(main)` separate login/register from the main shell. `.env.local` needs `NEXTAUTH_URL` and `NEXTAUTH_SECRET`.
+
+Planned direction (per migration decisions): access token in memory + refresh via the API cookie instead of NextAuth sessions, Socket.IO typed through a future `@cm/realtime` package, locales en + cz.
+
+## Web: rules for new code
+- Server Components by default; "use client" only for state/effects/browser APIs.
+- Never hardcode the API base URL in new code; do not copy the existing hardcoded usages.
+- All API calls go through fetchWithAuth / getAccessTokenOrRedirect; request and
+  response types come from @cm/contracts, never redeclared locally.
+- Existing pre-migration code is not a style reference. When unsure, ask.
+
+## Planned direction is NOT current state
+Do not implement anything from "Planned direction" unless the current step of
+docs/MIGRATION_PLAN.md says so. Read that file before any migration work.
+
+## Workflow
+- Anything beyond a one-file change: plan first. Offer 2-3 options with
+  trade-offs (complexity, blast radius, risk) and recommend one.
+- Changing a contract in @cm/contracts: list every consumer in api and web before editing.
+- Done means: `pnpm turbo run typecheck lint circular --filter="...[HEAD]"` passes.
+  Report the actual output, do not assume it passes.
+
+## Documentation (Context7 MCP)
+- Before writing code that uses Next.js, React, Express, Sequelize, NextA//uth,
+  Redux Toolkit, Socket.IO or zod APIs, fetch current docs via Context7.
+- Take versions from package.json and request docs for those versions.
+- Mandatory for: Next caching, routing, server actions, next.config, Express 5
+  routing/error handling.
+- Do not call Context7 for plain TypeScript logic with no third-party API.
+
+## Conventions
+
+- Comments only explain a non-obvious *why*; no JSDoc or descriptive comments restating the code.
+- API code style: 4-space indent, single quotes, snake_case DB columns/model attributes (`user_id`, `created_at`), camelCase in contracts where already established.
+- Migration work proceeds one plan step at a time; after verifying (typecheck/lint/build/circular/knip/syncpack + live smoke test), stop and propose a commit message — the user commits themselves.
