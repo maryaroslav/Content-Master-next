@@ -7,5 +7,5 @@ export const EventSummarySchema = z.object({
     image: z.string(),
     createdAt: DateTimeSchema,
     membersCount: z.number().int().nullable(),
-});
+}).meta({ id: 'EventSummary' });
 export type EventSummary = z.infer<typeof EventSummarySchema>;

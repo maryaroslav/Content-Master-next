@@ -12,11 +12,12 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
     "knip": "knip",
     "syncpack:check": "syncpack lint",
     "circular": "turbo run circular",
     "prepare": "husky",
-    "test:integration": "turbo run test:integration"
+    "postinstall": "turbo run generate"
   },
   "devDependencies": {
     "dependency-cruiser": "18.5.0",

@@ -14,13 +14,12 @@ export const PostSchema = z.object({
         username: z.string(),
         profilePicture: z.string().nullable(),
     }),
-});
+}).meta({ id: 'Post' });
 export type Post = z.infer<typeof PostSchema>;
 
-export const PostPageSchema = paginated(PostSchema);
+export const PostPageSchema = paginated(PostSchema).meta({ id: 'PostPage' });
 export type PostPage = z.infer<typeof PostPageSchema>;
 
-// Multipart text fields only: the images arrive as files.
 export const CreatePostRequestSchema = z.object({
     title: z.string().trim().max(100).optional(),
     content: z.string().trim().max(10_000).optional(),

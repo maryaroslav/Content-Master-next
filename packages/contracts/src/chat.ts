@@ -12,11 +12,11 @@ export const ChatMessageSchema = z.object({
     mediaUrl: z.string().nullable(),
     type: MessageTypeSchema,
     createdAt: DateTimeSchema,
-});
+}).meta({ id: 'ChatMessage' });
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 
 // Each page is in chronological order; `nextCursor` points to older messages.
-export const ChatMessagePageSchema = paginated(ChatMessageSchema);
+export const ChatMessagePageSchema = paginated(ChatMessageSchema).meta({ id: 'ChatMessagePage' });
 export type ChatMessagePage = z.infer<typeof ChatMessagePageSchema>;
 
 export const ConversationSchema = z.object({
@@ -26,10 +26,10 @@ export const ConversationSchema = z.object({
         profilePicture: z.string().nullable(),
     }),
     lastMessageAt: DateTimeSchema.nullable(),
-});
+}).meta({ id: 'Conversation' });
 export type Conversation = z.infer<typeof ConversationSchema>;
 
 export const AttachmentResponseSchema = z.object({
     url: z.string(),
-});
+}).meta({ id: 'AttachmentResponse' });
 export type AttachmentResponse = z.infer<typeof AttachmentResponseSchema>;

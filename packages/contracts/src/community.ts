@@ -15,7 +15,7 @@ export const CommunitySchema = z.object({
     theme: z.string(),
     createdAt: DateTimeSchema,
     updatedAt: DateTimeSchema,
-});
+}).meta({ id: 'Community' });
 export type Community = z.infer<typeof CommunitySchema>;
 
 export const CommunitySummarySchema = z.object({
@@ -24,10 +24,9 @@ export const CommunitySummarySchema = z.object({
     privacy: z.string(),
     photo: z.string(),
     membersCount: z.number().int(),
-});
+}).meta({ id: 'CommunitySummary' });
 export type CommunitySummary = z.infer<typeof CommunitySummarySchema>;
 
-// Multipart text fields only: the photo arrives as a file.
 export const CreateCommunityRequestSchema = z.object({
     name: z.string().trim().min(1, 'Name is required').max(255),
     privacy: CommunityPrivacySchema,
@@ -49,5 +48,5 @@ export type CommunityIdParams = z.infer<typeof CommunityIdParamsSchema>;
 export const MembershipStatusSchema = z.object({
     isMember: z.boolean(),
     membersCount: z.number().int(),
-});
+}).meta({ id: 'MembershipStatus' });
 export type MembershipStatus = z.infer<typeof MembershipStatusSchema>;

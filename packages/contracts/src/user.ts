@@ -18,7 +18,7 @@ export const UserSchema = z.object({
     role: z.string(),
     twoFactorEnabled: z.boolean(),
     createdAt: DateTimeSchema,
-});
+}).meta({ id: 'User' });
 export type User = z.infer<typeof UserSchema>;
 
 export const UserProfileSchema = z.object({
@@ -29,7 +29,7 @@ export const UserProfileSchema = z.object({
     profilePicture: z.string().nullable(),
     followersCount: z.number().int(),
     isFollowing: z.boolean(),
-});
+}).meta({ id: 'UserProfile' });
 export type UserProfile = z.infer<typeof UserProfileSchema>;
 
 export const UsernameParamsSchema = z.object({
@@ -45,7 +45,7 @@ export type UserIdParams = z.infer<typeof UserIdParamsSchema>;
 export const FollowStatusSchema = z.object({
     isFollowing: z.boolean(),
     followersCount: z.number().int(),
-});
+}).meta({ id: 'FollowStatus' });
 export type FollowStatus = z.infer<typeof FollowStatusSchema>;
 
 export const UpdateProfileRequestSchema = z
@@ -54,11 +54,11 @@ export const UpdateProfileRequestSchema = z
         fullName: z.string().trim().max(100).nullable().optional(),
         bio: z.string().trim().max(1000).nullable().optional(),
     })
-    .refine((body) => Object.values(body).some((value) => value !== undefined), 'Nothing to update');
+    .refine((body) => Object.values(body).some((value) => value !== undefined), 'Nothing to update').meta({ id: 'UpdateProfileRequest' });
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequestSchema>;
 
 export const ChangeEmailRequestSchema = z.object({
     email: z.email('Please enter a valid email').max(255),
     currentPassword: z.string().min(1, 'Current password is required').max(72),
-});
+}).meta({ id: 'ChangeEmailRequest' });
 export type ChangeEmailRequest = z.infer<typeof ChangeEmailRequestSchema>;

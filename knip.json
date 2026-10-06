@@ -25,6 +25,13 @@
         "src/openapi/write.ts"
       ]
     },
+    "packages/api-client": {
+      "ignoreDependencies": [
+        "@tanstack/react-query",
+        "react",
+        "@types/react"
+      ]
+    },
     "packages/*": {}
   },
   "rules": {

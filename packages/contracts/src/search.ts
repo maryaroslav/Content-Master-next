@@ -11,11 +11,11 @@ export const UserSearchItemSchema = z.object({
     username: z.string(),
     bio: z.string().nullable(),
     profilePicture: z.string().nullable(),
-});
+}).meta({ id: 'UserSearchItem' });
 export type UserSearchItem = z.infer<typeof UserSearchItemSchema>;
 
 export const SearchResponseSchema = z.object({
     users: z.array(UserSearchItemSchema),
     communities: z.array(CommunitySummarySchema),
-});
+}).meta({ id: 'SearchResponse' });
 export type SearchResponse = z.infer<typeof SearchResponseSchema>;

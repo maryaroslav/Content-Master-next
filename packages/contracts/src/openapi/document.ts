@@ -3,37 +3,6 @@ import { createDocument, type ZodOpenApiOperationObject, type ZodOpenApiPathsObj
 import type { Endpoint } from '../endpoint';
 import { endpoints } from '../endpoints';
 import { ErrorResponseSchema } from '../common';
-import { AuthSessionSchema, LoginRequestSchema, RegisterRequestSchema, TwoFactorChallengeSchema } from '../auth';
-import { FollowStatusSchema, UpdateProfileRequestSchema, UserProfileSchema, UserSchema } from '../user';
-import { PostPageSchema, PostSchema } from '../post';
-import { CommunitySchema, CommunitySummarySchema, MembershipStatusSchema } from '../community';
-import { EventSummarySchema } from '../event';
-import { ChatMessagePageSchema, ChatMessageSchema, ConversationSchema } from '../chat';
-import { SearchResponseSchema, UserSearchItemSchema } from '../search';
-
-// Registered schemas become named components, so generated clients get `User`, `Post`, ... instead of inline types.
-const components = {
-    ErrorResponse: ErrorResponseSchema,
-    User: UserSchema,
-    UserProfile: UserProfileSchema,
-    FollowStatus: FollowStatusSchema,
-    UpdateProfileRequest: UpdateProfileRequestSchema,
-    RegisterRequest: RegisterRequestSchema,
-    LoginRequest: LoginRequestSchema,
-    AuthSession: AuthSessionSchema,
-    TwoFactorChallenge: TwoFactorChallengeSchema,
-    Post: PostSchema,
-    PostPage: PostPageSchema,
-    Community: CommunitySchema,
-    CommunitySummary: CommunitySummarySchema,
-    MembershipStatus: MembershipStatusSchema,
-    EventSummary: EventSummarySchema,
-    ChatMessage: ChatMessageSchema,
-    ChatMessagePage: ChatMessagePageSchema,
-    Conversation: ConversationSchema,
-    UserSearchItem: UserSearchItemSchema,
-    SearchResponse: SearchResponseSchema,
-};
 
 const errorResponse = (description: string) => ({
     description,
@@ -79,6 +48,13 @@ function operation(operationId: string, endpoint: Endpoint): ZodOpenApiOperation
     };
 }
 
+function dropBinaryContentEncoding(node: unknown): void {
+    if (!node || typeof node !== 'object') return;
+    const schema = node as Record<string, unknown>;
+    if (schema.format === 'binary') delete schema.contentEncoding;
+    Object.values(schema).forEach(dropBinaryContentEncoding);
+}
+
 export function createOpenApiDocument(): ReturnType<typeof createDocument> {
     const paths: ZodOpenApiPathsObject = {};
     for (const [group, groupEndpoints] of Object.entries(endpoints)) {
@@ -89,14 +65,15 @@ export function createOpenApiDocument(): ReturnType<typeof createDocument> {
         }
     }
 
-    return createDocument({
+    const document = createDocument({
         openapi: '3.1.0',
         info: { title: 'Content Master API', version: '1.0.0' },
         servers: [{ url: '/api/v1' }],
         paths,
         components: {
-            schemas: components,
             securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
         },
     });
+    dropBinaryContentEncoding(document);
+    return document;
 }
