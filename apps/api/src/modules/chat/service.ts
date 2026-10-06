@@ -75,3 +75,13 @@ export async function listMessages(userId: number, otherUserId: number, { cursor
 export async function saveAttachment(file: Express.Multer.File): Promise<string> {
     return storage.url(await saveImage(file, 'chat_images'));
 }
+
+export const toChatMessage = (message: Message) => ({
+    id: message.message_id,
+    fromUserId: message.from_user_id,
+    toUserId: message.to_user_id,
+    content: message.content ?? null,
+    mediaUrl: message.media_url ?? null,
+    type: message.type,
+    createdAt: message.created_at,
+});

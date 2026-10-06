@@ -5,6 +5,8 @@ const publicEnvSchema = z.object({
     // Base URL of API v1 as seen by the browser: same-origin path through the Next rewrite or the gateway.
     API_URL: z.string().min(1).default('/api/v1'),
     APP_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    // Socket.IO origin as seen by the browser; a direct connection, since Next rewrites do not proxy WebSockets.
+    REALTIME_URL: z.url().default('http://localhost:5001'),
 });
 
 const serverEnvSchema = z.object({

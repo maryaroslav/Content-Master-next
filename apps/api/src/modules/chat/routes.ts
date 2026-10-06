@@ -17,15 +17,7 @@ export function mountChatRoutes(router: Router): void {
     mount(router, chatEndpoints.messages, async ({ params, query }, req) => {
         const { messages, nextCursor } = await chatService.listMessages(currentUserId(req), params.userId, query);
         return {
-            items: messages.map((message) => ({
-                id: message.message_id,
-                fromUserId: message.from_user_id,
-                toUserId: message.to_user_id,
-                content: message.content ?? null,
-                mediaUrl: message.media_url ?? null,
-                type: message.type,
-                createdAt: message.created_at,
-            })),
+            items: messages.map(chatService.toChatMessage),
             nextCursor,
         };
     });

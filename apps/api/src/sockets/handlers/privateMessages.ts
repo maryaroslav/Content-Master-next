@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io';
-import { Message, User } from '../../models';
+import { Message } from '../../models';
+import { toChatMessage } from '../../modules/chat/service';
 import { logger } from '../../lib/logger';
 
 interface AuthUser {
@@ -30,20 +31,7 @@ export default function privateMessagesHandler(io: Server, socket: Authenticated
                     type,
                 });
 
-                const fromUser = await User.findByPk(socket.user.user_id);
-
-                const out = {
-                    from_user_id: socket.user.user_id,
-                    to_user_id: toUserId,
-                    content: type === 'text' ? message : '',
-                    media_url: type === 'image' ? media_url : null,
-                    type,
-                    created_at: newMessage.created_at,
-                    FromUser: {
-                        username: fromUser?.username ?? 'Undefined',
-                        profile_picture: fromUser?.profile_picture ?? null,
-                    },
-                };
+                const out = toChatMessage(newMessage);
 
                 io.to(`user_${socket.user.user_id}`).emit('private_message', out);
                 io.to(`user_${toUserId}`).emit('private_message', out);
