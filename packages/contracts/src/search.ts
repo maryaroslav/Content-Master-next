@@ -14,8 +14,13 @@ export const UserSearchItemSchema = z.object({
 }).meta({ id: 'UserSearchItem' });
 export type UserSearchItem = z.infer<typeof UserSearchItemSchema>;
 
+export const CommunitySearchItemSchema = CommunitySummarySchema.extend({
+    isMember: z.boolean(),
+}).meta({ id: 'CommunitySearchItem' });
+export type CommunitySearchItem = z.infer<typeof CommunitySearchItemSchema>;
+
 export const SearchResponseSchema = z.object({
     users: z.array(UserSearchItemSchema),
-    communities: z.array(CommunitySummarySchema),
+    communities: z.array(CommunitySearchItemSchema),
 }).meta({ id: 'SearchResponse' });
 export type SearchResponse = z.infer<typeof SearchResponseSchema>;

@@ -9,7 +9,9 @@ const RESULTS_PER_TYPE = 20;
 
 export function mountSearchRoutes(router: Router): void {
     mount(router, searchEndpoints.search, async ({ query }, req) => {
-        const { users, communities } = await searchService.search(query.q, currentUserId(req), RESULTS_PER_TYPE);
+        const viewerId = currentUserId(req);
+        const { users, communities } = await searchService.search(query.q, viewerId, RESULTS_PER_TYPE);
+        const memberOf = await searchService.memberCommunityIds(viewerId, communities.map((c) => c.community_id));
         return {
             users: users.map((user) => ({
                 id: user.user_id,
@@ -23,6 +25,7 @@ export function mountSearchRoutes(router: Router): void {
                 privacy: community.privacy,
                 photo: storage.url(community.photo),
                 membersCount: community.members_count,
+                isMember: memberOf.has(community.community_id),
             })),
         };
     });

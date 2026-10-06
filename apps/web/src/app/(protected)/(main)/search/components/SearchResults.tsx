@@ -1,111 +1,68 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { fetchWithAuth } from '@/app/lib/apiClient';
-import arrowDown from '@images/icons/arrow-down.svg';
-import Link from 'next/link';
+
+import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { getErrorMessage, useSearchSearch } from '@cm/api-client';
+import { SearchQuerySchema } from '@cm/contracts';
+import MembershipButton from './MembershipButton';
 import { formatMembersCount } from '@/app/utils/FormatMembersCount';
+
 import '@/styles/feedCommunity.css';
 import '@/styles/searchResults.css';
+import arrowDown from '@images/icons/arrow-down.svg';
+import userImg from '@images/icons/user.svg';
 
-interface UserProps {
-    user_id: number;
-    profile_picture: string;
-    username: string;
-    bio: string;
-}
+type Filter = 'all' | 'users' | 'communities';
 
-interface CommunityProps {
-    community_id: number;
-    photo: string;
-    name: string;
-    privacy: string;
-    members_count: number;
-}
+export default function SearchResults({ query }: { query: string }) {
+    const [filter, setFilter] = useState<Filter>('all');
+    const parsed = SearchQuerySchema.safeParse({ q: query });
+    const params = parsed.success ? parsed.data : { q: '' };
+    const { data, error, status, refetch } = useSearchSearch(params, { query: { enabled: parsed.success } });
 
-type SearchResponse = {
-    users?: unknown;
-    communities?: unknown;
-};
-
-export default function SearchResults() {
-    const searchParams = useSearchParams();
-    const query = searchParams.get('q');
-    const [users, setUsers] = useState<UserProps[]>([]);
-    const [communities, setCommunities] = useState<CommunityProps[]>([]);
-    const [filter, setFilter] = useState('all');
-    console.log(users);
-    console.log(communities);
-
-    useEffect(() => {
-        if (!query) return;
-
-        (async () => {
-            try {
-                const res: unknown = await fetchWithAuth(`http://localhost:5001/api/search?q=${query}`);
-
-                const data = res as SearchResponse;
-                if (typeof data !== 'object' || data === null) {
-                    console.error('Invalid search response', res);
-                    return;
-                }
-
-                if (Array.isArray(data.users)) {
-                    const validUsers = data.users.filter(
-                        (u): u is UserProps =>
-                            typeof u === 'object' &&
-                            u !== null &&
-                            'user_id' in u &&
-                            'username' in u
-                    );
-                    setUsers(validUsers);
-                } else {
-                    setUsers([]);
-                }
-
-                if (Array.isArray(data.communities)) {
-                    const validCommunities = data.communities.filter(
-                        (c): c is CommunityProps =>
-                            typeof c === 'object' &&
-                            c !== null &&
-                            'community_id' in c &&
-                            'name' in c
-                    );
-                    setCommunities(validCommunities);
-                } else {
-                    setCommunities([]);
-                }
-            } catch (err) {
-                console.error('Search request failed', err);
-            }
-        })();
-    }, [query]);
+    const users = filter === 'communities' ? [] : data?.users ?? [];
+    const communities = filter === 'users' ? [] : data?.communities ?? [];
 
     return (
-        <div style={{ marginTop: '43px', padding: '20px', borderRadius: '10px', backgroundColor: '#fafafa' }}>
-            <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>Search results for &quot;{query}&quot;</h1>
-            <div className='search-buttons-container' style={{ marginBottom: '15px' }}>
-                <button onClick={() => setFilter('all')}>All</button>
-                <button onClick={() => setFilter('users')}>Users</button>
-                <button onClick={() => setFilter('communities')}>Communities</button>
+        <div className="search-container">
+            <h1 className="search-title">Search results for &quot;{query}&quot;</h1>
+            <div className="search-buttons-container">
+                {(['all', 'users', 'communities'] as const).map((value) => (
+                    <button
+                        key={value}
+                        type="button"
+                        className={filter === value ? 'active' : undefined}
+                        onClick={() => setFilter(value)}
+                    >
+                        {value[0]!.toUpperCase() + value.slice(1)}
+                    </button>
+                ))}
             </div>
 
-            {filter !== 'communities' && users.map(u => (
-                <Link key={u.user_id} href={`/profile/${u.username}`}>
-                    <div className='feedcommunity-my-community-container'>
+            {!parsed.success && <p className="search-status">{parsed.error.issues[0]?.message}</p>}
+            {parsed.success && status === 'pending' && <p className="search-status">Searching...</p>}
+            {status === 'error' && (
+                <div className="search-status">
+                    <p>{getErrorMessage(error)}</p>
+                    <button type="button" onClick={() => void refetch()}>Try again</button>
+                </div>
+            )}
+            {status === 'success' && users.length === 0 && communities.length === 0 && (
+                <p className="search-status">Nothing found.</p>
+            )}
+
+            {users.map((user) => (
+                <Link key={user.id} href={`/profile/${user.username}`}>
+                    <div className="feedcommunity-my-community-container">
                         <div className="feedcommunity-item">
-                            {u.profile_picture ? (
-                                <Image src={`http://localhost:5001/uploads/${u.profile_picture}`} alt={u.username} width={100} height={100} style={{ borderRadius: '50%' }} />
-                            ) : (
-                                <Image src="/img/icons/user.svg" alt="default" width={100} height={100} style={{ borderRadius: '50%' }} />
-                            )}
+                            <Image src={user.profilePicture ?? userImg} alt={user.username} width={100} height={100} style={{ borderRadius: '50%' }} />
                             <div className="feedcommunity-item-title">
                                 <p className="feedcommunity-type">USER</p>
-                                <p className="feedcommunity-name">{u.username}</p>
-                                <p className="feedcommunity-members">{u.bio}</p>
+                                <p className="feedcommunity-name">{user.username}</p>
+                                {user.bio && <p className="feedcommunity-members">{user.bio}</p>}
                             </div>
-                            <div className='feedcommunity-arrow'>
+                            <div className="feedcommunity-arrow">
                                 <Image src={arrowDown} alt="" />
                             </div>
                         </div>
@@ -113,18 +70,16 @@ export default function SearchResults() {
                 </Link>
             ))}
 
-            {filter !== 'users' && communities.map(c => (
-                <div key={c.community_id} className='feedcommunity-my-community-container'>
+            {communities.map((community) => (
+                <div key={community.id} className="feedcommunity-my-community-container">
                     <div className="feedcommunity-item">
-                        <Image src={`http://localhost:5001${c.photo}`} alt={c.name} width={100} height={100} />
+                        <Image src={community.photo} alt={community.name} width={100} height={100} />
                         <div className="feedcommunity-item-title">
-                            <p className="feedcommunity-type">{c.privacy}</p>
-                            <p className="feedcommunity-name">{c.name}</p>
-                            <p className="feedcommunity-members">{formatMembersCount(c.members_count)} Members</p>
+                            <p className="feedcommunity-type">{community.privacy}</p>
+                            <p className="feedcommunity-name">{community.name}</p>
+                            <p className="feedcommunity-members">{formatMembersCount(community.membersCount)} Members</p>
                         </div>
-                        <div className='feedcommunity-arrow'>
-                            <Image src={arrowDown} alt="" />
-                        </div>
+                        <MembershipButton community={community} query={params.q} />
                     </div>
                 </div>
             ))}

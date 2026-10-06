@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { User, Community } from '../../models';
+import { User, Community, UserCommunity } from '../../models';
 
 // `%` and `_` typed by the user must match literally, not act as LIKE wildcards.
 const containing = (q: string) => `%${q.replace(/[\\%_]/g, '\\$&')}%`;
@@ -21,4 +21,13 @@ export async function search(q: string, viewerId: number, limit?: number) {
         }),
     ]);
     return { users, communities };
+}
+
+export async function memberCommunityIds(viewerId: number, communityIds: number[]): Promise<Set<number>> {
+    if (!communityIds.length) return new Set();
+    const memberships = await UserCommunity.findAll({
+        where: { user_id: viewerId, community_id: communityIds },
+        attributes: ['community_id'],
+    });
+    return new Set(memberships.map((m) => m.community_id));
 }

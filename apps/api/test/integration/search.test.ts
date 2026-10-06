@@ -39,4 +39,22 @@ describe('GET /api/v1/search', () => {
         expect(result.users.map((u) => u.username)).toEqual(['alicia']);
         expect(result.communities.map((c) => c.name)).toEqual(['Alpine fans']);
     });
+
+    it('tells whether the viewer is a member of each community', async () => {
+        const [owner, viewer] = [await createUser('owner'), await createUser('viewer')];
+        const ids: number[] = [];
+        for (const name of ['Chess club', 'Chess fans']) {
+            const res = await api()
+                .post('/api/v1/communities')
+                .set(owner.auth)
+                .field({ name, privacy: 'public', theme: 'Games' })
+                .attach('photo', await testImage(), 'p.png')
+                .expect(201);
+            ids.push(res.body.id);
+        }
+        await api().post(`/api/v1/communities/${ids[0]}/membership`).set(viewer.auth).expect(200);
+
+        const result = await search(viewer, 'Chess');
+        expect(result.communities.map((c) => [c.name, c.isMember])).toEqual([['Chess club', true], ['Chess fans', false]]);
+    });
 });

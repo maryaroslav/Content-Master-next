@@ -1,7 +1,6 @@
-import SearchResults from "./components/SearchResults";
+import SearchResults from './components/SearchResults';
 
-const SearchPage = () => {
-    return <SearchResults />;
+export default async function SearchPage({ searchParams }: PageProps<'/search'>) {
+    const { q } = await searchParams;
+    return <SearchResults query={typeof q === 'string' ? q : ''} />;
 }
-
-export default SearchPage;
