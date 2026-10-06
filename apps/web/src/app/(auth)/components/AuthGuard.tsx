@@ -1,27 +1,25 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@cm/auth";
 
-interface AuthGuardProps {
-    children: React.ReactNode;
-}
+const PUBLIC_ROUTES = ["/", "/login", "/register"];
+const GUEST_ONLY_ROUTES = ["/login", "/register"];
 
-export default function AuthGuard({ children }: AuthGuardProps) {
-    const { status } = useSession();
+export default function AuthGuard({ children }: { children: React.ReactNode }) {
+    const { status } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
-
-    const publicRoutes = ["/", "/register", "/login"];
+    const isPublic = PUBLIC_ROUTES.includes(pathname);
 
     useEffect(() => {
-        if (status === "unauthenticated" && !publicRoutes.includes(pathname)) {
-            router.push('/login');
-        }
-    }, [status, pathname, router, publicRoutes]);
+        if (status === "unauthenticated" && !isPublic) router.replace("/login");
+        if (status === "authenticated" && GUEST_ONLY_ROUTES.includes(pathname)) router.replace("/explore");
+    }, [status, isPublic, pathname, router]);
 
-    if (status === 'loading') return <p>Loading...</p>
+    // The session lives in memory and is restored on the client, so protected pages wait for it here.
+    if (!isPublic && status !== "authenticated") return <p>Loading...</p>;
 
     return <>{children}</>;
 }

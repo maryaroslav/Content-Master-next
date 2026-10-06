@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getSession } from "next-auth/react";
+import { getFreshAccessToken } from "@cm/auth";
 import Image from "next/image";
 import { io, Socket } from "socket.io-client";
 import { useSearchParams } from "next/navigation";
@@ -28,19 +28,6 @@ interface Message {
         profile_picture?: string | null;
     } | null;
 }
-
-const getTokenFromSession = (session: unknown): string | undefined => {
-    if (!session || typeof session !== "object") return undefined;
-    const s = session as Record<string, unknown>;
-    const v1 = s.accessToken ?? s.access_token;
-    if (typeof v1 === "string") return v1;
-    const user = s.user as Record<string, unknown> | undefined;
-    if (user) {
-        const v2 = user.accessToken ?? user.access_token;
-        if (typeof v2 === "string") return v2;
-    }
-    return undefined;
-};
 
 const decodeJwtPayload = (token: string): Record<string, unknown> | null => {
     try {
@@ -83,8 +70,7 @@ export default function ChatPage() {
 
         const loadHistory = async (): Promise<void> => {
             try {
-                const session = await getSession();
-                const token = getTokenFromSession(session);
+                const token = await getFreshAccessToken();
                 if (!token) return;
 
                 const res = await fetch(`http://localhost:5001/api/chat/message/${toUserId}`, {
@@ -125,8 +111,7 @@ export default function ChatPage() {
 
         const setupSocket = async (): Promise<void> => {
             try {
-                const session = await getSession();
-                const token = getTokenFromSession(session);
+                const token = await getFreshAccessToken();
                 if (!token) return;
 
                 newSocket = io('http://localhost:5001', {
@@ -251,8 +236,7 @@ export default function ChatPage() {
         const formData = new FormData();
         formData.append('image', file);
 
-        const session = await getSession();
-        const token = getTokenFromSession(session);
+        const token = await getFreshAccessToken();
         if (!token) return;
 
         const res = await fetch('http://localhost:5001/api/chat/upload', {

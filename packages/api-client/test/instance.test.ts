@@ -1,6 +1,6 @@
 import { AxiosError, AxiosHeaders, type AxiosAdapter, type InternalAxiosRequestConfig } from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { configureHttp, http } from '../src/http/instance';
+import { configureHttp, http } from '../src/http/instance.js';
 
 const seen: { url?: string; authorization?: string }[] = [];
 let validToken = 'fresh-token';

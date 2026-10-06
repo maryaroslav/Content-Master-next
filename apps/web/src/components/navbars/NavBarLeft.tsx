@@ -2,39 +2,19 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useUsersMyCommunities, useUsersMyEvents } from '@cm/api-client';
 import { formatMembersCount } from '@/app/utils/FormatMembersCount';
 
 import '@/styles/navBarLeft.css'
 
 import arrowDown from '@images/icons/arrow-down.svg';
 
-interface Community {
-  community_id: number;
-  photo: string;
-  privacy: string;
-  name: string;
-  members_count: number;
-}
-
-interface EventItem {
-  event_id: number;
-  image: string;
-  created_at: string;
-  title: string;
-  members_count: number;
-}
-
-interface NavBarLeftProps {
-  communities?: Community[];
-  events?: EventItem[];
-}
-
-const NavBarLeft = (props: NavBarLeftProps) => {
+const NavBarLeft = () => {
   const [showAllCommunities, setShowAllCommunities] = useState(false);
   const [showAllEvents, setShowAllEvents] = useState(false);
 
-  const communities = props.communities ?? [];
-  const events = props.events ?? [];
+  const { data: communities = [] } = useUsersMyCommunities();
+  const { data: events = [] } = useUsersMyEvents();
 
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -53,12 +33,12 @@ const NavBarLeft = (props: NavBarLeftProps) => {
         </div>
         <div className="community-list">
           {(showAllCommunities ? communities : communities.slice(0, 4)).map((community, index) => (
-            <div key={community.community_id} className="community-item">
-              <Image src={`http://localhost:5001${community.photo}`} width={100} height={100} alt="" />
+            <div key={community.id} className="community-item">
+              <Image src={community.photo} width={100} height={100} alt="" />
               <div key={index} className='item-title'>
                 <p className="community-type">{community.privacy}</p>
                 <p className="community-name">{community.name}</p>
-                <p className="community-members">{formatMembersCount(community.members_count)} Members</p>
+                <p className="community-members">{formatMembersCount(community.membersCount)} Members</p>
               </div>
             </div>
           ))}
@@ -71,12 +51,12 @@ const NavBarLeft = (props: NavBarLeftProps) => {
         </div>
         <div className="event-list">
           {(showAllEvents ? events : events.slice(0, 6)).map((event, index) => (
-            <div key={event.event_id} className="event-item">
-              <Image src={`http://localhost:5001${event.image}`} width={100} height={100} alt="" />
+            <div key={event.id} className="event-item">
+              <Image src={event.image} width={100} height={100} alt="" />
               <div key={index} className='item-title'>
-                <p className="event-date">{formatDate(event.created_at)}</p>
+                <p className="event-date">{formatDate(event.createdAt)}</p>
                 <p className="event-name">{event.title}</p>
-                <p className="event-attendees">{formatMembersCount(event.members_count)} people have joined this event</p>
+                <p className="event-attendees">{formatMembersCount(event.membersCount ?? 0)} people have joined this event</p>
               </div>
             </div>
           ))}

@@ -1,21 +1,43 @@
 "use client";
 
-import type { Session } from "next-auth";
+import { useState } from "react";
 import { Provider } from "react-redux";
-import { SessionProvider } from "next-auth/react";
+import { isAxiosError } from "axios";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { configureHttp } from "@cm/api-client";
+import { AuthProvider, getAccessToken, handleAuthFailure, refreshAccessToken } from "@cm/auth";
+import { publicEnv } from "@cm/env";
 import store from './lib/store';
 
-interface ProvidersProps {
-    children: React.ReactNode;
-    session?: Session | null;
-};
+configureHttp({
+    getBaseUrl: () => publicEnv().API_URL,
+    getAccessToken,
+    refreshAccessToken,
+    onAuthFailure: handleAuthFailure,
+});
 
-export default function Providers({ children, session }: ProvidersProps) {
+// A 4xx answer will not change on retry; only network and server errors are retried.
+const shouldRetry = (failureCount: number, error: unknown) =>
+    failureCount < 2 && !(isAxiosError(error) && error.response && error.response.status < 500);
+
+export default function Providers({ children }: { children: React.ReactNode }) {
+    const [queryClient] = useState(
+        () =>
+            new QueryClient({
+                defaultOptions: {
+                    queries: { staleTime: 30_000, retry: shouldRetry },
+                    mutations: { retry: false },
+                },
+            })
+    );
+
     return (
-        <SessionProvider session={session}>
-            <Provider store={store}>
-                {children}
-            </Provider>
-        </SessionProvider>
+        <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+                <Provider store={store}>
+                    {children}
+                </Provider>
+            </AuthProvider>
+        </QueryClientProvider>
     );
 }

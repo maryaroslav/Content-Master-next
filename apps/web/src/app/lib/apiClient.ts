@@ -1,18 +1,15 @@
-import { getSession } from "next-auth/react";
+import { getFreshAccessToken, refreshAccessToken } from "@cm/auth";
 
+// Bridge for the pre-v1 screens until they move to the generated hooks of @cm/api-client (migration phase 5).
 export async function fetchWithAuth<T = unknown>(url: string, options: RequestInit = {}): Promise<T> {
-    const session = await getSession();
-    const token = (session as { accessToken?: string } | null)?.accessToken;
+    const send = (token: string | null) => {
+        const headers = new Headers(options.headers as HeadersInit | undefined);
+        if (token) headers.set('Authorization', `Bearer ${token}`);
+        return fetch(url, { ...options, headers });
+    };
 
-    const headers = new Headers(options.headers as HeadersInit | undefined);
-    if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-    }
-
-    const res = await fetch(url, {
-        ...options,
-        headers,
-    });
+    let res = await send(await getFreshAccessToken());
+    if (res.status === 401) res = await send(await refreshAccessToken());
 
     if (!res.ok) {
         let errorBody: unknown;

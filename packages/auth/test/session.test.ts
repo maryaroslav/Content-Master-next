@@ -204,3 +204,33 @@ describe('updateUser', () => {
         expect(auth.authStore.getState().user?.bio).toBe('Hello');
     });
 });
+
+describe('getFreshAccessToken', () => {
+    const tokenExpiringIn = (seconds: number) =>
+        `header.${btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + seconds }))}.signature`;
+
+    it('returns the current token while it is valid for more than 30 seconds', async () => {
+        const auth = await loadSession();
+        const token = tokenExpiringIn(600);
+        mocked.authLogin.mockResolvedValue(session(token));
+        await auth.login({ email: 'alice@example.com', password: 'password123' });
+
+        await expect(auth.getFreshAccessToken()).resolves.toBe(token);
+        expect(mocked.authRefresh).not.toHaveBeenCalled();
+    });
+
+    it('refreshes a token that is about to expire', async () => {
+        const auth = await loadSession();
+        mocked.authLogin.mockResolvedValue(session(tokenExpiringIn(10)));
+        mocked.authRefresh.mockResolvedValue(session('renewed'));
+        await auth.login({ email: 'alice@example.com', password: 'password123' });
+
+        await expect(auth.getFreshAccessToken()).resolves.toBe('renewed');
+    });
+
+    it('refreshes when there is no token yet', async () => {
+        const auth = await loadSession();
+        mocked.authRefresh.mockResolvedValue(session('from-cookie'));
+        await expect(auth.getFreshAccessToken()).resolves.toBe('from-cookie');
+    });
+});

@@ -1,6 +1,7 @@
 export {
     authStore,
     getAccessToken,
+    getFreshAccessToken,
     handleAuthFailure,
     login,
     loginWithTwoFactor,
@@ -11,5 +12,5 @@ export {
     type AuthState,
     type AuthStatus,
     type LoginResult,
-} from './session';
-export { AuthProvider, useAuth } from './react';
+} from './session.js';
+export { AuthProvider, useAuth } from './react.js';

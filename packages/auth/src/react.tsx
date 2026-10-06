@@ -1,5 +1,5 @@
 import { useEffect, useSyncExternalStore, type ReactNode } from 'react';
-import { authStore, refreshAccessToken, type AuthState } from './session';
+import { authStore, refreshAccessToken, type AuthState } from './session.js';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {

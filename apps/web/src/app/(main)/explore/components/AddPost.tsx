@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getSession } from "next-auth/react";
+import { getFreshAccessToken } from "@cm/auth";
 import user from '@images/icons/user.svg';
 import uploadIcon from '@images/icons/imagesButton.svg';
 import gifIcon from '@images/icons/gifButton.svg';
@@ -47,8 +47,7 @@ const AddPost: React.FC<AddPostProps> = ({ onPostCreated }) => {
         });
 
         try {
-            const session = await getSession();
-            const token = (session as unknown as { accessToken?: string } | null)?.accessToken;
+            const token = await getFreshAccessToken();
 
             const res = await fetch('http://localhost:5001/api/posts', {
                 method: 'POST',
@@ -72,8 +71,7 @@ const AddPost: React.FC<AddPostProps> = ({ onPostCreated }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const session = await getSession();
-                const token = (session as unknown as { accessToken?: string } | null)?.accessToken;
+                const token = await getFreshAccessToken();
 
                 const res = await fetch('http://localhost:5001/api/user/me', {
                     headers: {

@@ -3,20 +3,14 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
+import { getErrorMessage } from '@cm/api-client';
+import { login, loginWithTwoFactor, register } from '@cm/auth';
 import { useRouter } from 'next/navigation';
 
 import '@/styles/authForm.css';
 import loginImg from '@images/auth/login_1.png';
 import registerImg from '@images/auth/register_1.png';
 import crossImg from '@images/icons/cross.svg';
-
-interface Credentials {
-    email: string;
-    password: string;
-    twoFAToken?: string;
-    challengeToken?: string;
-}
 
 interface AuthFormProps {
     type: "login" | "register";
@@ -59,74 +53,25 @@ const AuthForm = ({ type }: AuthFormProps) => {
             return;
         }
 
-        if (type === 'login') {
-            const credentials: Credentials = { email, password }
-            if (is2FARequired) {
-                credentials.twoFAToken = twoFACode;
-                credentials.challengeToken = challengeToken ?? undefined;
-            }
-
-            const result = await signIn('credentials', {
-                ...credentials,
-                redirect: false,
-                callbackUrl: '/explore'
-            });
-
-            if (result?.error) {
-                console.log('Login error: ', result.error);
-
-                let parsedError = null;
-                try {
-                    parsedError = JSON.parse(result.error);
-                } catch {
-                    console.warn('Error is not JSON', result.error);
-                }
-
-                if (parsedError?.twofaRequired) {
+        try {
+            if (type === 'register') {
+                await register({ email, password, username });
+            } else if (is2FARequired && challengeToken) {
+                await loginWithTwoFactor({ challengeToken, code: twoFACode.trim() });
+            } else {
+                const result = await login({ email, password });
+                if (result.status === 'twoFactorRequired') {
                     setIs2FARequired(true);
-                    setChallengeToken(parsedError.challengeToken);
+                    setChallengeToken(result.challengeToken);
                     setError('Enter your 2FA code');
                     setLoading(false);
                     return;
                 }
-
-                if (result.error === 'CredentialsSignin') {
-                    setError('Invalid email or password');
-                } else {
-                    setError(result.error);
-                }
-
-                setLoading(false);
-                return;
-            } else {
-                router.push('/explore');
             }
-        } else {
-            try {
-                const res = await fetch('http://localhost:5001/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, username })
-                });
-
-                const data = await res.json();
-
-                if (!res.ok) {
-                    throw new Error(data.message || 'Failed to register');
-                }
-
-                await signIn('credentials', {
-                    email,
-                    password,
-                    redirect: false
-                });
-                router.push('/explore');
-            } catch (err: unknown) {
-                console.error('Registration error: ', err);
-                const message = err instanceof Error ? err.message : String(err);
-                setError(message);
-                setLoading(false);
-            }
+            router.push('/explore');
+        } catch (err: unknown) {
+            setError(getErrorMessage(err));
+            setLoading(false);
         }
     };
 

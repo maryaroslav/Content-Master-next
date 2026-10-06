@@ -3,7 +3,7 @@
 **Frontend**:
 - Next + TS (App Router)
 - React
-- NextAuth (JWT)
+- TanStack Query + generated API client (orval)
 - Redux
 - CSS
 - Git LFS
@@ -56,7 +56,7 @@ The variables are validated on startup: the backend refuses to start and lists w
 ```
 cp apps/web/.env.example apps/web/.env.local
 ```
-Fill in `NEXTAUTH_SECRET`. `API_URL` and `APP_ENV` reach the browser through `/env.js` at request time, so a built frontend picks up new values on restart without a rebuild.
+`API_ORIGIN` is where the Next server proxies `/api/v1/*` and `/uploads/*`. `API_URL` and `APP_ENV` reach the browser through `/env.js` at request time, so a built frontend picks up new values on restart without a rebuild.
 
 ## Start the project:
 ```

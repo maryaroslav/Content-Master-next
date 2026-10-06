@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, getSession } from "next-auth/react";
+import { useAuth } from "@cm/auth";
 import Image from 'next/image';
 
 import HeaderWelcome from "../components/headers/HeaderWelcome";
@@ -25,7 +25,7 @@ import hand from '../images/first_page/hand.svg'
 import ship from '../images/first_page/ship.svg'
 
 const Welcome = () => {
-    const { status } = useSession();
+    const { status } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -33,15 +33,6 @@ const Welcome = () => {
         return () => {
             document.documentElement.style.overflow = "";
         };
-    }, []);
-
-    useEffect(() => {
-        const fetchToken = async () => {
-            const session = await getSession();
-            console.log("Session from NextAuth:", session);
-        };
-
-        fetchToken();
     }, []);
 
     const handleClick = () => {

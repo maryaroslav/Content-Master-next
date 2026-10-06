@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getSession } from 'next-auth/react';
+import { getFreshAccessToken } from '@cm/auth';
 import Image from 'next/image';
 import { fetchWithAuth } from '@/app/lib/apiClient';
 import HeaderMain from '@/components/headers/HeaderMain';
@@ -128,8 +128,7 @@ const ProfilePage = () => {
                                             const code = window.prompt('Enter the code from your authenticator app to disable 2FA');
                                             if (!code) return;
 
-                                            const session = await getSession();
-                                            const token = session?.accessToken;
+                                            const token = await getFreshAccessToken();
                                             if (!token) throw new Error('No token found');
 
                                             const res = await fetch('http://localhost:5001/api/auth/2fa/disable', {
@@ -168,8 +167,7 @@ const ProfilePage = () => {
                                 <button
                                     onClick={async () => {
                                         try {
-                                            const session = await getSession();
-                                            const token = session?.accessToken;
+                                            const token = await getFreshAccessToken();
                                             if (!token) throw new Error('No token found');
 
                                             const res = await fetch('http://localhost:5001/api/auth/2fa/setup', {
@@ -220,8 +218,7 @@ const ProfilePage = () => {
                                     <button
                                         onClick={async () => {
                                             try {
-                                                const session = await getSession();
-                                                const token = session?.accessToken;
+                                                const token = await getFreshAccessToken();
                                                 if (!token) throw new Error('No token found');
 
                                                 const res = await fetch('http://localhost:5001/api/auth/2fa/verify', {

@@ -82,6 +82,22 @@ export function refreshAccessToken(): Promise<string | null> {
 }
 
 
+// Reading `exp` needs no signature check: the token is only used to decide when to refresh it.
+function expiresAt(token: string): number {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]!.replace(/-/g, '+').replace(/_/g, '/'))) as { exp?: number };
+        return (payload.exp ?? 0) * 1000;
+    } catch {
+        return 0;
+    }
+}
+
+// For callers that send the token without the api-client's retry-on-401 (raw fetch, Socket.IO handshake).
+export async function getFreshAccessToken(): Promise<string | null> {
+    if (accessToken && expiresAt(accessToken) - Date.now() > 30_000) return accessToken;
+    return refreshAccessToken();
+}
+
 export async function login(credentials: LoginRequest): Promise<LoginResult> {
     const result = await authLogin(credentials);
     if ('twoFactorRequired' in result) return { status: 'twoFactorRequired', challengeToken: result.challengeToken };
