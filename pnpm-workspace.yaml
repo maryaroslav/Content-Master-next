@@ -1,0 +1,9 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Dependencies allowed to run install scripts (native builds / prebuilt binaries).
+onlyBuiltDependencies:
+  - bcrypt
+  - sharp
+  - unrs-resolver

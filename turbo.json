@@ -1,0 +1,71 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build",
+        "generate"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": [
+        "^build",
+        "generate"
+      ]
+    },
+    "lint": {
+      "dependsOn": [
+        "^build",
+        "generate"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "^build",
+        "generate"
+      ]
+    },
+    "dev": {
+      "dependsOn": [
+        "^build",
+        "generate"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "circular": {
+      "dependsOn": [
+        "generate"
+      ]
+    },
+    "test:integration": {
+      "dependsOn": [
+        "^build",
+        "generate"
+      ],
+      "cache": false,
+      "passThroughEnv": [
+        "DB_HOST",
+        "DB_PORT",
+        "DB_USER",
+        "DB_PASS",
+        "DB_NAME",
+        "JWT_SECRET",
+        "TWOFA_ENCRYPTION_KEY"
+      ]
+    },
+    "generate": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "src/generated/**"
+      ]
+    }
+  }
+}

@@ -1,0 +1,81 @@
+.search-container {
+    margin-top: 43px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #fafafa;
+    color: #10100E;
+}
+
+.search-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.search-buttons-container {
+    margin-bottom: 15px;
+}
+
+.search-buttons-container button {
+    margin-right: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: rgba(9, 147, 246, 0.31);
+    color: #0094FF;
+    padding: 4px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.search-buttons-container button.active {
+    background-color: #0094FF;
+    color: #fff;
+}
+
+.search-status {
+    padding: 20px;
+    text-align: center;
+    color: #6B6B6B;
+}
+
+.search-status button,
+.search-membership button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 12px;
+    background-color: #0094FF;
+    color: #fff;
+    cursor: pointer;
+}
+
+.search-membership button.secondary {
+    background-color: #fff;
+    color: #10100E;
+    border: 1px solid #CFCFCF;
+}
+
+.search-membership button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.search-membership,
+.search-membership-note {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: 16px;
+    gap: 4px;
+}
+
+.search-membership-note {
+    font-size: 13px;
+    color: #6B6B6B;
+}
+
+.search-error {
+    color: #D93025;
+    font-size: 12px;
+}

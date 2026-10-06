@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/syncpack/schema.json",
+  "versionGroups": [
+    {
+      "label": "Internal packages always come from the workspace",
+      "dependencies": [
+        "$LOCAL"
+      ],
+      "dependencyTypes": [
+        "dev",
+        "prod"
+      ],
+      "pinVersion": "workspace:*"
+    },
+    {
+      "label": "Peer ranges are checked by semverGroups only",
+      "dependencyTypes": [
+        "peer"
+      ],
+      "isIgnored": true
+    }
+  ],
+  "semverGroups": [
+    {
+      "label": "Peer dependencies may use ranges",
+      "dependencyTypes": [
+        "peer"
+      ],
+      "range": ">="
+    },
+    {
+      "label": "Everything else is pinned to an exact version",
+      "range": ""
+    }
+  ]
+}

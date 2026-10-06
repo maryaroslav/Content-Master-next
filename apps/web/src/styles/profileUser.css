@@ -1,0 +1,136 @@
+.profile-wrapper {
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    margin-top: 20px;
+    width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.profile-header-info {
+    display: flex;
+    gap: 20px;
+}
+
+.profile-info-image-user {
+    display: flex;
+    align-items: center;
+    background-color: #c4c4c4;
+    border-radius: 50%;
+    padding: 4px;
+}
+
+.profile-info-image-user img {
+    border-radius: 50%;
+}
+
+.profile-info-username-bio {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    margin-bottom: 8px;
+}
+
+.profile-info-username {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.profile-info-bio {
+    font-size: 12px;
+    color: #5B5B5B;
+}
+
+.profile-buttons {
+    display: flex;
+    align-items: center;
+    margin-top: auto;
+    margin-bottom: 8px;
+    margin-left: auto;
+}
+
+.profile-buttons button {
+    margin-right: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: rgba(9, 147, 246, 0.31);
+    color: #0094FF;
+    padding: 4px 16px;
+}
+.profile-info-handle {
+    font-size: 13px;
+    color: #5B5B5B;
+}
+
+.profile-buttons {
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.profile-buttons .follow-button {
+    background-color: #0094FF;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.profile-buttons .follow-button.following {
+    background-color: #DDDDDD;
+    color: #333;
+}
+
+.profile-buttons .follow-button:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.profile-chat-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 26px;
+    width: 34px;
+    border-radius: 6px;
+    background-color: rgba(9, 147, 246, 0.31);
+}
+
+.profile-error {
+    width: 100%;
+    color: #D93025;
+    font-size: 13px;
+}
+
+.profile-status {
+    padding: 40px;
+    text-align: center;
+    color: #5B5B5B;
+}
+
+.profile-status button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    background-color: #0094FF;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.profile-edit-link {
+    margin-right: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: rgba(9, 147, 246, 0.31);
+    color: #0094FF;
+    padding: 4px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+}
