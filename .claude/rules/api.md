@@ -26,9 +26,6 @@
   handler returns the response body, typed by the contract (Date is allowed where the
   contract has a date string). In development and tests mount also checks the actual
   response against the schema. Never call router.get/post/... directly for v1.
-- Legacy routes (routes/*.ts, mounted under /api) use withValidation({ params?, query?,
-  body? }, handler) with schemas from @cm/contracts/legacy and must keep their response
-  shapes (see routes/legacyFormat.ts); they are removed in migration phase 5.
 - No inline zod schemas, no manual req.body parsing.
 - Errors: throw AppError(status, code, message, details?). Do not build error
   responses by hand, do not wrap handlers in try/catch (Express 5 forwards
@@ -36,11 +33,11 @@
 - Response shape must match the contract type; change the contract first.
 
 ## Auth
-- Protected v1 endpoints set `auth: true` in their definition (legacy routes add
-  requireAuth themselves); get the user with currentUserId(req).
+- Protected endpoints set `auth: true` in their definition; get the user with
+  currentUserId(req).
 - Access and 2FA challenge tokens share a key and differ by the `type` claim:
   always check `type` when verifying.
-- Refresh tokens: rotating, httpOnly cm_refresh cookie scoped to /api/auth,
+- Refresh tokens: rotating, httpOnly cm_refresh cookie scoped to /api/v1/auth,
   stored as SHA-256 hashes, family-wide revocation on reuse. Do not change
   this flow without an explicit plan step.
 - TOTP secrets are stored only via auth/secretBox.ts. Never log or return

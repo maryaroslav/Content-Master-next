@@ -46,8 +46,7 @@ export async function listConversations(userId: number): Promise<Conversation[]>
         );
 }
 
-// Without `limit` the whole history is returned, as the legacy API does.
-export async function listMessages(userId: number, otherUserId: number, { cursor, limit }: { cursor?: number; limit?: number } = {}) {
+export async function listMessages(userId: number, otherUserId: number, { cursor, limit }: { cursor?: number; limit: number }) {
     const where = {
         [Op.and]: [
             {
@@ -61,12 +60,6 @@ export async function listMessages(userId: number, otherUserId: number, { cursor
     };
     const include = [{ model: User, as: 'FromUser', attributes: ['user_id', 'username', 'profile_picture'] }];
 
-    if (!limit) {
-        const messages = await Message.findAll({ where, include, order: [['message_id', 'ASC']] });
-        return { messages, nextCursor: null };
-    }
-
-    // Newest page first, so the chat opens on the latest messages; returned oldest-to-newest.
     const newest = await Message.findAll({ where, include, order: [['message_id', 'DESC']], limit: limit + 1 });
     const page = newest.slice(0, limit).reverse();
     return { messages: page, nextCursor: newest.length > limit ? page[0]!.message_id : null };

@@ -4,8 +4,7 @@ import { User, Community, UserCommunity } from '../../models';
 // `%` and `_` typed by the user must match literally, not act as LIKE wildcards.
 const containing = (q: string) => `%${q.replace(/[\\%_]/g, '\\$&')}%`;
 
-// Without `limit` every match is returned, as the legacy API does.
-export async function search(q: string, viewerId: number, limit?: number) {
+export async function search(q: string, viewerId: number, limit: number) {
     const [users, communities] = await Promise.all([
         User.findAll({
             where: { username: { [Op.like]: containing(q) }, user_id: { [Op.ne]: viewerId } },

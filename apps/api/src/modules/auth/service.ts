@@ -75,14 +75,14 @@ export async function setupTwoFactor(userId: number): Promise<string> {
     return qrcode.toDataURL(secret.otpauth_url ?? '');
 }
 
-// Returns null for a wrong code: the legacy API answers that with `verified: false` instead of an error.
-export async function enableTwoFactor(userId: number, code: string): Promise<User | null> {
+export async function enableTwoFactor(userId: number, code: string): Promise<User> {
     const user = await findUserOrThrow(userId);
     if (!user.twoFactorSecret) {
         throw new AppError(400, 'TWO_FACTOR_NOT_SET_UP', 'Start the 2FA setup first');
     }
-    if (!isValidCode(user.twoFactorSecret, code)) return null;
-
+    if (!isValidCode(user.twoFactorSecret, code)) {
+        throw new AppError(401, 'INVALID_2FA_CODE', 'Invalid 2FA code');
+    }
     return user.update({ twoFactorEnabled: true });
 }
 

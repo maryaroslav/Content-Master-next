@@ -11,7 +11,7 @@ export async function getUser(userId: number): Promise<User> {
     return user;
 }
 
-export async function getUserByUsername(username: string): Promise<User> {
+async function getUserByUsername(username: string): Promise<User> {
     const user = await User.findOne({ where: { username } });
     if (!user) throw new AppError(404, 'USER_NOT_FOUND', 'User not found');
     return user;

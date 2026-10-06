@@ -9,10 +9,6 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./legacy": {
-      "types": "./dist/legacy/index.d.ts",
-      "default": "./dist/legacy/index.js"
-    },
     "./openapi.json": "./dist/openapi.json"
   },
   "files": [

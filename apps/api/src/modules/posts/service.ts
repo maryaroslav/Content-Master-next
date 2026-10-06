@@ -10,17 +10,16 @@ const withImages = { model: PostImage, as: 'images', separate: true, order: [['p
 
 export const imageKeys = (post: Post): string[] => (post.images ?? []).map((image) => image.image_key);
 
-// Without `limit` the whole feed is returned: the legacy API is not paginated.
-export async function listPosts({ cursor, limit }: { cursor?: number; limit?: number } = {}) {
+export async function listPosts({ cursor, limit }: { cursor?: number; limit: number }) {
     const posts = await Post.findAll({
         where: cursor ? { post_id: { [Op.lt]: cursor } } : {},
         include: [withAuthor, withImages],
         // post_id grows with created_at and is the cursor, so it is also the sort key.
         order: [['post_id', 'DESC']],
-        limit: limit ? limit + 1 : undefined,
+        limit: limit + 1,
     });
 
-    if (!limit || posts.length <= limit) return { posts, nextCursor: null };
+    if (posts.length <= limit) return { posts, nextCursor: null };
     const page = posts.slice(0, limit);
     return { posts: page, nextCursor: page[page.length - 1]!.post_id };
 }

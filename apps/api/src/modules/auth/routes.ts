@@ -10,10 +10,8 @@ import { toUserDto } from '../users/mapper';
 import { mount } from '../mount';
 import * as authService from './service';
 
-const COOKIE_PATH = '/api/v1/auth';
-
 async function startSessionResponse(user: User, req: Request, res: Response) {
-    setRefreshCookie(res, await startSession(user.user_id, req.get('user-agent')), COOKIE_PATH);
+    setRefreshCookie(res, await startSession(user.user_id, req.get('user-agent')));
     return { accessToken: signAccessToken(user), user: toUserDto(user) };
 }
 
@@ -43,10 +41,10 @@ export function mountAuthRoutes(router: Router): void {
 
         try {
             const { user, refreshToken } = await authService.refreshSession(current, req.get('user-agent'));
-            setRefreshCookie(res, refreshToken, COOKIE_PATH);
+            setRefreshCookie(res, refreshToken);
             return { accessToken: signAccessToken(user), user: toUserDto(user) };
         } catch (err) {
-            clearRefreshCookie(res, COOKIE_PATH);
+            clearRefreshCookie(res);
             throw err;
         }
     });
@@ -54,18 +52,16 @@ export function mountAuthRoutes(router: Router): void {
     mount(router, authEndpoints.logout, async (_input, req, res) => {
         const current: unknown = req.cookies?.[REFRESH_COOKIE];
         if (typeof current === 'string') await revokeRefreshToken(current);
-        clearRefreshCookie(res, COOKIE_PATH);
+        clearRefreshCookie(res);
     });
 
     mount(router, authEndpoints.twoFactorSetup, async (_input, req) => ({
         qrCode: await authService.setupTwoFactor(currentUserId(req)),
     }));
 
-    mount(router, authEndpoints.twoFactorEnable, async ({ body }, req) => {
-        const user = await authService.enableTwoFactor(currentUserId(req), body.code);
-        if (!user) throw new AppError(401, 'INVALID_2FA_CODE', 'Invalid 2FA code');
-        return toUserDto(user);
-    });
+    mount(router, authEndpoints.twoFactorEnable, async ({ body }, req) =>
+        toUserDto(await authService.enableTwoFactor(currentUserId(req), body.code))
+    );
 
     mount(router, authEndpoints.twoFactorDisable, async ({ body }, req) =>
         toUserDto(await authService.disableTwoFactor(currentUserId(req), body.code))
