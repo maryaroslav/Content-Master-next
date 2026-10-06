@@ -6,7 +6,7 @@ import Image from "next/image";
 import { io, Socket } from "socket.io-client";
 import { useSearchParams } from "next/navigation";
 
-import { fetchWithAuth } from "../lib/apiClient";
+import { fetchWithAuth } from "@/app/lib/apiClient";
 import useFollowedUsers, { FollowedUser } from '@/components/userListContainer';
 import HeaderMain from "@/components/headers/HeaderMain";
 

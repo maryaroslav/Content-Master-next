@@ -153,6 +153,9 @@ importers:
       '@cm/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@cm/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@cm/env':
         specifier: workspace:*
         version: link:../../packages/env

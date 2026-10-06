@@ -114,22 +114,19 @@ export default function SearchResults() {
             ))}
 
             {filter !== 'users' && communities.map(c => (
-                <Link key={c.community_id} href={`/community/${c.community_id}`}>
-                    <div className='feedcommunity-my-community-container'>
-                        <div className="feedcommunity-item">
-                            <Image src={`http://localhost:5001${c.photo}`} alt={c.name} width={100} height={100} />
-                            <div className="feedcommunity-item-title">
-                                <p className="feedcommunity-type">{c.privacy}</p>
-                                <p className="feedcommunity-name">{c.name}</p>
-                                <p className="feedcommunity-members">{formatMembersCount(c.members_count)} Members</p>
-                            </div>
-                            <div className='feedcommunity-arrow'>
-                                <Image src={arrowDown} alt="" />
-                            </div>
+                <div key={c.community_id} className='feedcommunity-my-community-container'>
+                    <div className="feedcommunity-item">
+                        <Image src={`http://localhost:5001${c.photo}`} alt={c.name} width={100} height={100} />
+                        <div className="feedcommunity-item-title">
+                            <p className="feedcommunity-type">{c.privacy}</p>
+                            <p className="feedcommunity-name">{c.name}</p>
+                            <p className="feedcommunity-members">{formatMembersCount(c.members_count)} Members</p>
+                        </div>
+                        <div className='feedcommunity-arrow'>
+                            <Image src={arrowDown} alt="" />
                         </div>
                     </div>
-                </Link>
-
+                </div>
             ))}
         </div>
     );

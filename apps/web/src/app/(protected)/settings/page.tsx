@@ -1,5 +1,5 @@
-import HeaderMain from '../../components/headers/HeaderMain';
-import NavBar from "../../components/navbars/NavBar";
+import HeaderMain from '@/components/headers/HeaderMain';
+import NavBar from "@/components/navbars/NavBar";
 
 const SettingPage = () => {
     return (

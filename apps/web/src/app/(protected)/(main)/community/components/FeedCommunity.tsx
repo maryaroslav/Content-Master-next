@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Modal from "./modal/Modal";
 import { fetchWithAuth } from '@/app/lib/apiClient';
-import { formatMembersCount } from '../../../utils/FormatMembersCount';
+import { formatMembersCount } from '@/app/utils/FormatMembersCount';
 import Image from 'next/image';
 import '@/styles/feedCommunity.css'
 import arrowDown from '@images/icons/arrow-down.svg';

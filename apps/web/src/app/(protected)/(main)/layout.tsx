@@ -3,7 +3,7 @@ import NavBar from '@/components/navbars/NavBar';
 import NavBarLeft from '@/components/navbars/NavBarLeft';
 import NavBarRight from '@/components/navbars/NavBarRight';
 
-import '../../styles/main.css';
+import '@/styles/main.css';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
     return (

@@ -13,6 +13,7 @@
   "dependencies": {
     "@cm/api-client": "workspace:*",
     "@cm/auth": "workspace:*",
+    "@cm/contracts": "workspace:*",
     "@cm/env": "workspace:*",
     "@reduxjs/toolkit": "2.13.0",
     "@tanstack/react-query": "5.104.1",
