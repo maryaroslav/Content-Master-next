@@ -68,6 +68,7 @@
 }
 
 .user-container {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -81,6 +82,12 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
 }
 
 .user-img img {
@@ -94,7 +101,7 @@
 }
 
 
-.user-name p {
+.user-name {
     font-size: 20px;
     font-weight: 500;
 }
@@ -103,6 +110,48 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.user-modal img {
+    transition: transform 0.2s ease;
+}
+
+.user-modal img.rotated {
+    transform: rotate(180deg);
+}
+
+.user-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    min-width: 180px;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border: 1px solid #E4E4E4;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.user-menu a,
+.user-menu button {
+    padding: 10px 16px;
+    text-align: left;
+    font: inherit;
+    font-size: 16px;
+    color: #10100E;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.user-menu a:hover,
+.user-menu button:hover {
+    background-color: #F0F0F0;
 }
 
 @media (max-width: 768px) {
@@ -140,7 +189,7 @@
         padding: 7px 10px;
     }
 
-    .user-name p {
+    .user-name {
         font-size: 17px;
     }
 
@@ -198,7 +247,7 @@
         padding: 7px 10px;
     }
 
-    .user-name p {
+    .user-name {
         font-size: 17px;
     }
 

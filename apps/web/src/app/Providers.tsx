@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import { isAxiosError } from "axios";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { configureHttp } from "@cm/api-client";
-import { AuthProvider, getAccessToken, handleAuthFailure, refreshAccessToken } from "@cm/auth";
+import { AuthProvider, authStore, getAccessToken, handleAuthFailure, refreshAccessToken } from "@cm/auth";
 import { publicEnv } from "@cm/env";
 import store from './lib/store';
 
@@ -29,6 +29,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                     mutations: { retry: false },
                 },
             })
+    );
+
+    useEffect(
+        () => authStore.subscribe(() => {
+            if (authStore.getState().status === 'unauthenticated') queryClient.clear();
+        }),
+        [queryClient]
     );
 
     return (
