@@ -1,9 +1,5 @@
-"use client";
+import EventList from './components/EventList';
 
-import FeedEvent from "./components/FeedEvent";
-
-const EventsPage = () => {
-    return <FeedEvent />;
+export default function EventsPage() {
+    return <EventList />;
 }
-
-export default EventsPage;

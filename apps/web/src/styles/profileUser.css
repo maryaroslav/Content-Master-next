@@ -114,30 +114,6 @@
     color: #5B5B5B;
 }
 
-.profile-card {
-    margin-top: 24px;
-    padding: 16px 20px;
-    border: 1px solid #E4E4E4;
-    border-radius: 12px;
-    background-color: #fff;
-    color: #10100E;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-.profile-card h2 {
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.profile-card-text {
-    font-size: 13px;
-    color: #5B5B5B;
-}
-
-.profile-card button,
 .profile-status button {
     padding: 6px 14px;
     border: none;
@@ -148,35 +124,13 @@
     cursor: pointer;
 }
 
-.profile-card button.secondary {
-    background-color: #E4E4E4;
-    color: #333;
-}
-
-.profile-card button:disabled {
-    cursor: wait;
-    opacity: 0.7;
-}
-
-.profile-card-form {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-.profile-card-form input {
-    width: 160px;
-    padding: 6px 10px;
-    border: 1px solid #CFCFCF;
+.profile-edit-link {
+    margin-right: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: rgba(9, 147, 246, 0.31);
+    color: #0094FF;
+    padding: 4px 16px;
     border-radius: 6px;
-    background-color: #fff;
-    color: #10100E;
-    font-size: 16px;
-    letter-spacing: 2px;
-}
-
-.profile-card-actions {
-    display: flex;
-    gap: 8px;
+    text-decoration: none;
 }

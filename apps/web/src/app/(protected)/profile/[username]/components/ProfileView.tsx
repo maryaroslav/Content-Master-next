@@ -6,7 +6,6 @@ import { getErrorMessage, useUsersProfile } from '@cm/api-client';
 import { useAuth } from '@cm/auth';
 import FollowButton from './FollowButton';
 import ProfileHeader from './ProfileHeader';
-import TwoFactorSettings from './TwoFactorSettings';
 
 import chatBtn from '@images/icons/chat.svg';
 
@@ -30,7 +29,9 @@ export default function ProfileView({ username }: { username: string }) {
         <div className="profile-wrapper">
             <div className="profile-container">
                 <ProfileHeader profile={profile}>
-                    {!isOwnProfile && (
+                    {isOwnProfile ? (
+                        <Link href="/settings" className="profile-edit-link">Edit profile</Link>
+                    ) : (
                         <>
                             <FollowButton profile={profile} />
                             <Link href={`/chat?to=${profile.id}`} className="profile-chat-link" aria-label="Send a message">
@@ -39,7 +40,6 @@ export default function ProfileView({ username }: { username: string }) {
                         </>
                     )}
                 </ProfileHeader>
-                {isOwnProfile && <TwoFactorSettings />}
             </div>
         </div>
     );
