@@ -1,5 +1,7 @@
 import { Router } from 'express';
-import { UserIdParamsSchema, UsernameParamsSchema } from '@cm/contracts';
+import { ChangeEmailRequestSchema, UpdateProfileRequestSchema, UserIdParamsSchema, UsernameParamsSchema } from '@cm/contracts';
+import { authRateLimit } from '../../middlewares/rateLimit';
+import { imageUpload } from '../../middlewares/upload';
 import { withValidation } from '../../middlewares/validate';
 import { requireAuth, currentUserId } from '../../middlewares/requireAuth';
 import { toUserDto, toUserProfileDto } from './mapper';
@@ -15,6 +17,22 @@ router.use(requireAuth);
 
 router.get('/me', async (req, res) => {
     res.json(toUserDto(await usersService.getUser(currentUserId(req))));
+});
+
+router.patch('/me', withValidation({ body: UpdateProfileRequestSchema }, async ({ body }, req, res) => {
+    res.json(toUserDto(await usersService.updateProfile(currentUserId(req), body)));
+}));
+
+router.put('/me/email', authRateLimit, withValidation({ body: ChangeEmailRequestSchema }, async ({ body }, req, res) => {
+    res.json(toUserDto(await usersService.changeEmail(currentUserId(req), body)));
+}));
+
+router.put('/me/avatar', imageUpload.single('avatar'), async (req, res) => {
+    res.json(toUserDto(await usersService.setAvatar(currentUserId(req), req.file)));
+});
+
+router.delete('/me/avatar', async (req, res) => {
+    res.json(toUserDto(await usersService.deleteAvatar(currentUserId(req))));
 });
 
 router.get('/me/communities', async (req, res) => {

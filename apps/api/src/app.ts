@@ -50,7 +50,7 @@ app.use(
         origin: env.CORS_ORIGINS,
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization'],
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     })
 );
 
