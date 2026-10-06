@@ -33,6 +33,12 @@
       "cache": false,
       "persistent": true
     },
-    "circular": {}
+    "circular": {},
+    "test:integration": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false
+    }
   }
 }

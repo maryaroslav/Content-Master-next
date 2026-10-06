@@ -15,7 +15,8 @@
     "knip": "knip",
     "syncpack:check": "syncpack lint",
     "circular": "turbo run circular",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:integration": "turbo run test:integration"
   },
   "devDependencies": {
     "dependency-cruiser": "18.5.0",

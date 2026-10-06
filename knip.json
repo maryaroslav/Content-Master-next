@@ -9,7 +9,6 @@
     },
     "apps/api": {
       "ignoreDependencies": [
-        "mysql2",
         "pino-pretty"
       ],
       "entry": [

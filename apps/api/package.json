@@ -4,15 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "tsx src/db/cli.ts up && tsx watch --clear-screen=false src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "db:migrate": "tsx src/db/cli.ts up",
     "db:rollback": "tsx src/db/cli.ts down",
     "db:status": "tsx src/db/cli.ts pending",
     "db:migrate:prod": "node dist/db/cli.js up",
-    "lint": "eslint src",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "circular": "depcruise src --config ../../.dependency-cruiser.cjs --ts-config tsconfig.json"
+    "lint": "eslint src test",
+    "typecheck": "tsc -p tsconfig.json",
+    "circular": "depcruise src --config ../../.dependency-cruiser.cjs --ts-config tsconfig.json",
+    "test": "vitest run --project unit",
+    "test:integration": "vitest run --project integration"
   },
   "dependencies": {
     "@cm/contracts": "workspace:*",
@@ -48,9 +50,12 @@
     "@types/node": "24.19.1",
     "@types/qrcode": "1.5.6",
     "@types/speakeasy": "2.0.10",
+    "@types/supertest": "7.2.1",
     "eslint": "9.39.5",
     "pino-pretty": "13.2.0",
+    "supertest": "7.3.1",
     "tsx": "4.23.15",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
   }
 }

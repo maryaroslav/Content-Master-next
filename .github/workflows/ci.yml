@@ -12,6 +12,18 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,6 +49,18 @@ jobs:
           fi
 
       - run: pnpm turbo run typecheck lint circular test build ${{ steps.scope.outputs.filter }}
+
+      # The tests create and drop their own database on this server; the secrets are CI-only throwaways.
+      - name: Integration tests
+        run: pnpm turbo run test:integration ${{ steps.scope.outputs.filter }}
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASS: root
+          DB_NAME: unused
+          JWT_SECRET: ci-only-jwt-secret-used-by-integration-tests
+          TWOFA_ENCRYPTION_KEY: 0000000000000000000000000000000000000000000000000000000000000000
 
       - run: pnpm knip
 
