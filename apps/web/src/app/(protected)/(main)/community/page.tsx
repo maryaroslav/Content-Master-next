@@ -1,5 +1,3 @@
-"use client";
-
 import FeedCommunity from './components/FeedCommunity';
 
 const CommunityPage = () => {

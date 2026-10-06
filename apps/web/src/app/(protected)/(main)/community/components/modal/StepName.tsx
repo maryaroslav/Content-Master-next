@@ -59,7 +59,7 @@ const StepName = ({ onValidChange, onChange, initialName = '', initialPrivacy = 
                     <label htmlFor="">Community privacy</label>
                     <select name="" id="" value={privacy} onChange={handlePrivacyChange}>
                         <option value="public">Public</option>
-                        <option value="private">Privat</option>
+                        <option value="private">Private</option>
                     </select>
                 </form>
             </div>

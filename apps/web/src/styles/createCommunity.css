@@ -264,3 +264,18 @@ select:focus {
   justify-content: center;
   align-items: center;
 }
+.createcommunity-error {
+    margin-top: 12px;
+    color: #D93025;
+    font-size: 14px;
+}
+
+.createcommunity-photo-preview {
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.createcommunity-button-create:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}

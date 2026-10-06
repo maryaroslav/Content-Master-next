@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import Image from 'next/image';
 
 import addPhotoSVG from '@images/modal-create-community/add-photo.svg'
@@ -12,6 +12,8 @@ interface StepPhotoProps {
 const StepPhoto = ({ onValidChange, onChange, initialPhoto = null }: StepPhotoProps) => {
     const [photo, setPhoto] = useState<File | null>(initialPhoto);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const preview = useMemo(() => (photo ? URL.createObjectURL(photo) : null), [photo]);
+    useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 
     useEffect(() => {
         const valid = !!photo;
@@ -40,13 +42,15 @@ const StepPhoto = ({ onValidChange, onChange, initialPhoto = null }: StepPhotoPr
             </div>
             <div className="createcommunity-type-content">
                 <div className="createcommunity-add-photo" onClick={handleClick}>
-                    <Image src={addPhotoSVG} alt='Add photo' />
+                    {preview
+                        ? <Image src={preview} alt="Selected photo" width={160} height={160} className="createcommunity-photo-preview" />
+                        : <Image src={addPhotoSVG} alt='Add photo' />}
                 </div>
             </div>
 
             <input
                 type="file"
-                accept='image/'
+                accept='image/*'
                 ref={fileInputRef}
                 onChange={handleFile}
                 style={{ display: 'none' }}

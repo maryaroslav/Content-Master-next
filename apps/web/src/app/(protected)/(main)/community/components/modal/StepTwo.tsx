@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 import searchIcon from '@/images/icons/search.svg';
 
-export const themeData = [
+const themeData = [
     {
         title: '',
         items: ['Business', 'Cooking and Recipes', 'Medicine', 'Real Estate']

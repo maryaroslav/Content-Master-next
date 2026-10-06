@@ -102,3 +102,35 @@
   padding: 5px 20px 5px 10px;
   box-sizing: border-box;
 }
+.feedcommunity-status {
+    padding: 20px;
+    text-align: center;
+    color: #6B6B6B;
+}
+
+.feedcommunity-status button,
+.feedcommunity-leave {
+    padding: 6px 14px;
+    border: 1px solid #CFCFCF;
+    border-radius: 12px;
+    background: #fff;
+    color: #10100E;
+    cursor: pointer;
+}
+
+.feedcommunity-leave {
+    align-self: center;
+    margin-left: auto;
+    margin-right: 16px;
+}
+
+.feedcommunity-leave:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.feedcommunity-error {
+    margin-bottom: 8px;
+    color: #D93025;
+    font-size: 14px;
+}
