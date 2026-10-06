@@ -127,3 +127,22 @@
 .feed-post-title-img.horizontal {
     display: block;
 }
+.feed-status {
+    padding: 20px;
+    text-align: center;
+    color: #6B6B6B;
+}
+
+.feed-status button {
+    margin-top: 8px;
+    padding: 6px 14px;
+    border: 1px solid #CFCFCF;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.feed-error {
+    color: #D93025;
+    font-size: 14px;
+}

@@ -103,3 +103,8 @@
     line-height: 1;
     padding: 0;
 }
+.addpost-error {
+    margin-top: 8px;
+    color: #D93025;
+    font-size: 14px;
+}

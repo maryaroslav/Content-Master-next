@@ -1,205 +1,97 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { getErrorMessage, usePostsDelete, usePostsListInfinite } from '@cm/api-client';
 import AddPost from './AddPost';
-import { useSelector, useDispatch } from 'react-redux';
-import { setPosts, deletePost, type Post as ReducerPost } from '@/reducers/postsSlice';
-import { fetchWithAuth } from '@/app/lib/apiClient';
+import FeedPost from './FeedPost';
+import { feedQueryKey, removePost, type FeedData } from './feedCache';
+
 import '@/styles/feed.css';
-import PostOptionsModal from './PostOptionsModal';
 
-interface User {
-  user_id?: number;
-}
+export default function Feed() {
+    const {
+        data,
+        error,
+        status,
+        refetch,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isFetchNextPageError,
+    } = usePostsListInfinite(undefined, {
+        query: {
+            queryKey: feedQueryKey,
+            initialPageParam: undefined,
+            getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+        },
+    });
+    const sentinelRef = useRef<HTMLDivElement>(null);
+    const queryClient = useQueryClient();
+    const [deleteError, setDeleteError] = useState<{ postId: number; message: string } | null>(null);
 
-type RootState = {
-  posts?: {
-    list?: ReducerPost[];
-  };
-};
+    const { mutate: deletePost } = usePostsDelete({
+        mutation: {
+            onMutate: async ({ postId }) => {
+                setDeleteError(null);
+                await queryClient.cancelQueries({ queryKey: feedQueryKey });
+                const previous = queryClient.getQueryData<FeedData>(feedQueryKey);
+                queryClient.setQueryData<FeedData>(feedQueryKey, (current) => removePost(current, postId));
+                return { previous };
+            },
+            onError: (err, { postId }, context) => {
+                queryClient.setQueryData(feedQueryKey, context?.previous);
+                setDeleteError({ postId, message: getErrorMessage(err) });
+            },
+        },
+    });
 
-const Feed: React.FC = () => {
-  const dispatch = useDispatch();
-  const posts = useSelector((state: RootState) => state.posts?.list || []);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+    useEffect(() => {
+        const sentinel = sentinelRef.current;
+        if (!sentinel || !hasNextPage || isFetchingNextPage || isFetchNextPageError) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry?.isIntersecting) void fetchNextPage();
+            },
+            { rootMargin: '400px' }
+        );
+        observer.observe(sentinel);
+        return () => observer.disconnect();
+    }, [hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage]);
 
-  const fetchPostsFromServer = async () => {
-    try {
-      const data: unknown = await fetchWithAuth('http://localhost:5001/api/posts');
-      console.log(data);
+    const posts = data?.pages.flatMap((page) => page.items) ?? [];
 
-      // runtime guard: ensure data is an array of objects that contain post_id
-      if (!Array.isArray(data)) {
-        console.error('Invalid posts response, expected array', data);
-        return;
-      }
-
-      const postsData = data.filter(
-        (item): item is ReducerPost =>
-          typeof item === 'object' && item !== null && 'post_id' in item
-      );
-
-      dispatch(setPosts(postsData));
-    } catch (err) {
-      console.error('Error loading posts:', err);
-    }
-  };
-
-  const isUser = (u: unknown): u is User =>
-    typeof u === 'object' && u !== null && 'user_id' in u;
-
-  const fetchCurrentUser = async () => {
-    try {
-      const user: unknown = await fetchWithAuth('http://localhost:5001/api/user/me');
-
-      if (!isUser(user)) {
-        console.error('Invalid user response', user);
-        return;
-      }
-
-      setCurrentUser(user);
-    } catch (err) {
-      console.error('Error fetching current user:', err);
-    }
-  };
-
-  useEffect(() => {
-    fetchCurrentUser();
-    fetchPostsFromServer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <div className="feed-container">
-      <AddPost onPostCreated={fetchPostsFromServer} />
-      <div className="feed-posts-container">
-        {posts.map((post) => (
-          <FeedPost
-            key={String(post.post_id)}
-            post={post}
-            currentUserId={currentUser?.user_id}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-interface FeedPostProps {
-  post: ReducerPost;
-  currentUserId?: number | string;
-}
-
-const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId }) => {
-  const [expanded, setExpanded] = useState<boolean>(false);
-  const [orientation, setOrientation] = useState<'vertical' | 'horizontal' | null>(null);
-  const dispatch = useDispatch();
-
-  const handleImageLoad = (result: { naturalWidth: number; naturalHeight: number }) => {
-    const { naturalWidth, naturalHeight } = result;
-    const orient = naturalHeight > naturalWidth ? 'vertical' : 'horizontal';
-    setOrientation(orient);
-    if (orient === 'vertical') {
-      setExpanded(true);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await fetchWithAuth(`http://localhost:5001/api/posts/${post.post_id}`, {
-        method: 'DELETE'
-      });
-
-      dispatch(deletePost(post.post_id));
-    } catch (err) {
-      console.error('Error when deleting a post: ', err);
-    }
-  };
-
-  const isOwner = String(currentUserId) === String(post.author_id);
-
-  const images = Array.isArray(post.image_url)
-    ? post.image_url
-    : post.image_url
-      ? [post.image_url]
-      : [];
-
-  const resolveUrl = (img?: unknown, prefixUploads = false): string => {
-    if (!img || typeof img !== 'string') return '/img/icons/user.svg';
-    const s = img.trim();
-    if (!s) return '/img/icons/user.svg';
-    if (s.startsWith('http://') || s.startsWith('https://')) return s;
-    // if stored like "/uploads/..." or "uploads/..."
-    if (s.startsWith('/')) return `http://localhost:5001${s}`;
-    return `http://localhost:5001/${s}`;
-  };
-
-  return (
-    <div className="feed-posts-user">
-      <div className="feed-user-avatar">
-        <Image
-          src={
-            post.author?.profile_picture
-              ? resolveUrl(post.author.profile_picture.startsWith('/') ? post.author.profile_picture : `/uploads${post.author.profile_picture}`)
-              : '/img/icons/user.svg'
-          }
-          alt={post.author?.username || 'user'}
-          width={50}
-          height={50}
-          style={{ borderRadius: '50%' }}
-        />
-      </div>
-      <div className="feed-posts-info">
-        <p>{post.title}</p>
-        <div className="feed-info" style={{ position: 'relative' }}>
-          <p className="feed-info-p p-blue">{post.author?.username}</p>
-          <div className="separator"></div>
-          <p className="feed-info-p p-grey">
-            {post.created_at
-              ? new Date(post.created_at).toLocaleString('cs-CZ', {
-                hour: '2-digit',
-                minute: '2-digit',
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                timeZone: 'Europe/Prague'
-              })
-              : ''}
-          </p>
-          {isOwner && (
-            <PostOptionsModal
-              onDelete={handleDelete}
-              onEdit={() => console.log('edit')}
-            />
-          )}
+    return (
+        <div className="feed-container">
+            <AddPost />
+            <div className="feed-posts-container">
+                {status === 'pending' && <p className="feed-status">Loading posts...</p>}
+                {status === 'error' && (
+                    <div className="feed-status">
+                        <p>{getErrorMessage(error)}</p>
+                        <button type="button" onClick={() => void refetch()}>Try again</button>
+                    </div>
+                )}
+                {status === 'success' && posts.length === 0 && (
+                    <p className="feed-status">No posts yet. Share the first one!</p>
+                )}
+                {posts.map((post) => (
+                    <FeedPost
+                        key={post.id}
+                        post={post}
+                        onDelete={() => deletePost({ postId: post.id })}
+                        deleteError={deleteError?.postId === post.id ? deleteError.message : undefined}
+                    />
+                ))}
+                <div ref={sentinelRef} />
+                {isFetchingNextPage && <p className="feed-status">Loading more...</p>}
+                {isFetchNextPageError && (
+                    <div className="feed-status">
+                        <p>Could not load more posts.</p>
+                        <button type="button" onClick={() => void fetchNextPage()}>Try again</button>
+                    </div>
+                )}
+            </div>
         </div>
-        <div className={`feed-post-title-img ${orientation === 'vertical' ? 'vertical' : 'horizontal'}`}>
-          <div style={{ display: 'flex' }}>
-            {images.map((img, i) => (
-              <div key={i} className={`feed-posts-image ${orientation ?? ''}`}>
-                <Image
-                  src={resolveUrl(img)}
-                  alt="post"
-                  onLoadingComplete={handleImageLoad}
-                  width={500}
-                  height={300}
-                />
-              </div>
-            ))}
-          </div>
-          <div className={`feed-posts-title ${expanded ? 'expanded' : ''}`}>
-            <p>{post.content}</p>
-          </div>
-          {orientation === 'horizontal' && (
-            <span className="view-more" onClick={() => setExpanded(!expanded)}>
-              {expanded ? 'View Less' : '... View More'}
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Feed;
+    );
+}

@@ -1,128 +1,90 @@
+'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import { getFreshAccessToken } from "@cm/auth";
-import user from '@images/icons/user.svg';
+import { useQueryClient } from '@tanstack/react-query';
+import { getErrorMessage, usePostsCreate } from '@cm/api-client';
+import { useAuth } from '@cm/auth';
+import { CreatePostRequestSchema, endpoints } from '@cm/contracts';
+import { feedQueryKey, prependPost, type FeedData } from './feedCache';
+
+import userImg from '@images/icons/user.svg';
 import uploadIcon from '@images/icons/imagesButton.svg';
 import gifIcon from '@images/icons/gifButton.svg';
 import emojiIcon from '@images/icons/emojiButton.svg';
-// import defaultImage from '@images/icons/13.svg'
 import '@/styles/addPost.css';
 
-interface AddPostProps {
-    onPostCreated?: () => void;
-}
+const MAX_IMAGES = endpoints.posts.create.upload.maxCount;
 
-interface UserData {
-    profile_picture?: string;
-}
-
-const AddPost: React.FC<AddPostProps> = ({ onPostCreated }) => {
-    const [postContent, setPostContent] = useState<string>('');
+export default function AddPost() {
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
+    const [content, setContent] = useState('');
     const [images, setImages] = useState<File[]>([]);
-    const [previews, setPreviews] = useState<string[]>([]);
-    const [userData, setUserData] = useState<UserData | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files ? Array.from(e.target.files) : [];
-        const combined = [...images, ...files];
+    const previews = useMemo(() => images.map((file) => URL.createObjectURL(file)), [images]);
+    useEffect(() => () => previews.forEach((url) => URL.revokeObjectURL(url)), [previews]);
 
-        if (combined.length > 5) {
-            alert('You can select a maximum of 5 images');
+    const { mutate: createPost, isPending } = usePostsCreate({
+        mutation: {
+            onSuccess: (post) => {
+                queryClient.setQueryData<FeedData>(feedQueryKey, (data) => prependPost(data, post));
+                setContent('');
+                setImages([]);
+            },
+            onError: (err) => setError(getErrorMessage(err)),
+        },
+    });
+
+    const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selected = Array.from(event.target.files ?? []);
+        event.target.value = '';
+        if (images.length + selected.length > MAX_IMAGES) {
+            setError(`You can attach at most ${MAX_IMAGES} images`);
             return;
         }
-
-        setImages(combined);
-        setPreviews((prev) => [...prev, ...files.map((file) => URL.createObjectURL(file))]);
+        setError(null);
+        setImages([...images, ...selected]);
     };
 
-    const handleSubmit = async () => {
-        if (!postContent.trim()) return;
-
-        const formData = new FormData();
-        formData.append('title', postContent.trim().split(' ').slice(0, 2).join(' '));
-        formData.append('content', postContent);
-        images.forEach((img) => {
-            formData.append('images', img);
+    const handleSubmit = () => {
+        if (isPending || !content.trim()) return;
+        const parsed = CreatePostRequestSchema.safeParse({
+            title: content.trim().split(/\s+/).slice(0, 2).join(' ').slice(0, 100),
+            content,
         });
-
-        try {
-            const token = await getFreshAccessToken();
-
-            const res = await fetch('http://localhost:5001/api/posts', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                body: formData
-            });
-
-            if (!res.ok) throw new Error('Error creating a post');
-            setPostContent('');
-            setImages([]);
-            setPreviews([]);
-            onPostCreated?.();
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : String(err);
-            console.error('[create post error]', message);
+        if (!parsed.success) {
+            setError(parsed.error.issues[0]?.message ?? 'Please check the post');
+            return;
         }
+        setError(null);
+        createPost({ data: { ...parsed.data, images } });
     };
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const token = await getFreshAccessToken();
-
-                const res = await fetch('http://localhost:5001/api/user/me', {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-
-                if (!res.ok) throw new Error('Failed to load user');
-                const data = await res.json();
-                setUserData(data);
-            } catch (err: unknown) {
-                console.error('[fetch user error]', err instanceof Error ? err.message : err);
-            }
-        };
-
-        fetchUser();
-    }, []);
-
 
     return (
         <div className="addpost-container">
-
             <div className="addpost-input-wrapper">
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <div className="addpost-user-img">
-                        {userData?.profile_picture ? (
-                            <Image
-                                src={`http://localhost:5001/uploads/${userData.profile_picture}`}
-                                alt="user-avatar"
-                                width={40}
-                                height={40}
-                                style={{ borderRadius: '50%' }}
-                            />
-                        ) : (
-                            <Image
-                                src={user}
-                                alt="default-avatar"
-                                width={40}
-                                height={40}
-                            />
-                        )}
+                        <Image
+                            src={user?.profilePicture ?? userImg}
+                            alt=""
+                            width={40}
+                            height={40}
+                            style={{ borderRadius: '50%' }}
+                        />
                     </div>
                     <div className="addpost-input">
                         <input
                             type="text"
-                            placeholder='Share your thoughts or a post'
-                            value={postContent}
-                            onChange={(e) => setPostContent(e.target.value)}
-                            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
+                            placeholder="Share your thoughts or a post"
+                            value={content}
+                            disabled={isPending}
+                            onChange={(event) => setContent(event.target.value)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    event.preventDefault();
                                     handleSubmit();
                                 }
                             }}
@@ -134,33 +96,29 @@ const AddPost: React.FC<AddPostProps> = ({ onPostCreated }) => {
                                     type="file"
                                     accept="image/*"
                                     multiple
-                                    onChange={handleImageUpload}
+                                    onChange={handleImageSelect}
                                     style={{ display: 'none' }}
                                 />
                             </label>
-                            <button>
+                            <button type="button">
                                 <Image src={gifIcon} alt="Upload GIF" />
                             </button>
-                            <button>
+                            <button type="button">
                                 <Image src={emojiIcon} alt="Choose Emoji" />
                             </button>
                         </div>
                     </div>
                 </div>
+                {error && <p className="addpost-error">{error}</p>}
                 {previews.length > 0 && (
                     <div className="addpost-previews">
                         {previews.map((src, i) => (
-                            <div key={i} className="preview-item">
+                            <div key={src} className="preview-item">
+                                {/* eslint-disable-next-line @next/next/no-img-element -- blob: previews gain nothing from next/image */}
                                 <img src={src} alt={`preview-${i}`} />
                                 <button
-                                    onClick={() => {
-                                        const newImages = [...images];
-                                        const newPreviews = [...previews];
-                                        newImages.splice(i, 1);
-                                        newPreviews.splice(i, 1);
-                                        setImages(newImages);
-                                        setPreviews(newPreviews);
-                                    }}
+                                    type="button"
+                                    onClick={() => setImages(images.filter((_, index) => index !== i))}
                                 >&times;</button>
                             </div>
                         ))}
@@ -170,5 +128,3 @@ const AddPost: React.FC<AddPostProps> = ({ onPostCreated }) => {
         </div>
     );
 }
-
-export default AddPost;

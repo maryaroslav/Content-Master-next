@@ -1,31 +1,31 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import '@/styles/postOptionsModal.css'
 
 interface PostOptionsModalProps {
     onDelete: () => void;
-    onEdit: () => void;
 }
 
-const PostOptionsModal = ({ onDelete, onEdit }: PostOptionsModalProps) => {
+const PostOptionsModal = ({ onDelete }: PostOptionsModalProps) => {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            const target = e.target as Node | null;
-            if (ref.current && !ref.current.contains(target)) {
-                setOpen(false);
-            }
+        if (!open) return;
+        const closeOnOutsideClick = (event: PointerEvent) => {
+            if (!ref.current?.contains(event.target as Node)) setOpen(false);
         };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+        document.addEventListener('pointerdown', closeOnOutsideClick);
+        return () => document.removeEventListener('pointerdown', closeOnOutsideClick);
+    }, [open]);
 
     return (
         <div className="post-options-wrapper" ref={ref}>
             <button
+                type="button"
                 className="post-options-button"
+                aria-label="Post options"
+                aria-expanded={open}
                 onClick={() => setOpen(!open)}
             >
                 <span className="dot" />
@@ -35,9 +35,7 @@ const PostOptionsModal = ({ onDelete, onEdit }: PostOptionsModalProps) => {
 
             {open && (
                 <div className="post-options-modal">
-                    <button onClick={() => { onDelete(); setOpen(false); }}>Delete post</button>
-                    <hr />
-                    <button onClick={() => { onEdit(); setOpen(false); }}>Edit</button>
+                    <button type="button" onClick={() => { onDelete(); setOpen(false); }}>Delete post</button>
                 </div>
             )}
         </div>
