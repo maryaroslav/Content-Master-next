@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import '@/styles/headerWelcome.css';
-import logo from '../../images/logo/logo.svg'
+import logo from '@images/logo/logo.svg'
 
 const HeaderWelcome = () => {
     return (

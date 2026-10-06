@@ -246,3 +246,9 @@
 .info-button a img {
     padding-left: 6px;
 }
+
+.welcome {
+    position: relative;
+    height: 100dvh;
+    overflow: hidden;
+}
