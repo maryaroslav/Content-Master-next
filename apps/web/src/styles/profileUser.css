@@ -64,3 +64,119 @@
     color: #0094FF;
     padding: 4px 16px;
 }
+.profile-info-handle {
+    font-size: 13px;
+    color: #5B5B5B;
+}
+
+.profile-buttons {
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.profile-buttons .follow-button {
+    background-color: #0094FF;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.profile-buttons .follow-button.following {
+    background-color: #DDDDDD;
+    color: #333;
+}
+
+.profile-buttons .follow-button:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.profile-chat-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 26px;
+    width: 34px;
+    border-radius: 6px;
+    background-color: rgba(9, 147, 246, 0.31);
+}
+
+.profile-error {
+    width: 100%;
+    color: #D93025;
+    font-size: 13px;
+}
+
+.profile-status {
+    padding: 40px;
+    text-align: center;
+    color: #5B5B5B;
+}
+
+.profile-card {
+    margin-top: 24px;
+    padding: 16px 20px;
+    border: 1px solid #E4E4E4;
+    border-radius: 12px;
+    background-color: #fff;
+    color: #10100E;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.profile-card h2 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.profile-card-text {
+    font-size: 13px;
+    color: #5B5B5B;
+}
+
+.profile-card button,
+.profile-status button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    background-color: #0094FF;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.profile-card button.secondary {
+    background-color: #E4E4E4;
+    color: #333;
+}
+
+.profile-card button:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.profile-card-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.profile-card-form input {
+    width: 160px;
+    padding: 6px 10px;
+    border: 1px solid #CFCFCF;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #10100E;
+    font-size: 16px;
+    letter-spacing: 2px;
+}
+
+.profile-card-actions {
+    display: flex;
+    gap: 8px;
+}
