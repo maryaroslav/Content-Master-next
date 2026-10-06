@@ -5,3 +5,7 @@ export function getErrorMessage(error: unknown, fallback = 'Something went wrong
     if (isAxiosError<ErrorResponse>(error)) return error.response?.data?.message ?? fallback;
     return error instanceof Error && error.message ? error.message : fallback;
 }
+
+export function getErrorDetails(error: unknown): NonNullable<ErrorResponse['details']> {
+    return isAxiosError<ErrorResponse>(error) ? error.response?.data?.details ?? [] : [];
+}

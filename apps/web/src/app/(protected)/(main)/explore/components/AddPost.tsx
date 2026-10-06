@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
-import { getErrorMessage, usePostsCreate } from '@cm/api-client';
+import { usePostsCreate } from '@cm/api-client';
 import { useAuth } from '@cm/auth';
 import { CreatePostRequestSchema, endpoints } from '@cm/contracts';
+import { applyServerErrors, useZodForm } from '@cm/forms';
 import { feedQueryKey, prependPost, type FeedData } from './feedCache';
 
 import userImg from '@images/icons/user.svg';
@@ -15,52 +16,47 @@ import emojiIcon from '@images/icons/emojiButton.svg';
 import '@/styles/addPost.css';
 
 const MAX_IMAGES = endpoints.posts.create.upload.maxCount;
+const PostFormSchema = CreatePostRequestSchema.pick({ content: true });
 
 export default function AddPost() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
-    const [content, setContent] = useState('');
     const [images, setImages] = useState<File[]>([]);
-    const [error, setError] = useState<string | null>(null);
+    const [imageError, setImageError] = useState<string | null>(null);
+    const { register, handleSubmit, setError, reset, formState: { errors } } = useZodForm(PostFormSchema, {
+        defaultValues: { content: '' },
+    });
 
     const previews = useMemo(() => images.map((file) => URL.createObjectURL(file)), [images]);
     useEffect(() => () => previews.forEach((url) => URL.revokeObjectURL(url)), [previews]);
 
-    const { mutate: createPost, isPending } = usePostsCreate({
-        mutation: {
-            onSuccess: (post) => {
-                queryClient.setQueryData<FeedData>(feedQueryKey, (data) => prependPost(data, post));
-                setContent('');
-                setImages([]);
-            },
-            onError: (err) => setError(getErrorMessage(err)),
-        },
-    });
+    const { mutateAsync: createPost, isPending } = usePostsCreate();
 
     const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selected = Array.from(event.target.files ?? []);
         event.target.value = '';
         if (images.length + selected.length > MAX_IMAGES) {
-            setError(`You can attach at most ${MAX_IMAGES} images`);
+            setImageError(`You can attach at most ${MAX_IMAGES} images`);
             return;
         }
-        setError(null);
+        setImageError(null);
         setImages([...images, ...selected]);
     };
 
-    const handleSubmit = () => {
-        if (isPending || !content.trim()) return;
-        const parsed = CreatePostRequestSchema.safeParse({
-            title: content.trim().split(/\s+/).slice(0, 2).join(' ').slice(0, 100),
-            content,
-        });
-        if (!parsed.success) {
-            setError(parsed.error.issues[0]?.message ?? 'Please check the post');
-            return;
+    const onSubmit = handleSubmit(async ({ content }) => {
+        if (!content) return;
+        try {
+            const title = content.split(/\s+/).slice(0, 2).join(' ').slice(0, 100);
+            const post = await createPost({ data: { title, content, images } });
+            queryClient.setQueryData<FeedData>(feedQueryKey, (data) => prependPost(data, post));
+            reset();
+            setImages([]);
+        } catch (err) {
+            applyServerErrors(setError, err, ['content']);
         }
-        setError(null);
-        createPost({ data: { ...parsed.data, images } });
-    };
+    });
+
+    const error = imageError ?? errors.content?.message ?? errors.root?.server?.message;
 
     return (
         <div className="addpost-container">
@@ -79,13 +75,12 @@ export default function AddPost() {
                         <input
                             type="text"
                             placeholder="Share your thoughts or a post"
-                            value={content}
                             disabled={isPending}
-                            onChange={(event) => setContent(event.target.value)}
+                            {...register('content')}
                             onKeyDown={(event) => {
                                 if (event.key === 'Enter') {
                                     event.preventDefault();
-                                    handleSubmit();
+                                    void onSubmit();
                                 }
                             }}
                         />

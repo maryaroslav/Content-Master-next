@@ -1,72 +1,49 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { getErrorMessage } from '@cm/api-client';
-import { register } from '@cm/auth';
+import { register as registerAccount } from '@cm/auth';
 import { RegisterRequestSchema } from '@cm/contracts';
+import { applyServerErrors, useZodForm } from '@cm/forms';
 import Field from './Field';
 import FormMessage from './FormMessage';
-import { firstIssue, type FormError } from './formError';
 
 export default function RegisterForm() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
-    const [error, setError] = useState<FormError | null>(null);
-    const [submitting, setSubmitting] = useState(false);
+    const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useZodForm(RegisterRequestSchema, {
+        defaultValues: { email: '', password: '', username: '' },
+    });
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const parsed = RegisterRequestSchema.safeParse({ email, password, username });
-        if (!parsed.success) {
-            setError(firstIssue(parsed.error.issues));
-            return;
-        }
-
-        setError(null);
-        setSubmitting(true);
+    const onSubmit = handleSubmit(async (data) => {
         try {
-            await register(parsed.data);
-        } catch (err: unknown) {
-            setError({ message: getErrorMessage(err) });
-        } finally {
-            setSubmitting(false);
+            await registerAccount(data);
+        } catch (err) {
+            applyServerErrors(setError, err, ['email', 'password', 'username']);
         }
-    };
+    });
+
+    const message = errors.email?.message ?? errors.password?.message ?? errors.username?.message ?? errors.root?.server?.message;
 
     return (
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={onSubmit} noValidate>
             <h1>Create your account</h1>
-            {error && <FormMessage message={error.message} />}
-            <Field
-                label="Email"
-                type="email"
-                placeholder="Email"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                invalid={error?.field === 'email'}
-            />
+            {message && <FormMessage message={message} />}
+            <Field label="Email" type="email" placeholder="Email" autoComplete="email" invalid={!!errors.email} {...register('email')} />
             <Field
                 label="Password"
                 type="password"
                 placeholder="Password"
                 autoComplete="new-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                invalid={error?.field === 'password'}
+                invalid={!!errors.password}
+                {...register('password')}
             />
             <Field
                 label="Username"
                 type="text"
                 placeholder="Username"
                 autoComplete="username"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                invalid={error?.field === 'username'}
+                invalid={!!errors.username}
+                {...register('username')}
             />
-            <button className="btn-authForm" type="submit" disabled={submitting}>Sign Up</button>
+            <button className="btn-authForm" type="submit" disabled={isSubmitting}>Sign Up</button>
             <div className="register">
                 <p>Already have an account? <Link href="/login">Sign in</Link></p>
             </div>

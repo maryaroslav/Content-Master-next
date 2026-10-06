@@ -13,6 +13,7 @@ import {
 } from '@cm/api-client';
 import { updateUser, useAuth } from '@cm/auth';
 import { UpdateProfileRequestSchema } from '@cm/contracts';
+import { applyServerErrors, useZodForm } from '@cm/forms';
 
 import userImg from '@images/icons/user.svg';
 
@@ -27,10 +28,10 @@ export default function ProfileSettings() {
 function ProfileForm({ user }: { user: User }) {
     const queryClient = useQueryClient();
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [username, setUsername] = useState(user.username);
-    const [fullName, setFullName] = useState(user.fullName ?? '');
-    const [bio, setBio] = useState(user.bio ?? '');
     const [status, setStatus] = useState<Status>(null);
+    const { register, handleSubmit, setError, formState: { errors } } = useZodForm(UpdateProfileRequestSchema, {
+        defaultValues: { username: user.username, fullName: user.fullName ?? '', bio: user.bio ?? '' },
+    });
 
     const applyUser = (updated: User, message: string) => {
         void queryClient.invalidateQueries({ queryKey: getUsersProfileQueryKey(user.username) });
@@ -40,7 +41,7 @@ function ProfileForm({ user }: { user: User }) {
     };
     const onError = (err: unknown) => setStatus({ kind: 'error', message: getErrorMessage(err) });
 
-    const update = useUsersUpdateMe({ mutation: { onSuccess: (u) => applyUser(u, 'Profile saved'), onError } });
+    const update = useUsersUpdateMe();
     const uploadAvatar = useUsersUploadAvatar({ mutation: { onSuccess: (u) => applyUser(u, 'Avatar updated'), onError } });
     const deleteAvatar = useUsersDeleteAvatar({ mutation: { onSuccess: (u) => applyUser(u, 'Avatar removed'), onError } });
     const pending = update.isPending || uploadAvatar.isPending || deleteAvatar.isPending;
@@ -53,21 +54,25 @@ function ProfileForm({ user }: { user: User }) {
         uploadAvatar.mutate({ data: { avatar: file } });
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const onSubmit = handleSubmit(async ({ username, fullName, bio }) => {
+        setStatus(null);
         const changes = {
-            username: username.trim() !== user.username ? username : undefined,
-            fullName: fullName.trim() !== (user.fullName ?? '') ? fullName.trim() || null : undefined,
-            bio: bio.trim() !== (user.bio ?? '') ? bio.trim() || null : undefined,
+            username: username !== user.username ? username : undefined,
+            fullName: (fullName || null) !== user.fullName ? fullName || null : undefined,
+            bio: (bio || null) !== user.bio ? bio || null : undefined,
         };
-        const parsed = UpdateProfileRequestSchema.safeParse(changes);
-        if (!parsed.success) {
-            setStatus({ kind: 'error', message: parsed.error.issues[0]?.message ?? 'Please check the form' });
+        if (Object.values(changes).every((value) => value === undefined)) {
+            setError('root.server', { message: 'Nothing to update' });
             return;
         }
-        setStatus(null);
-        update.mutate({ data: parsed.data });
-    };
+        try {
+            applyUser(await update.mutateAsync({ data: changes }), 'Profile saved');
+        } catch (err) {
+            applyServerErrors(setError, err, ['username', 'fullName', 'bio']);
+        }
+    });
+
+    const formError = errors.username?.message ?? errors.fullName?.message ?? errors.bio?.message ?? errors.root?.server?.message;
 
     return (
         <section className="settings-card">
@@ -82,22 +87,23 @@ function ProfileForm({ user }: { user: User }) {
                     </button>
                 )}
             </div>
-            <form className="settings-form" onSubmit={handleSubmit} noValidate>
+            <form className="settings-form" onSubmit={onSubmit} noValidate>
                 <div className="settings-field">
                     <label htmlFor="settings-username">Username</label>
-                    <input id="settings-username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+                    <input id="settings-username" autoComplete="username" {...register('username')} />
                 </div>
                 <div className="settings-field">
                     <label htmlFor="settings-fullname">Full name</label>
-                    <input id="settings-fullname" value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="name" />
+                    <input id="settings-fullname" autoComplete="name" {...register('fullName')} />
                 </div>
                 <div className="settings-field">
                     <label htmlFor="settings-bio">Bio</label>
-                    <textarea id="settings-bio" value={bio} onChange={(e) => setBio(e.target.value)} maxLength={1000} />
+                    <textarea id="settings-bio" maxLength={1000} {...register('bio')} />
                 </div>
                 <button type="submit" disabled={pending}>Save</button>
             </form>
-            {status && <p className={`settings-${status.kind}`}>{status.message}</p>}
+            {formError && <p className="settings-error">{formError}</p>}
+            {!formError && status && <p className={`settings-${status.kind}`}>{status.message}</p>}
         </section>
     );
 }

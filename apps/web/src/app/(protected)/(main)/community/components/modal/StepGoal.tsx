@@ -5,15 +5,11 @@ import businessImg from '@images/modal-create-community/business-type.svg';
 import eventsImg from '@images/modal-create-community/events-type.svg';
 
 interface StepGoalProps {
-    onValidChange?: (valid: boolean) => void;
-    nextStep: () => void;
+    onSelect: () => void;
 }
 
-const StepGoal = ({ nextStep, onValidChange }: StepGoalProps) => {
-    const handleSelect = () => {
-        onValidChange?.(true);
-        nextStep();
-    }
+const StepGoal = ({ onSelect }: StepGoalProps) => {
+    const handleSelect = onSelect;
 
     return (
         <div>

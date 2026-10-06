@@ -1,37 +1,24 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 
 import addPhotoSVG from '@images/modal-create-community/add-photo.svg'
 
 interface StepPhotoProps {
-    onValidChange?: (v: boolean) => void;
-    onChange?: (data: { photo: File | null }) => void;
-    initialPhoto?: File | null;
+    photo: File | null;
+    onChange: (photo: File | null) => void;
 }
 
-const StepPhoto = ({ onValidChange, onChange, initialPhoto = null }: StepPhotoProps) => {
-    const [photo, setPhoto] = useState<File | null>(initialPhoto);
+const StepPhoto = ({ photo, onChange }: StepPhotoProps) => {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const preview = useMemo(() => (photo ? URL.createObjectURL(photo) : null), [photo]);
     useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
-
-    useEffect(() => {
-        const valid = !!photo;
-        onValidChange?.(valid);
-        onChange?.({ photo });
-        // run once on mount intentionally
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     const handleClick = () => {
         fileInputRef.current?.click();
     };
 
     const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const f = e.target.files?.[0] ?? null;
-        setPhoto(f);
-        onValidChange?.(!!f);
-        onChange?.({ photo: f });
+        onChange(e.target.files?.[0] ?? null);
     };
 
     return (

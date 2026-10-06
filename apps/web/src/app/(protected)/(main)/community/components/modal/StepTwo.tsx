@@ -1,4 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
+import { useFormContext } from '@cm/forms';
+import type { CreateCommunityRequest } from '@cm/contracts';
 import '@/styles/createCommunity.css'
 import Image from 'next/image';
 
@@ -19,15 +21,9 @@ const themeData = [
     },
 ]
 
-interface StepTwoProps {
-    initialTheme?: string | null;
-    onSelect?: (theme: string) => void;
-    onValidChange?: (v: boolean) => void;
-}
-
-const StepTwo = ({ initialTheme = null, onSelect, onValidChange }: StepTwoProps) => {
+const StepTwo = () => {
+    const { register } = useFormContext<CreateCommunityRequest>();
     const [search, setSearch] = useState<string>('');
-    const [selectedTheme, setSelectedTheme] = useState<string | null>(initialTheme);
 
     const normalized = (s: string) => s.trim().toLowerCase();
 
@@ -39,17 +35,6 @@ const StepTwo = ({ initialTheme = null, onSelect, onValidChange }: StepTwoProps)
             return items.length ? { ...cat, items } : null;
         }).filter(Boolean) as { title: string; items: string[] }[];
     }, [search]);
-
-    useEffect(() => {
-        onValidChange?.(!!selectedTheme);
-    }, [onValidChange, selectedTheme])
-
-
-    const handleSelect = (theme: string) => {
-        setSelectedTheme(theme);
-        onSelect?.(theme);
-        onValidChange?.(true);
-    }
 
     return (
         <div>
@@ -77,11 +62,9 @@ const StepTwo = ({ initialTheme = null, onSelect, onValidChange }: StepTwoProps)
                                 <label key={item} className="createcommunity-theme-item">
                                     <input
                                         type="radio"
-                                        name="theme"
                                         value={item}
-                                        checked={item === selectedTheme}
-                                        onChange={() => handleSelect(item)}
                                         className="createcommunity-theme-radio"
+                                        {...register('theme')}
                                     />
                                     <span className='createcommunity-theme-item-span'>{item}</span>
                                 </label>

@@ -1,29 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useFormContext } from '@cm/forms';
+import type { CreateCommunityRequest } from '@cm/contracts';
 
-interface StepDescriptionProps {
-    onValidChange?: (v: boolean) => void;
-    onChange?: (description: string) => void;
-    initialDes?: string;
-}
+const DESCRIPTION_LIMIT = 350;
 
-const StepDescription = ({ onValidChange, onChange, initialDes = '' }: StepDescriptionProps) => {
-    const [description, setDescription] = useState(initialDes);
-
-    useEffect(() => {
-        const valid = description.length > 0 && description.length <= 350;
-        onValidChange?.(valid);
-        onChange?.(description);
-        // run once on mount intentionally
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const v = e.target.value;
-        setDescription(v);
-        const valid = v.length > 0 && v.length <= 350;
-        onValidChange?.(valid);
-        onChange?.(v);
-    };
+const StepDescription = () => {
+    const { register, watch } = useFormContext<CreateCommunityRequest>();
+    const description = watch('description') ?? '';
 
     return (
         <div>
@@ -32,16 +14,16 @@ const StepDescription = ({ onValidChange, onChange, initialDes = '' }: StepDescr
                 <p>Provide a brief description of your community. This can be updated later.</p>
             </div>
             <div className="createcommunity-type-content">
-                <form action="" onSubmit={(e) => e.preventDefault()}>
+                <form onSubmit={(e) => e.preventDefault()}>
                     <div className='type-content-name-counter'>
-                        <label htmlFor="">Description</label>
-                        <p>{description.length}/350</p>
+                        <label htmlFor="community-description">Description</label>
+                        <p>{description.length}/{DESCRIPTION_LIMIT}</p>
                     </div>
                     <textarea
+                        id="community-description"
                         className='createcommunity-type-content-textarea'
-                        value={description}
-                        onChange={handleDescriptionChange}
-                        maxLength={350}
+                        maxLength={DESCRIPTION_LIMIT}
+                        {...register('description')}
                     />
                 </form>
             </div>

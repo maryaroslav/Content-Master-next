@@ -7,48 +7,48 @@ import {
     useAuthTwoFactorDisable,
     useAuthTwoFactorEnable,
     useAuthTwoFactorSetup,
-    type User,
 } from '@cm/api-client';
 import { updateUser, useAuth } from '@cm/auth';
-import { TotpCodeSchema } from '@cm/contracts';
+import { TwoFactorCodeRequestSchema } from '@cm/contracts';
+import { applyServerErrors, useZodForm } from '@cm/forms';
 
 type Step = { kind: 'idle' } | { kind: 'enabling'; qrCode: string } | { kind: 'disabling' };
 
 export default function TwoFactorSettings() {
     const { user } = useAuth();
     const [step, setStep] = useState<Step>({ kind: 'idle' });
-    const [code, setCode] = useState('');
-    const [error, setError] = useState<string | null>(null);
-
-    const reset = () => {
-        setStep({ kind: 'idle' });
-        setCode('');
-        setError(null);
-    };
-    const onError = (err: unknown) => setError(getErrorMessage(err));
-    const onFinished = (updated: User) => {
-        updateUser(updated);
-        reset();
-    };
+    const [setupError, setSetupError] = useState<string | null>(null);
+    const { register, handleSubmit, setError, reset, formState: { errors } } = useZodForm(TwoFactorCodeRequestSchema, {
+        defaultValues: { code: '' },
+    });
 
     const setup = useAuthTwoFactorSetup({
-        mutation: { onSuccess: ({ qrCode }) => { setError(null); setStep({ kind: 'enabling', qrCode }); }, onError },
+        mutation: {
+            onSuccess: ({ qrCode }) => setStep({ kind: 'enabling', qrCode }),
+            onError: (err) => setSetupError(getErrorMessage(err)),
+        },
     });
-    const enable = useAuthTwoFactorEnable({ mutation: { onSuccess: onFinished, onError } });
-    const disable = useAuthTwoFactorDisable({ mutation: { onSuccess: onFinished, onError } });
+    const enable = useAuthTwoFactorEnable();
+    const disable = useAuthTwoFactorDisable();
     const pending = setup.isPending || enable.isPending || disable.isPending;
 
     if (!user) return null;
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const parsed = TotpCodeSchema.safeParse(code);
-        if (!parsed.success) {
-            setError(parsed.error.issues[0]?.message ?? 'Please check the code');
-            return;
-        }
-        (step.kind === 'disabling' ? disable : enable).mutate({ data: { code: parsed.data } });
+    const close = () => {
+        setStep({ kind: 'idle' });
+        reset();
     };
+
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            updateUser(await (step.kind === 'disabling' ? disable : enable).mutateAsync({ data }));
+            close();
+        } catch (err) {
+            applyServerErrors(setError, err, ['code']);
+        }
+    });
+
+    const error = setupError ?? errors.code?.message ?? errors.root?.server?.message;
 
     return (
         <section className="settings-card">
@@ -62,11 +62,11 @@ export default function TwoFactorSettings() {
             {step.kind === 'idle' && (
                 user.twoFactorEnabled
                     ? <button type="button" onClick={() => setStep({ kind: 'disabling' })}>Turn off</button>
-                    : <button type="button" onClick={() => setup.mutate()} disabled={pending}>Set up</button>
+                    : <button type="button" onClick={() => { setSetupError(null); setup.mutate(); }} disabled={pending}>Set up</button>
             )}
 
             {step.kind !== 'idle' && (
-                <form className="settings-form" onSubmit={handleSubmit} noValidate>
+                <form className="settings-form" onSubmit={onSubmit} noValidate>
                     {step.kind === 'enabling' ? (
                         <>
                             <p className="settings-text">Scan the QR code with your authenticator app, then enter the code it shows.</p>
@@ -82,12 +82,11 @@ export default function TwoFactorSettings() {
                         autoComplete="one-time-code"
                         placeholder="123456"
                         autoFocus
-                        value={code}
-                        onChange={(event) => setCode(event.target.value)}
+                        {...register('code')}
                     />
                     <div className="settings-actions">
                         <button type="submit" disabled={pending}>{step.kind === 'enabling' ? 'Enable' : 'Turn off'}</button>
-                        <button type="button" className="secondary" onClick={reset}>Cancel</button>
+                        <button type="button" className="secondary" onClick={close}>Cancel</button>
                     </div>
                 </form>
             )}

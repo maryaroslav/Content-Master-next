@@ -1,12 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { getErrorMessage } from '@cm/api-client';
 import { loginWithTwoFactor } from '@cm/auth';
-import { TotpCodeSchema } from '@cm/contracts';
+import { TwoFactorLoginRequestSchema } from '@cm/contracts';
+import { applyServerErrors, useZodForm } from '@cm/forms';
 import Field from './Field';
 import FormMessage from './FormMessage';
-import { firstIssue, type FormError } from './formError';
 
 interface TwoFactorStepProps {
     challengeToken: string;
@@ -14,34 +12,25 @@ interface TwoFactorStepProps {
 }
 
 export default function TwoFactorStep({ challengeToken, onCancel }: TwoFactorStepProps) {
-    const [code, setCode] = useState('');
-    const [error, setError] = useState<FormError | null>(null);
-    const [submitting, setSubmitting] = useState(false);
+    const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useZodForm(TwoFactorLoginRequestSchema, {
+        defaultValues: { challengeToken, code: '' },
+    });
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const parsed = TotpCodeSchema.safeParse(code);
-        if (!parsed.success) {
-            setError(firstIssue(parsed.error.issues));
-            return;
-        }
-
-        setError(null);
-        setSubmitting(true);
+    const onSubmit = handleSubmit(async (data) => {
         try {
-            await loginWithTwoFactor({ challengeToken, code: parsed.data });
-        } catch (err: unknown) {
-            setError({ message: getErrorMessage(err) });
-        } finally {
-            setSubmitting(false);
+            await loginWithTwoFactor(data);
+        } catch (err) {
+            applyServerErrors(setError, err, ['code']);
         }
-    };
+    });
+
+    const message = errors.code?.message ?? errors.root?.server?.message;
 
     return (
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={onSubmit} noValidate>
             <h1>Sign In to your account</h1>
-            {error
-                ? <FormMessage message={error.message} />
+            {message
+                ? <FormMessage message={message} />
                 : <FormMessage message="Enter the code from your authenticator app" variant="hint" />}
             <Field
                 label="2FA code"
@@ -50,11 +39,10 @@ export default function TwoFactorStep({ challengeToken, onCancel }: TwoFactorSte
                 placeholder="123456"
                 autoComplete="one-time-code"
                 autoFocus
-                value={code}
-                onChange={(event) => setCode(event.target.value)}
-                invalid={Boolean(error)}
+                invalid={!!message}
+                {...register('code')}
             />
-            <button className="btn-authForm" type="submit" disabled={submitting}>Sign In</button>
+            <button className="btn-authForm" type="submit" disabled={isSubmitting}>Sign In</button>
             <div className="register">
                 <p><button type="button" className="link-button" onClick={onCancel}>Back to sign in</button></p>
             </div>
