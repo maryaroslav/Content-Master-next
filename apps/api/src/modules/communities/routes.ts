@@ -1,31 +1,20 @@
-import { Router } from 'express';
-import { CommunityIdParamsSchema, CommunityListQuerySchema, CreateCommunityRequestSchema } from '@cm/contracts';
-import { imageUpload } from '../../middlewares/upload';
-import { withValidation } from '../../middlewares/validate';
-import { requireAuth, currentUserId } from '../../middlewares/requireAuth';
+import type { Router } from 'express';
+import { communityEndpoints } from '@cm/contracts';
+import { currentUserId } from '../../middlewares/requireAuth';
+import { mount } from '../mount';
 import { toCommunityDto } from './mapper';
 import * as communitiesService from './service';
 
-const router = Router();
+export function mountCommunityRoutes(router: Router): void {
+    mount(router, communityEndpoints.listOwned, async (_input, req) =>
+        (await communitiesService.listOwnedCommunities(currentUserId(req))).map(toCommunityDto)
+    );
 
-router.use(requireAuth);
+    mount(router, communityEndpoints.create, async ({ body }, req) =>
+        toCommunityDto(await communitiesService.createCommunity(currentUserId(req), body, req.file))
+    );
 
-router.get('/', withValidation({ query: CommunityListQuerySchema }, async (_input, req, res) => {
-    const communities = await communitiesService.listOwnedCommunities(currentUserId(req));
-    res.json(communities.map(toCommunityDto));
-}));
+    mount(router, communityEndpoints.join, async ({ params }, req) => communitiesService.join(currentUserId(req), params.communityId));
 
-router.post('/', imageUpload.single('photo'), withValidation({ body: CreateCommunityRequestSchema }, async ({ body }, req, res) => {
-    const community = await communitiesService.createCommunity(currentUserId(req), body, req.file);
-    res.status(201).json(toCommunityDto(community));
-}));
-
-router.post('/:communityId/membership', withValidation({ params: CommunityIdParamsSchema }, async ({ params }, req, res) => {
-    res.json(await communitiesService.join(currentUserId(req), params.communityId));
-}));
-
-router.delete('/:communityId/membership', withValidation({ params: CommunityIdParamsSchema }, async ({ params }, req, res) => {
-    res.json(await communitiesService.leave(currentUserId(req), params.communityId));
-}));
-
-export default router;
+    mount(router, communityEndpoints.leave, async ({ params }, req) => communitiesService.leave(currentUserId(req), params.communityId));
+}

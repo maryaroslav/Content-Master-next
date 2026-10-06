@@ -8,7 +8,7 @@ Content Master is a social/community app (posts, communities, events, follows, p
 
 - `apps/api` (`@cm/api`): Express 5 + Sequelize (MySQL 8) + Socket.IO, port 5001
 - `apps/web` (`@cm/web`): Next.js 16 App Router + NextAuth (credentials) + Redux Toolkit, port 3000
-- `packages/contracts` (`@cm/contracts`): zod schemas and inferred types for API requests/responses, compiled to `dist/`
+- `packages/contracts` (`@cm/contracts`): zod schemas and inferred types for API requests/responses, compiled to `dist/`. The root export is the camelCase API v1, including the endpoint catalog (`endpoints.ts`, one `defineEndpoint` per route) from which the build also writes `dist/openapi.json`. `@cm/contracts/legacy` holds the snake_case schemas of the pre-v1 `/api/*` routes the current frontend still uses (removed in migration phase 5).
 - `packages/config-ts`, `packages/config-eslint`: shared tsconfig presets (`base`, `node`, `library`, `nextjs`) and ESLint configs
 
 ## Commands
@@ -19,6 +19,7 @@ Node 24 (`.nvmrc`), pnpm version pinned in `package.json` (`corepack enable`). `
 pnpm install
 pnpm dev                 # all apps; api runs pending migrations first, then tsx watch
 pnpm build | typecheck | lint | circular | test   # via turbo, all packages
+pnpm test:integration    # api tests against a throwaway MySQL database
 pnpm knip                # unused files/exports/deps
 pnpm syncpack:check      # dependency version rules
 
@@ -28,7 +29,11 @@ pnpm turbo run typecheck lint --filter="...[HEAD]" # only changed packages + dep
 pnpm --filter @cm/api db:migrate | db:rollback | db:status
 ```
 
-There are no tests yet (no package defines a `test` script). The husky pre-commit hook runs `typecheck lint circular test` for affected packages plus `syncpack lint`; CI additionally runs `build` and `knip`.
+Only `apps/api` has tests (vitest, `apps/api/vitest.config.mts`, two projects):
+- `pnpm test` → `test/unit/`: no database, env values fixed in `test/setup/unit.ts`.
+- `pnpm test:integration` → `test/integration/`: `test/setup/integrationGlobal.ts` creates `cm_test_<random>` on the MySQL server from `apps/api/.env`, runs the migrations with `tsx src/db/cli.ts up`, and drops it afterwards; files run one at a time and call `resetDatabase()` before each test. Helpers (`api()`, `createUser()`, `totpFor()`, `testImage()`, ...) are in `test/integration/helpers.ts`. v1 responses are asserted with the `@cm/contracts` schemas. Rate limits are off when `NODE_ENV=test`.
+
+The husky pre-commit hook runs `typecheck lint circular test` (unit tests only, no MySQL needed) for affected packages plus `syncpack lint`; CI additionally runs `build`, `knip` and `test:integration` against a `mysql:8.4` service. There is no local Docker; Docker images can only be built in CI.
 
 Every turbo task `dependsOn: ["^build"]`, so `@cm/contracts` must be built before consumers typecheck — turbo handles this, but running `tsc` directly in `apps/api` after changing contracts requires `pnpm --filter @cm/contracts build` first.
 

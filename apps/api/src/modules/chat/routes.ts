@@ -1,43 +1,37 @@
-import { Router } from 'express';
-import { PaginationQuerySchema, UserIdParamsSchema } from '@cm/contracts';
-import { imageUpload } from '../../middlewares/upload';
-import { withValidation } from '../../middlewares/validate';
-import { requireAuth, currentUserId } from '../../middlewares/requireAuth';
+import type { Router } from 'express';
+import { chatEndpoints } from '@cm/contracts';
+import { currentUserId } from '../../middlewares/requireAuth';
 import { AppError } from '../../lib/errors';
-import * as chatService from './service';
 import { publicUrl } from '../../storage/storage';
+import { mount } from '../mount';
+import * as chatService from './service';
 
-const router = Router();
+export function mountChatRoutes(router: Router): void {
+    mount(router, chatEndpoints.conversations, async (_input, req) =>
+        (await chatService.listConversations(currentUserId(req))).map(({ user, lastMessageAt }) => ({
+            user: { id: user.user_id, username: user.username, profilePicture: publicUrl(user.profile_picture) },
+            lastMessageAt,
+        }))
+    );
 
-router.use(requireAuth);
-
-router.get('/conversations', async (req, res) => {
-    const conversations = await chatService.listConversations(currentUserId(req));
-    res.json(conversations.map(({ user, lastMessageAt }) => ({
-        user: { id: user.user_id, username: user.username, profilePicture: publicUrl(user.profile_picture) },
-        lastMessageAt,
-    })));
-});
-
-router.get('/conversations/:userId/messages', withValidation({ params: UserIdParamsSchema, query: PaginationQuerySchema }, async ({ params, query }, req, res) => {
-    const { messages, nextCursor } = await chatService.listMessages(currentUserId(req), params.userId, query);
-    res.json({
-        items: messages.map((message) => ({
-            id: message.message_id,
-            fromUserId: message.from_user_id,
-            toUserId: message.to_user_id,
-            content: message.content ?? null,
-            mediaUrl: message.media_url ?? null,
-            type: message.type,
-            createdAt: message.created_at,
-        })),
-        nextCursor,
+    mount(router, chatEndpoints.messages, async ({ params, query }, req) => {
+        const { messages, nextCursor } = await chatService.listMessages(currentUserId(req), params.userId, query);
+        return {
+            items: messages.map((message) => ({
+                id: message.message_id,
+                fromUserId: message.from_user_id,
+                toUserId: message.to_user_id,
+                content: message.content ?? null,
+                mediaUrl: message.media_url ?? null,
+                type: message.type,
+                createdAt: message.created_at,
+            })),
+            nextCursor,
+        };
     });
-}));
 
-router.post('/attachments', imageUpload.single('image'), async (req, res) => {
-    if (!req.file) throw new AppError(400, 'VALIDATION_ERROR', 'No file uploaded');
-    res.status(201).json({ url: await chatService.saveAttachment(req.file) });
-});
-
-export default router;
+    mount(router, chatEndpoints.uploadAttachment, async (_input, req) => {
+        if (!req.file) throw new AppError(400, 'VALIDATION_ERROR', 'No file uploaded');
+        return { url: await chatService.saveAttachment(req.file) };
+    });
+}

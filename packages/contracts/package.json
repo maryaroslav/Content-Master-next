@@ -12,13 +12,14 @@
     "./legacy": {
       "types": "./dist/legacy/index.d.ts",
       "default": "./dist/legacy/index.js"
-    }
+    },
+    "./openapi.json": "./dist/openapi.json"
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node dist/openapi/write.js",
     "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src",
@@ -30,7 +31,9 @@
   "devDependencies": {
     "@cm/config-eslint": "workspace:*",
     "@cm/config-ts": "workspace:*",
+    "@types/node": "24.19.1",
     "eslint": "9.39.5",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "zod-openapi": "6.0.2"
   }
 }

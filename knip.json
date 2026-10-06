@@ -20,6 +20,11 @@
         "next"
       ]
     },
+    "packages/contracts": {
+      "entry": [
+        "src/openapi/write.ts"
+      ]
+    },
     "packages/*": {}
   },
   "rules": {

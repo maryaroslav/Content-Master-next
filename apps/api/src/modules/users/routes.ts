@@ -1,71 +1,63 @@
-import { Router } from 'express';
-import { ChangeEmailRequestSchema, UpdateProfileRequestSchema, UserIdParamsSchema, UsernameParamsSchema } from '@cm/contracts';
+import type { Router } from 'express';
+import { userEndpoints } from '@cm/contracts';
+import { currentUserId } from '../../middlewares/requireAuth';
 import { authRateLimit } from '../../middlewares/rateLimit';
-import { imageUpload } from '../../middlewares/upload';
-import { withValidation } from '../../middlewares/validate';
-import { requireAuth, currentUserId } from '../../middlewares/requireAuth';
-import { toUserDto, toUserProfileDto } from './mapper';
-import * as usersService from './service';
+import { storage } from '../../storage/storage';
+import { toCommunitySummary } from '../communities/mapper';
 import * as communitiesService from '../communities/service';
 import * as eventsService from '../events/service';
-import { toCommunitySummary } from '../communities/mapper';
-import { storage } from '../../storage/storage';
+import { mount } from '../mount';
+import { toUserDto, toUserProfileDto } from './mapper';
+import * as usersService from './service';
 
-const router = Router();
+export function mountUserRoutes(router: Router): void {
+    mount(router, userEndpoints.me, async (_input, req) => toUserDto(await usersService.getUser(currentUserId(req))));
 
-router.use(requireAuth);
+    mount(router, userEndpoints.updateMe, async ({ body }, req) =>
+        toUserDto(await usersService.updateProfile(currentUserId(req), body))
+    );
 
-router.get('/me', async (req, res) => {
-    res.json(toUserDto(await usersService.getUser(currentUserId(req))));
-});
+    mount(
+        router,
+        userEndpoints.changeEmail,
+        async ({ body }, req) => toUserDto(await usersService.changeEmail(currentUserId(req), body)),
+        { before: [authRateLimit] }
+    );
 
-router.patch('/me', withValidation({ body: UpdateProfileRequestSchema }, async ({ body }, req, res) => {
-    res.json(toUserDto(await usersService.updateProfile(currentUserId(req), body)));
-}));
+    mount(router, userEndpoints.uploadAvatar, async (_input, req) =>
+        toUserDto(await usersService.setAvatar(currentUserId(req), req.file))
+    );
 
-router.put('/me/email', authRateLimit, withValidation({ body: ChangeEmailRequestSchema }, async ({ body }, req, res) => {
-    res.json(toUserDto(await usersService.changeEmail(currentUserId(req), body)));
-}));
+    mount(router, userEndpoints.deleteAvatar, async (_input, req) => toUserDto(await usersService.deleteAvatar(currentUserId(req))));
 
-router.put('/me/avatar', imageUpload.single('avatar'), async (req, res) => {
-    res.json(toUserDto(await usersService.setAvatar(currentUserId(req), req.file)));
-});
+    mount(router, userEndpoints.myCommunities, async (_input, req) =>
+        (await communitiesService.listMemberCommunities(currentUserId(req))).map(toCommunitySummary)
+    );
 
-router.delete('/me/avatar', async (req, res) => {
-    res.json(toUserDto(await usersService.deleteAvatar(currentUserId(req))));
-});
+    mount(router, userEndpoints.myEvents, async (_input, req) =>
+        (await eventsService.listMemberEvents(currentUserId(req))).map((event) => ({
+            id: event.event_id,
+            title: event.title,
+            image: storage.url(event.image),
+            createdAt: event.created_at,
+            membersCount: event.members_count ?? null,
+        }))
+    );
 
-router.get('/me/communities', async (req, res) => {
-    const communities = await communitiesService.listMemberCommunities(currentUserId(req));
-    res.json(communities.map(toCommunitySummary));
-});
+    mount(router, userEndpoints.profile, async ({ params }, req) => {
+        const { user, followersCount, isFollowing } = await usersService.getProfile(params.username, currentUserId(req));
+        return toUserProfileDto(user, followersCount, isFollowing);
+    });
 
-router.get('/me/events', async (req, res) => {
-    const events = await eventsService.listMemberEvents(currentUserId(req));
-    res.json(events.map((event) => ({
-        id: event.event_id,
-        title: event.title,
-        image: storage.url(event.image),
-        createdAt: event.created_at,
-        membersCount: event.members_count ?? null,
-    })));
-});
+    mount(router, userEndpoints.follow, async ({ params }, req) => {
+        const viewerId = currentUserId(req);
+        await usersService.follow(viewerId, params.userId);
+        return usersService.getFollowStatus(viewerId, params.userId);
+    });
 
-router.get('/by-username/:username', withValidation({ params: UsernameParamsSchema }, async ({ params }, req, res) => {
-    const { user, followersCount, isFollowing } = await usersService.getProfile(params.username, currentUserId(req));
-    res.json(toUserProfileDto(user, followersCount, isFollowing));
-}));
-
-router.put('/:userId/follow', withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
-    const viewerId = currentUserId(req);
-    await usersService.follow(viewerId, params.userId);
-    res.json(await usersService.getFollowStatus(viewerId, params.userId));
-}));
-
-router.delete('/:userId/follow', withValidation({ params: UserIdParamsSchema }, async ({ params }, req, res) => {
-    const viewerId = currentUserId(req);
-    await usersService.unfollow(viewerId, params.userId);
-    res.json(await usersService.getFollowStatus(viewerId, params.userId));
-}));
-
-export default router;
+    mount(router, userEndpoints.unfollow, async ({ params }, req) => {
+        const viewerId = currentUserId(req);
+        await usersService.unfollow(viewerId, params.userId);
+        return usersService.getFollowStatus(viewerId, params.userId);
+    });
+}
