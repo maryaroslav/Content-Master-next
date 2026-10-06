@@ -54,9 +54,9 @@ The variables are validated on startup: the backend refuses to start and lists w
 
 **apps/web/.env.local**
 ```
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=a-string-secret-at-least-256-bits-long
+cp apps/web/.env.example apps/web/.env.local
 ```
+Fill in `NEXTAUTH_SECRET`. `API_URL` and `APP_ENV` reach the browser through `/env.js` at request time, so a built frontend picks up new values on restart without a rebuild.
 
 ## Start the project:
 ```
