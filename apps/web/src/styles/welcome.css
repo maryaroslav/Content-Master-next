@@ -252,3 +252,8 @@
     height: 100dvh;
     overflow: hidden;
 }
+
+.welcome-language {
+    justify-content: center;
+    margin-top: 16px;
+}

@@ -2,14 +2,18 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { login } from '@cm/auth';
 import { LoginRequestSchema } from '@cm/contracts';
 import { applyServerErrors, useZodForm } from '@cm/forms';
 import Field from './Field';
 import FormMessage from './FormMessage';
 import TwoFactorStep from './TwoFactorStep';
+import { useErrorText } from '@/i18n/useErrorText';
 
 export default function LoginForm() {
+    const t = useTranslations('auth');
+    const errorText = useErrorText('login');
     const [challengeToken, setChallengeToken] = useState<string | null>(null);
     const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useZodForm(LoginRequestSchema, {
         defaultValues: { email: '', password: '' },
@@ -28,24 +32,24 @@ export default function LoginForm() {
         }
     });
 
-    const message = errors.email?.message ?? errors.password?.message ?? errors.root?.server?.message;
+    const message = errorText.field(errors.email, 'email') ?? errorText.field(errors.password, 'password') ?? errorText.form(errors.root?.server);
 
     return (
         <form onSubmit={onSubmit} noValidate>
-            <h1>Sign In to your account</h1>
+            <h1>{t('login.title')}</h1>
             {message && <FormMessage message={message} />}
-            <Field label="Email" type="email" placeholder="Email" autoComplete="email" invalid={!!errors.email} {...register('email')} />
+            <Field label={t('email')} type="email" placeholder={t('email')} autoComplete="email" invalid={!!errors.email} {...register('email')} />
             <Field
-                label="Password"
+                label={t('password')}
                 type="password"
-                placeholder="Password"
+                placeholder={t('password')}
                 autoComplete="current-password"
                 invalid={!!errors.password}
                 {...register('password')}
             />
-            <button className="btn-authForm" type="submit" disabled={isSubmitting}>Sign In</button>
+            <button className="btn-authForm" type="submit" disabled={isSubmitting}>{t('login.submit')}</button>
             <div className="register">
-                <p>Don’t have an account? <Link href="/register">Create account</Link></p>
+                <p>{t('login.noAccount')} <Link href="/register">{t('login.createAccount')}</Link></p>
             </div>
         </form>
     );

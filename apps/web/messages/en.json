@@ -1,0 +1,145 @@
+{
+  "language": {
+    "label": "Language"
+  },
+  "welcome": {
+    "title": "Join the Chatvolution",
+    "text": "Ask questions, share ideas, and build connections with each other.",
+    "join": "Join Content Master Community",
+    "signIn": "Sign In",
+    "signUp": "Sign Up"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "login": {
+      "title": "Sign In to your account",
+      "submit": "Sign In",
+      "noAccount": "Don’t have an account?",
+      "createAccount": "Create account"
+    },
+    "register": {
+      "title": "Create your account",
+      "submit": "Sign Up",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "twoFactor": {
+      "hint": "Enter the code from your authenticator app",
+      "code": "2FA code",
+      "back": "Back to sign in"
+    }
+  },
+  "settings": {
+    "profile": {
+      "title": "Profile",
+      "uploadPhoto": "Upload photo",
+      "removePhoto": "Remove",
+      "username": "Username",
+      "fullName": "Full name",
+      "bio": "Bio",
+      "save": "Save",
+      "saved": "Profile saved",
+      "avatarUpdated": "Avatar updated",
+      "avatarRemoved": "Avatar removed"
+    },
+    "account": {
+      "title": "Account",
+      "signedInAs": "Signed in as {email}",
+      "newEmail": "New email",
+      "currentPassword": "Current password",
+      "submit": "Change email",
+      "changed": "Email changed"
+    },
+    "twoFactor": {
+      "title": "Two-factor authentication",
+      "on": "On: signing in asks for a code from your authenticator app.",
+      "off": "Off: signing in needs only your password.",
+      "setUp": "Set up",
+      "turnOff": "Turn off",
+      "scan": "Scan the QR code with your authenticator app, then enter the code it shows.",
+      "qrAlt": "QR code for the authenticator app",
+      "disablePrompt": "Enter the code from your authenticator app to turn two-factor authentication off.",
+      "enable": "Enable",
+      "cancel": "Cancel"
+    }
+  },
+  "validation": {
+    "email": {
+      "invalid_format": "Please enter a valid email",
+      "too_small": "Email is required",
+      "too_big": "Email is too long"
+    },
+    "password": {
+      "too_small": "Password must be at least 8 characters long",
+      "too_big": "Password is too long"
+    },
+    "login": {
+      "password": {
+        "too_small": "Password is required"
+      }
+    },
+    "username": {
+      "too_small": "Username must be at least 3 characters long",
+      "too_big": "Username must be at most 50 characters long",
+      "invalid_format": "Username may contain only letters, digits, “.”, “_” and “-”"
+    },
+    "code": {
+      "invalid_format": "The code must consist of 6 digits"
+    },
+    "currentPassword": {
+      "too_small": "Current password is required"
+    },
+    "fullName": {
+      "too_big": "Full name is too long"
+    },
+    "bio": {
+      "too_big": "Bio is too long"
+    },
+    "name": {
+      "too_small": "Name is required",
+      "too_big": "Name is too long"
+    },
+    "theme": {
+      "too_small": "Theme is required"
+    },
+    "description": {
+      "too_big": "Description is too long"
+    },
+    "content": {
+      "too_big": "Post is too long"
+    },
+    "q": {
+      "too_small": "Enter at least 2 characters"
+    }
+  },
+  "errors": {
+    "server": "Something went wrong, please try again.",
+    "INTERNAL_ERROR": "Something went wrong, please try again.",
+    "TOO_MANY_REQUESTS": "Too many requests, please try again later.",
+    "NOT_FOUND": "Not found",
+    "UNAUTHORIZED": "Please sign in again",
+    "INVALID_TOKEN": "Your session has expired, please sign in again",
+    "INVALID_REFRESH_TOKEN": "Your session has expired, please sign in again",
+    "INVALID_CREDENTIALS": "Invalid email or password",
+    "INVALID_2FA_CODE": "Invalid 2FA code",
+    "INVALID_PASSWORD": "Current password is incorrect",
+    "USER_EXISTS": "A user with this email or username already exists",
+    "USERNAME_TAKEN": "This username is already taken",
+    "EMAIL_TAKEN": "This email is already taken",
+    "USER_NOT_FOUND": "User not found",
+    "CANNOT_FOLLOW_SELF": "You cannot follow yourself",
+    "COMMUNITY_NOT_FOUND": "Community not found",
+    "PRIVATE_COMMUNITY": "This community is private",
+    "OWNER_CANNOT_LEAVE": "The owner cannot leave their own community",
+    "POST_NOT_FOUND": "Post not found",
+    "FORBIDDEN": "You are not allowed to do this",
+    "INVALID_FILE_TYPE": "Only JPEG, PNG, GIF and WebP images are allowed",
+    "TWO_FACTOR_ALREADY_ENABLED": "Two-factor authentication is already on",
+    "TWO_FACTOR_NOT_ENABLED": "Two-factor authentication is off",
+    "TWO_FACTOR_NOT_SET_UP": "Start the two-factor setup first",
+    "NOTHING_TO_UPDATE": "Nothing to update",
+    "PHOTO_REQUIRED": "Community photo is required"
+  }
+}

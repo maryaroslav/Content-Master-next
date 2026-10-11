@@ -6,7 +6,7 @@
     padding: 0;
 }
 
-a {
+.container-auth a {
     color: #479BD8;
 }
 
@@ -44,19 +44,19 @@ body {
     object-fit: cover;
 }
 
-h2 {
+.container-auth h2 {
     text-align: center;
     color: #333;
 }
 
-form > h1 {
+.form-container form > h1 {
     text-align: center;
     font-size: 25px;
     padding-bottom: 20px;
     color: #10100E;
 }
 
-form {
+.form-container form {
     display: flex;
     flex-direction: column;
 }
@@ -99,7 +99,7 @@ input[type="password"] {
     border-radius: 20px;
 }
 
-input::placeholder {
+.container-auth input::placeholder {
     color: #A7A7A7;
     font-family: 'Poppins', sans-serif;
     font-weight: 500;

@@ -1,9 +1,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server';
 import '@/styles/headerWelcome.css';
 import logo from '@images/logo/logo.svg'
 
-const HeaderWelcome = () => {
+const HeaderWelcome = async () => {
+    const t = await getTranslations('welcome');
     return (
         <header className='header'>
             <div className='logo'>
@@ -11,8 +13,8 @@ const HeaderWelcome = () => {
                 <p>Content Master</p>
             </div>
             <nav className='nav'>
-                <Link href="/login" className='link'>Sign In</Link>
-                <Link href="/register" className='link special'>Sign Up</Link>
+                <Link href="/login" className='link'>{t('signIn')}</Link>
+                <Link href="/register" className='link special'>{t('signUp')}</Link>
             </nav>
         </header>
     );

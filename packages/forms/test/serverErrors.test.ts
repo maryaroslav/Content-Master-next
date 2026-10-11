@@ -16,6 +16,7 @@ describe('parseServerErrors', () => {
         });
         expect(parseServerErrors(error)).toEqual({
             fields: { username: 'Username is taken', 'profile.bio': 'Too long' },
+            code: 'VALIDATION_ERROR',
             message: 'Username is taken',
         });
     });
@@ -23,9 +24,10 @@ describe('parseServerErrors', () => {
     it('falls back to the message for errors without details', () => {
         expect(parseServerErrors(apiError({ code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' }))).toEqual({
             fields: {},
+            code: 'INVALID_CREDENTIALS',
             message: 'Invalid email or password',
         });
-        expect(parseServerErrors(new Error('Network Error')).message).toBe('Network Error');
+        expect(parseServerErrors(new Error('Network Error'))).toMatchObject({ code: 'server', message: 'Network Error' });
     });
 });
 
@@ -42,9 +44,9 @@ describe('applyServerErrors', () => {
         expect(setError.mock.calls).toEqual([['email', { type: 'server', message: 'Email is taken' }]]);
     });
 
-    it('puts the message on the form when no detail matches a field', () => {
+    it('puts the message and the error code on the form when no detail matches a field', () => {
         const setError = vi.fn();
         applyServerErrors<{ name: string }>(setError, error, ['name']);
-        expect(setError.mock.calls).toEqual([['root.server', { type: 'server', message: 'Bad input' }]]);
+        expect(setError.mock.calls).toEqual([['root.server', { type: 'VALIDATION_ERROR', message: 'Bad input' }]]);
     });
 });

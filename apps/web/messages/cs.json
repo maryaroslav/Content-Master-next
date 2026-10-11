@@ -1,0 +1,145 @@
+{
+  "language": {
+    "label": "Jazyk"
+  },
+  "welcome": {
+    "title": "Přidejte se k Chatvoluci",
+    "text": "Ptejte se, sdílejte nápady a navazujte nová spojení.",
+    "join": "Připojit se ke komunitě Content Master",
+    "signIn": "Přihlásit se",
+    "signUp": "Registrovat se"
+  },
+  "auth": {
+    "email": "E-mail",
+    "password": "Heslo",
+    "username": "Uživatelské jméno",
+    "login": {
+      "title": "Přihlaste se ke svému účtu",
+      "submit": "Přihlásit se",
+      "noAccount": "Nemáte účet?",
+      "createAccount": "Vytvořit účet"
+    },
+    "register": {
+      "title": "Vytvořte si účet",
+      "submit": "Registrovat se",
+      "haveAccount": "Už máte účet?",
+      "signIn": "Přihlásit se"
+    },
+    "twoFactor": {
+      "hint": "Zadejte kód z ověřovací aplikace",
+      "code": "Kód 2FA",
+      "back": "Zpět k přihlášení"
+    }
+  },
+  "settings": {
+    "profile": {
+      "title": "Profil",
+      "uploadPhoto": "Nahrát fotku",
+      "removePhoto": "Odebrat",
+      "username": "Uživatelské jméno",
+      "fullName": "Celé jméno",
+      "bio": "O mně",
+      "save": "Uložit",
+      "saved": "Profil uložen",
+      "avatarUpdated": "Profilová fotka aktualizována",
+      "avatarRemoved": "Profilová fotka odebrána"
+    },
+    "account": {
+      "title": "Účet",
+      "signedInAs": "Přihlášen(a) jako {email}",
+      "newEmail": "Nový e-mail",
+      "currentPassword": "Současné heslo",
+      "submit": "Změnit e-mail",
+      "changed": "E-mail změněn"
+    },
+    "twoFactor": {
+      "title": "Dvoufázové ověření",
+      "on": "Zapnuto: přihlášení vyžaduje kód z ověřovací aplikace.",
+      "off": "Vypnuto: k přihlášení stačí heslo.",
+      "setUp": "Nastavit",
+      "turnOff": "Vypnout",
+      "scan": "Naskenujte QR kód ověřovací aplikací a zadejte kód, který zobrazí.",
+      "qrAlt": "QR kód pro ověřovací aplikaci",
+      "disablePrompt": "Pro vypnutí dvoufázového ověření zadejte kód z ověřovací aplikace.",
+      "enable": "Zapnout",
+      "cancel": "Zrušit"
+    }
+  },
+  "validation": {
+    "email": {
+      "invalid_format": "Zadejte platný e-mail",
+      "too_small": "E-mail je povinný",
+      "too_big": "E-mail je příliš dlouhý"
+    },
+    "password": {
+      "too_small": "Heslo musí mít alespoň 8 znaků",
+      "too_big": "Heslo je příliš dlouhé"
+    },
+    "login": {
+      "password": {
+        "too_small": "Heslo je povinné"
+      }
+    },
+    "username": {
+      "too_small": "Uživatelské jméno musí mít alespoň 3 znaky",
+      "too_big": "Uživatelské jméno může mít nejvýše 50 znaků",
+      "invalid_format": "Uživatelské jméno smí obsahovat jen písmena, číslice, „.“, „_“ a „-“"
+    },
+    "code": {
+      "invalid_format": "Kód musí mít 6 číslic"
+    },
+    "currentPassword": {
+      "too_small": "Současné heslo je povinné"
+    },
+    "fullName": {
+      "too_big": "Celé jméno je příliš dlouhé"
+    },
+    "bio": {
+      "too_big": "Text o vás je příliš dlouhý"
+    },
+    "name": {
+      "too_small": "Název je povinný",
+      "too_big": "Název je příliš dlouhý"
+    },
+    "theme": {
+      "too_small": "Vyberte téma"
+    },
+    "description": {
+      "too_big": "Popis je příliš dlouhý"
+    },
+    "content": {
+      "too_big": "Příspěvek je příliš dlouhý"
+    },
+    "q": {
+      "too_small": "Zadejte alespoň 2 znaky"
+    }
+  },
+  "errors": {
+    "server": "Něco se pokazilo, zkuste to prosím znovu.",
+    "INTERNAL_ERROR": "Něco se pokazilo, zkuste to prosím znovu.",
+    "TOO_MANY_REQUESTS": "Příliš mnoho požadavků, zkuste to prosím později.",
+    "NOT_FOUND": "Nenalezeno",
+    "UNAUTHORIZED": "Přihlaste se prosím znovu",
+    "INVALID_TOKEN": "Platnost přihlášení vypršela, přihlaste se prosím znovu",
+    "INVALID_REFRESH_TOKEN": "Platnost přihlášení vypršela, přihlaste se prosím znovu",
+    "INVALID_CREDENTIALS": "Nesprávný e-mail nebo heslo",
+    "INVALID_2FA_CODE": "Nesprávný kód 2FA",
+    "INVALID_PASSWORD": "Současné heslo je nesprávné",
+    "USER_EXISTS": "Uživatel s tímto e-mailem nebo jménem už existuje",
+    "USERNAME_TAKEN": "Toto uživatelské jméno je už obsazené",
+    "EMAIL_TAKEN": "Tento e-mail je už používán",
+    "USER_NOT_FOUND": "Uživatel nenalezen",
+    "CANNOT_FOLLOW_SELF": "Nemůžete sledovat sami sebe",
+    "COMMUNITY_NOT_FOUND": "Komunita nenalezena",
+    "PRIVATE_COMMUNITY": "Tato komunita je soukromá",
+    "OWNER_CANNOT_LEAVE": "Vlastník nemůže opustit vlastní komunitu",
+    "POST_NOT_FOUND": "Příspěvek nenalezen",
+    "FORBIDDEN": "K této akci nemáte oprávnění",
+    "INVALID_FILE_TYPE": "Povolené jsou pouze obrázky JPEG, PNG, GIF a WebP",
+    "TWO_FACTOR_ALREADY_ENABLED": "Dvoufázové ověření je už zapnuté",
+    "TWO_FACTOR_NOT_ENABLED": "Dvoufázové ověření je vypnuté",
+    "TWO_FACTOR_NOT_SET_UP": "Nejprve spusťte nastavení dvoufázového ověření",
+    "NOTHING_TO_UPDATE": "Není co uložit",
+    "PHOTO_REQUIRED": "Fotka komunity je povinná"
+  }
+}

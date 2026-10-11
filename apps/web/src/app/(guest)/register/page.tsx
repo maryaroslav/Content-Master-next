@@ -5,7 +5,7 @@ import registerImg from '@images/auth/register_1.png';
 
 export default function RegisterPage() {
     return (
-        <AuthLayout image={registerImg} imageAlt="register">
+        <AuthLayout image={registerImg} imageAlt="">
             <RegisterForm />
         </AuthLayout>
     );

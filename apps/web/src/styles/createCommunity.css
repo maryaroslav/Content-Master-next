@@ -130,7 +130,7 @@
 }
 
 .createcommunity-type-content input,
-select {
+.createcommunity-type-content select {
   width: 100%;
   padding: 10px;
   border: none;
@@ -142,7 +142,7 @@ select {
 }
 
 .createcommunity-type-content input:focus,
-select:focus {
+.createcommunity-type-content select:focus {
   outline: none;
   box-shadow: 0 0 10px rgba(97, 97, 97, 0.253);
 }

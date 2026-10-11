@@ -9,3 +9,7 @@ export function getErrorMessage(error: unknown, fallback = 'Something went wrong
 export function getErrorDetails(error: unknown): NonNullable<ErrorResponse['details']> {
     return isAxiosError<ErrorResponse>(error) ? error.response?.data?.details ?? [] : [];
 }
+
+export function getErrorCode(error: unknown): string | undefined {
+    return isAxiosError<ErrorResponse>(error) ? error.response?.data?.code : undefined;
+}

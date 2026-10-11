@@ -40,3 +40,20 @@ button {
   border-radius: 10px;
   color: #f3f3f3;
 }
+
+.language-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #5B5B5B;
+}
+
+.language-switcher select {
+  padding: 4px 8px;
+  border: 1px solid #CFCFCF;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #10100E;
+  font: inherit;
+}

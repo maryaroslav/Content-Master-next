@@ -1,8 +1,9 @@
-import { getErrorDetails, getErrorMessage } from '@cm/api-client';
+import { getErrorCode, getErrorDetails, getErrorMessage } from '@cm/api-client';
 import type { FieldValues, Path, UseFormSetError } from 'react-hook-form';
 
 export interface ServerErrors {
     fields: Record<string, string>;
+    code: string;
     message: string;
 }
 
@@ -12,7 +13,7 @@ export function parseServerErrors(error: unknown): ServerErrors {
         const field = path.split('.').slice(1).join('.');
         if (field && !(field in fields)) fields[field] = message;
     }
-    return { fields, message: getErrorMessage(error) };
+    return { fields, code: getErrorCode(error) ?? 'server', message: getErrorMessage(error) };
 }
 
 export function applyServerErrors<T extends FieldValues>(
@@ -20,7 +21,7 @@ export function applyServerErrors<T extends FieldValues>(
     error: unknown,
     knownFields: readonly Path<T>[],
 ): void {
-    const { fields, message } = parseServerErrors(error);
+    const { fields, code, message } = parseServerErrors(error);
     let placed = false;
     for (const field of knownFields) {
         const fieldMessage = fields[field];
@@ -29,5 +30,5 @@ export function applyServerErrors<T extends FieldValues>(
             placed = true;
         }
     }
-    if (!placed) setError('root.server', { type: 'server', message });
+    if (!placed) setError('root.server', { type: code, message });
 }
