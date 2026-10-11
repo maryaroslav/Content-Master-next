@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import type { User } from '@cm/api-client';
 import MessageInput from './MessageInput';
 import MessageList from './MessageList';
@@ -17,12 +18,13 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow({ peerId, peer, me, connected, send }: ChatWindowProps) {
+    const t = useTranslations('chat');
     return (
         <>
             <div className="chat-header">
                 <Image src={peer?.profilePicture ?? userImg} alt="" width={35} height={35} style={{ borderRadius: '50%' }} />
-                <h3>{peer?.username ?? `User ${peerId}`}</h3>
-                {!connected && <span className="chat-connection">Connecting...</span>}
+                <h3>{peer?.username ?? t('unknownUser', { id: peerId })}</h3>
+                {!connected && <span className="chat-connection">{t('connecting')}</span>}
             </div>
             <MessageList peerId={peerId} myId={me.id} myAvatar={me.profilePicture} peerAvatar={peer?.profilePicture ?? null} />
             <MessageInput peerId={peerId} connected={connected} send={send} />

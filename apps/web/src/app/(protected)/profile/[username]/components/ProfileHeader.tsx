@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import type { UserProfile } from '@cm/api-client';
 
 import userImg from '@images/icons/user.svg';
@@ -9,7 +10,8 @@ interface ProfileHeaderProps {
 }
 
 export default function ProfileHeader({ profile, children }: ProfileHeaderProps) {
-    const followers = `${profile.followersCount} follower${profile.followersCount === 1 ? '' : 's'}`;
+    const t = useTranslations('profile');
+    const followers = t('followers', { count: profile.followersCount });
 
     return (
         <div className="profile-header">
@@ -21,7 +23,7 @@ export default function ProfileHeader({ profile, children }: ProfileHeaderProps)
                     <div className="profile-info-username">
                         <p>{profile.fullName ?? profile.username}</p>
                     </div>
-                    <p className="profile-info-handle">@{profile.username} · {followers}</p>
+                    <p className="profile-info-handle">{t('handle', { username: profile.username, followers })}</p>
                     {profile.bio && (
                         <div className="profile-info-bio">
                             <p>{profile.bio}</p>

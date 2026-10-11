@@ -1,18 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-    getErrorMessage,
     getUsersProfileQueryKey,
     useUsersFollow,
     useUsersUnfollow,
     type FollowStatus,
     type UserProfile,
 } from '@cm/api-client';
+import { useErrorText } from '@/i18n/useErrorText';
 
 export default function FollowButton({ profile }: { profile: UserProfile }) {
     const queryClient = useQueryClient();
+    const t = useTranslations('profile');
+    const errorText = useErrorText();
     const queryKey = getUsersProfileQueryKey(profile.username);
     const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +36,7 @@ export default function FollowButton({ profile }: { profile: UserProfile }) {
         },
         onError: (err: unknown, _variables: unknown, context: { previous?: UserProfile } | undefined) => {
             queryClient.setQueryData(queryKey, context?.previous);
-            setError(getErrorMessage(err));
+            setError(errorText.request(err) ?? null);
         },
     };
     const follow = useUsersFollow({ mutation });
@@ -49,7 +52,7 @@ export default function FollowButton({ profile }: { profile: UserProfile }) {
                 onClick={toggle}
                 disabled={follow.isPending || unfollow.isPending}
             >
-                {profile.isFollowing ? 'Unfriend' : 'Add to friends'}
+                {profile.isFollowing ? t('unfollow') : t('follow')}
             </button>
             {error && <p className="profile-error">{error}</p>}
         </>

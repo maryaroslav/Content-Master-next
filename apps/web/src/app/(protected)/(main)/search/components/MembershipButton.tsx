@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-    getErrorMessage,
     getSearchSearchQueryKey,
     getUsersMyCommunitiesQueryKey,
     useCommunitiesJoin,
@@ -12,6 +12,7 @@ import {
     type MembershipStatus,
     type SearchResponse,
 } from '@cm/api-client';
+import { useErrorText } from '@/i18n/useErrorText';
 
 interface MembershipButtonProps {
     community: CommunitySearchItem;
@@ -20,6 +21,8 @@ interface MembershipButtonProps {
 
 export default function MembershipButton({ community, query }: MembershipButtonProps) {
     const queryClient = useQueryClient();
+    const t = useTranslations();
+    const errorText = useErrorText();
     const [error, setError] = useState<string | null>(null);
 
     const mutation = {
@@ -31,14 +34,14 @@ export default function MembershipButton({ community, query }: MembershipButtonP
             });
             void queryClient.invalidateQueries({ queryKey: getUsersMyCommunitiesQueryKey() });
         },
-        onError: (err: unknown) => setError(getErrorMessage(err)),
+        onError: (err: unknown) => setError(errorText.request(err) ?? null),
     };
     const join = useCommunitiesJoin({ mutation });
     const leave = useCommunitiesLeave({ mutation });
     const pending = join.isPending || leave.isPending;
 
     if (!community.isMember && community.privacy === 'private') {
-        return <span className="search-membership-note">Private</span>;
+        return <span className="search-membership-note">{t('common.privacy.private')}</span>;
     }
 
     return (
@@ -49,7 +52,7 @@ export default function MembershipButton({ community, query }: MembershipButtonP
                 disabled={pending}
                 onClick={() => (community.isMember ? leave : join).mutate({ communityId: community.id })}
             >
-                {community.isMember ? 'Leave' : 'Join'}
+                {community.isMember ? t('community.leave') : t('community.join')}
             </button>
             {error && <p className="search-error">{error}</p>}
         </div>

@@ -9,7 +9,7 @@ const HeaderWelcome = async () => {
     return (
         <header className='header'>
             <div className='logo'>
-                <Image src={logo} alt="logo"></Image>
+                <Image src={logo} alt=""></Image>
                 <p>Content Master</p>
             </div>
             <nav className='nav'>

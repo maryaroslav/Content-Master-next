@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 import '@/styles/postOptionsModal.css'
 
@@ -7,6 +8,7 @@ interface PostOptionsModalProps {
 }
 
 const PostOptionsModal = ({ onDelete }: PostOptionsModalProps) => {
+    const t = useTranslations('feed');
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -24,7 +26,7 @@ const PostOptionsModal = ({ onDelete }: PostOptionsModalProps) => {
             <button
                 type="button"
                 className="post-options-button"
-                aria-label="Post options"
+                aria-label={t('options')}
                 aria-expanded={open}
                 onClick={() => setOpen(!open)}
             >
@@ -35,7 +37,7 @@ const PostOptionsModal = ({ onDelete }: PostOptionsModalProps) => {
 
             {open && (
                 <div className="post-options-modal">
-                    <button type="button" onClick={() => { onDelete(); setOpen(false); }}>Delete post</button>
+                    <button type="button" onClick={() => { onDelete(); setOpen(false); }}>{t('delete')}</button>
                 </div>
             )}
         </div>

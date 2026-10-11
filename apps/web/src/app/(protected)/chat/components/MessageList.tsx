@@ -2,7 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { getChatMessagesInfiniteQueryKey, getErrorMessage, useChatMessagesInfinite } from '@cm/api-client';
+import { useTranslations } from 'next-intl';
+import { getChatMessagesInfiniteQueryKey, useChatMessagesInfinite } from '@cm/api-client';
+import { useErrorText } from '@/i18n/useErrorText';
 
 import userImg from '@images/icons/user.svg';
 
@@ -14,6 +16,8 @@ interface MessageListProps {
 }
 
 export default function MessageList({ peerId, myId, myAvatar, peerAvatar }: MessageListProps) {
+    const t = useTranslations();
+    const errorText = useErrorText();
     const containerRef = useRef<HTMLDivElement>(null);
     const { data, error, status, fetchNextPage, hasNextPage, isFetchingNextPage } = useChatMessagesInfinite(peerId, undefined, {
         query: {
@@ -33,14 +37,14 @@ export default function MessageList({ peerId, myId, myAvatar, peerAvatar }: Mess
 
     return (
         <div className="chat-messages" ref={containerRef}>
-            {status === 'pending' && <p className="chat-status">Loading messages...</p>}
-            {status === 'error' && <p className="chat-status">{getErrorMessage(error)}</p>}
+            {status === 'pending' && <p className="chat-status">{t('chat.loadingMessages')}</p>}
+            {status === 'error' && <p className="chat-status">{errorText.request(error)}</p>}
             {hasNextPage && (
                 <button type="button" className="chat-load-older" disabled={isFetchingNextPage} onClick={() => void fetchNextPage()}>
-                    {isFetchingNextPage ? 'Loading...' : 'Load earlier messages'}
+                    {isFetchingNextPage ? t('common.loading') : t('chat.loadEarlier')}
                 </button>
             )}
-            {status === 'success' && messages.length === 0 && <p className="chat-status">No messages yet. Say hi!</p>}
+            {status === 'success' && messages.length === 0 && <p className="chat-status">{t('chat.empty')}</p>}
             {messages.map((message) => {
                 const mine = message.fromUserId === myId;
                 return (
@@ -55,7 +59,7 @@ export default function MessageList({ peerId, myId, myAvatar, peerAvatar }: Mess
                             />
                             <div className="message-container">
                                 {message.type === 'image' && message.mediaUrl
-                                    ? <Image src={message.mediaUrl} alt="Attached image" width={200} height={200} style={{ borderRadius: 8 }} />
+                                    ? <Image src={message.mediaUrl} alt={t('chat.attachedImage')} width={200} height={200} style={{ borderRadius: 8 }} />
                                     : <span>{message.content}</span>}
                             </div>
                         </div>

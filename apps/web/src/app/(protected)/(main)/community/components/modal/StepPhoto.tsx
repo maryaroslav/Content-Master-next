@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 import addPhotoSVG from '@images/modal-create-community/add-photo.svg'
 
@@ -9,6 +10,7 @@ interface StepPhotoProps {
 }
 
 const StepPhoto = ({ photo, onChange }: StepPhotoProps) => {
+    const t = useTranslations('community.wizard.photo');
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const preview = useMemo(() => (photo ? URL.createObjectURL(photo) : null), [photo]);
     useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
@@ -24,14 +26,14 @@ const StepPhoto = ({ photo, onChange }: StepPhotoProps) => {
     return (
         <div>
             <div className='createcommunity-title'>
-                <h1>Add a photo</h1>
-                <p>Upload an image that represents your community. You can change it later.</p>
+                <h1>{t('title')}</h1>
+                <p>{t('text')}</p>
             </div>
             <div className="createcommunity-type-content">
                 <div className="createcommunity-add-photo" onClick={handleClick}>
                     {preview
-                        ? <Image src={preview} alt="Selected photo" width={160} height={160} className="createcommunity-photo-preview" />
-                        : <Image src={addPhotoSVG} alt='Add photo' />}
+                        ? <Image src={preview} alt={t('preview')} width={160} height={160} className="createcommunity-photo-preview" />
+                        : <Image src={addPhotoSVG} alt={t('add')} />}
                 </div>
             </div>
 
@@ -45,7 +47,7 @@ const StepPhoto = ({ photo, onChange }: StepPhotoProps) => {
 
             {photo && (
                 <div>
-                    Selected: {photo.name}
+                    {t('selected', { name: photo.name })}
                 </div>
             )}
         </div>

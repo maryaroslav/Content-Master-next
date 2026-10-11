@@ -2,23 +2,27 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { getErrorMessage, useUsersProfile } from '@cm/api-client';
+import { useTranslations } from 'next-intl';
+import { useUsersProfile } from '@cm/api-client';
 import { useAuth } from '@cm/auth';
 import FollowButton from './FollowButton';
 import ProfileHeader from './ProfileHeader';
+import { useErrorText } from '@/i18n/useErrorText';
 
 import chatBtn from '@images/icons/chat.svg';
 
 export default function ProfileView({ username }: { username: string }) {
     const { user } = useAuth();
+    const t = useTranslations();
+    const errorText = useErrorText();
     const { data: profile, error, status, refetch } = useUsersProfile(username);
 
-    if (status === 'pending') return <p className="profile-status">Loading...</p>;
+    if (status === 'pending') return <p className="profile-status">{t('common.loading')}</p>;
     if (status === 'error') {
         return (
             <div className="profile-status">
-                <p>{getErrorMessage(error)}</p>
-                <button type="button" onClick={() => void refetch()}>Try again</button>
+                <p>{errorText.request(error)}</p>
+                <button type="button" onClick={() => void refetch()}>{t('common.tryAgain')}</button>
             </div>
         );
     }
@@ -30,11 +34,11 @@ export default function ProfileView({ username }: { username: string }) {
             <div className="profile-container">
                 <ProfileHeader profile={profile}>
                     {isOwnProfile ? (
-                        <Link href="/settings" className="profile-edit-link">Edit profile</Link>
+                        <Link href="/settings" className="profile-edit-link">{t('profile.edit')}</Link>
                     ) : (
                         <>
                             <FollowButton profile={profile} />
-                            <Link href={`/chat?to=${profile.id}`} className="profile-chat-link" aria-label="Send a message">
+                            <Link href={`/chat?to=${profile.id}`} className="profile-chat-link" aria-label={t('profile.sendMessage')}>
                                 <Image src={chatBtn} alt="" width={16} height={16} />
                             </Link>
                         </>

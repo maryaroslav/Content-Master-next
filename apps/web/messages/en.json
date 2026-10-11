@@ -141,5 +141,155 @@
     "TWO_FACTOR_NOT_SET_UP": "Start the two-factor setup first",
     "NOTHING_TO_UPDATE": "Nothing to update",
     "PHOTO_REQUIRED": "Community photo is required"
+  },
+  "common": {
+    "loading": "Loading...",
+    "tryAgain": "Try again",
+    "close": "Close",
+    "privacy": {
+      "public": "Public",
+      "private": "Private"
+    },
+    "members": "{count, plural, one {{formatted} member} other {{formatted} members}}"
+  },
+  "nav": {
+    "explore": "Explore",
+    "myCommunity": "My Community",
+    "events": "Events",
+    "settings": "Settings",
+    "popularTags": "Popular Tags",
+    "podcasts": "Podcasts"
+  },
+  "header": {
+    "search": "Search",
+    "chat": "Messages",
+    "notifications": "Notifications",
+    "myProfile": "My profile",
+    "logOut": "Log out"
+  },
+  "events": {
+    "title": "My events",
+    "loading": "Loading events...",
+    "empty": "You have not joined any events yet.",
+    "joined": "{count, plural, one {{formatted} person has joined this event} other {{formatted} people have joined this event}}"
+  },
+  "feed": {
+    "placeholder": "Share your thoughts or a post",
+    "uploadPhoto": "Upload photo",
+    "uploadGif": "Upload GIF",
+    "emoji": "Choose emoji",
+    "removeImage": "Remove image",
+    "maxImages": "You can attach at most {max} images",
+    "loading": "Loading posts...",
+    "empty": "No posts yet. Share the first one!",
+    "loadingMore": "Loading more...",
+    "loadMoreFailed": "Could not load more posts.",
+    "viewMore": "... View More",
+    "viewLess": "View Less",
+    "image": "Post image",
+    "options": "Post options",
+    "delete": "Delete post"
+  },
+  "community": {
+    "create": "Create a community",
+    "loading": "Loading communities...",
+    "owned": "Created communities",
+    "joined": "My communities",
+    "leave": "Leave",
+    "join": "Join",
+    "empty": "You are not in any community yet. Create one!",
+    "wizard": {
+      "step": "Step {current} of {total}",
+      "back": "Back",
+      "continue": "Continue",
+      "create": "Create",
+      "creating": "Creating...",
+      "goal": {
+        "title": "What is your goal?",
+        "text": "Monetization, promotion, and other community features are available in any case.",
+        "blogTitle": "Share content and communicate",
+        "blogText": "Run a blog, a local community, a creative project, or an interest group.",
+        "businessTitle": "Grow your business",
+        "businessText": "Sell products, provide services, or promote an organization or brand.",
+        "eventsTitle": "Organize an event",
+        "eventsText": "Host a concert, lecture, party, workshop, or conference."
+      },
+      "name": {
+        "title": "Choose a name",
+        "text": "Use words that reflect the idea of your community. You can change the name later.",
+        "label": "Community name",
+        "placeholder": "Enter a name",
+        "privacy": "Community privacy"
+      },
+      "theme": {
+        "title": "Choose a theme",
+        "text": "The choice does not affect the community's capabilities. You can change the theme at any time.",
+        "search": "Search for a theme"
+      },
+      "description": {
+        "title": "Choose a description",
+        "text": "Provide a brief description of your community. This can be updated later.",
+        "label": "Description"
+      },
+      "photo": {
+        "title": "Add a photo",
+        "text": "Upload an image that represents your community. You can change it later.",
+        "add": "Add photo",
+        "selected": "Selected: {name}",
+        "preview": "Selected photo"
+      },
+      "counter": "{current}/{max}"
+    },
+    "themeGroups": {
+      "general": "",
+      "computer": "Computer, Internet",
+      "entertainment": "Entertainment"
+    },
+    "themes": {
+      "business": "Business",
+      "cooking": "Cooking and Recipes",
+      "medicine": "Medicine",
+      "realEstate": "Real Estate",
+      "programming": "Programming",
+      "design": "Design",
+      "software": "Software",
+      "websites": "Websites",
+      "animation": "Animation",
+      "games": "Games",
+      "concerts": "Concerts",
+      "humor": "Humor"
+    }
+  },
+  "search": {
+    "title": "Search results for “{query}”",
+    "filters": {
+      "all": "All",
+      "users": "Users",
+      "communities": "Communities"
+    },
+    "searching": "Searching...",
+    "nothing": "Nothing found.",
+    "user": "User"
+  },
+  "chat": {
+    "select": "Select a chat to start messaging",
+    "connecting": "Connecting...",
+    "noConversations": "Follow someone to start a chat.",
+    "loadingMessages": "Loading messages...",
+    "empty": "No messages yet. Say hi!",
+    "loadEarlier": "Load earlier messages",
+    "attach": "Attach an image",
+    "unread": "Unread messages",
+    "placeholder": "Write a message...",
+    "attachedImage": "Attached image",
+    "unknownUser": "User {id}"
+  },
+  "profile": {
+    "followers": "{count, plural, one {# follower} other {# followers}}",
+    "follow": "Add to friends",
+    "unfollow": "Unfriend",
+    "sendMessage": "Send a message",
+    "edit": "Edit profile",
+    "handle": "@{username} · {followers}"
   }
 }

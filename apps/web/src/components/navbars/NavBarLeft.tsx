@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { useUsersMyCommunities, useUsersMyEvents } from '@cm/api-client';
-import { formatMembersCount } from '@/app/utils/FormatMembersCount';
+import { useCompactNumber } from '@/i18n/useCompactNumber';
 
 import '@/styles/navBarLeft.css'
 
@@ -15,6 +16,8 @@ const NavBarLeft = () => {
 
   const { data: communities = [] } = useUsersMyCommunities();
   const { data: events = [] } = useUsersMyEvents();
+  const t = useTranslations();
+  const compact = useCompactNumber();
 
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -28,7 +31,7 @@ const NavBarLeft = () => {
     <div className="sidebar-container">
       <div className="communities-section">
         <div className='sidebar-name' onClick={() => setShowAllCommunities(!showAllCommunities)}>
-          <p className="sidebar-title">My Community</p>
+          <p className="sidebar-title">{t('nav.myCommunity')}</p>
           <Image src={arrowDown} alt="" className={showAllCommunities ? "rotated" : "180deg"} />
         </div>
         <div className="community-list">
@@ -36,9 +39,9 @@ const NavBarLeft = () => {
             <div key={community.id} className="community-item">
               <Image src={community.photo} width={100} height={100} alt="" />
               <div key={index} className='item-title'>
-                <p className="community-type">{community.privacy}</p>
+                <p className="community-type">{t(community.privacy === 'private' ? 'common.privacy.private' : 'common.privacy.public')}</p>
                 <p className="community-name">{community.name}</p>
-                <p className="community-members">{formatMembersCount(community.membersCount)} Members</p>
+                <p className="community-members">{t('common.members', { count: community.membersCount, formatted: compact(community.membersCount) })}</p>
               </div>
             </div>
           ))}
@@ -46,7 +49,7 @@ const NavBarLeft = () => {
       </div>
       <div className="events-section">
         <div className='sidebar-name' onClick={() => setShowAllEvents(!showAllEvents)}>
-          <p className="sidebar-title">Events</p>
+          <p className="sidebar-title">{t('nav.events')}</p>
           <Image src={arrowDown} alt="" className={showAllEvents ? "rotated" : ""} />
         </div>
         <div className="event-list">
@@ -56,7 +59,7 @@ const NavBarLeft = () => {
               <div key={index} className='item-title'>
                 <p className="event-date">{formatDate(event.createdAt)}</p>
                 <p className="event-name">{event.title}</p>
-                <p className="event-attendees">{formatMembersCount(event.membersCount ?? 0)} people have joined this event</p>
+                <p className="event-attendees">{t('events.joined', { count: event.membersCount ?? 0, formatted: compact(event.membersCount ?? 0) })}</p>
               </div>
             </div>
           ))}

@@ -2,7 +2,9 @@
 
 import { useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { getErrorMessage, useChatUploadAttachment } from '@cm/api-client';
+import { useTranslations } from 'next-intl';
+import { useChatUploadAttachment } from '@cm/api-client';
+import { useErrorText } from '@/i18n/useErrorText';
 import type { OutgoingMessage } from './useChatSocket';
 
 import clipSVG from '@images/icons/clip.svg';
@@ -14,6 +16,8 @@ interface MessageInputProps {
 }
 
 export default function MessageInput({ peerId, connected, send }: MessageInputProps) {
+    const t = useTranslations('chat');
+    const errorText = useErrorText();
     const [text, setText] = useState('');
     const [error, setError] = useState<string | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -22,7 +26,7 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
     const upload = useChatUploadAttachment({
         mutation: {
             onSuccess: ({ url }) => send({ toUserId: peerId, type: 'image', media_url: url }),
-            onError: (err) => setError(getErrorMessage(err)),
+            onError: (err) => setError(errorText.request(err) ?? null),
         },
     });
 
@@ -55,7 +59,7 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
                 <button
                     type="button"
                     className="chat-attach"
-                    aria-label="Attach an image"
+                    aria-label={t('attach')}
                     disabled={!connected || upload.isPending}
                     onClick={() => fileInputRef.current?.click()}
                 >
@@ -71,7 +75,7 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
                             sendText();
                         }
                     }}
-                    placeholder={connected ? 'Write a message...' : 'Connecting...'}
+                    placeholder={connected ? t('placeholder') : t('connecting')}
                     className="chat-input textarea-auto"
                     rows={1}
                 />

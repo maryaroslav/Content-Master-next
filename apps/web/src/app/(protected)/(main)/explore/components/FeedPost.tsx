@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import type { Post } from '@cm/api-client';
 import { useAuth } from '@cm/auth';
 import PostOptionsModal from './PostOptionsModal';
@@ -16,6 +17,7 @@ interface FeedPostProps {
 
 export default function FeedPost({ post, onDelete, deleteError }: FeedPostProps) {
     const { user } = useAuth();
+    const t = useTranslations('feed');
     const [expanded, setExpanded] = useState(false);
     const [orientation, setOrientation] = useState<'vertical' | 'horizontal' | null>(null);
 
@@ -61,7 +63,7 @@ export default function FeedPost({ post, onDelete, deleteError }: FeedPostProps)
                     <div style={{ display: 'flex' }}>
                         {post.images.map((src) => (
                             <div key={src} className={`feed-posts-image ${orientation ?? ''}`}>
-                                <Image src={src} alt="post" onLoad={handleImageLoad} width={500} height={300} />
+                                <Image src={src} alt={t('image')} onLoad={handleImageLoad} width={500} height={300} />
                             </div>
                         ))}
                     </div>
@@ -70,7 +72,7 @@ export default function FeedPost({ post, onDelete, deleteError }: FeedPostProps)
                     </div>
                     {orientation === 'horizontal' && (
                         <span className="view-more" onClick={() => setExpanded(!expanded)}>
-                            {expanded ? 'View Less' : '... View More'}
+                            {expanded ? t('viewLess') : t('viewMore')}
                         </span>
                     )}
                 </div>

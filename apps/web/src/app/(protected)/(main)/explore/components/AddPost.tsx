@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { usePostsCreate } from '@cm/api-client';
 import { useAuth } from '@cm/auth';
 import { CreatePostRequestSchema, endpoints } from '@cm/contracts';
 import { applyServerErrors, useZodForm } from '@cm/forms';
 import { feedQueryKey, prependPost, type FeedData } from './feedCache';
+import { useErrorText } from '@/i18n/useErrorText';
 
 import userImg from '@images/icons/user.svg';
 import uploadIcon from '@images/icons/imagesButton.svg';
@@ -20,6 +22,8 @@ const PostFormSchema = CreatePostRequestSchema.pick({ content: true });
 
 export default function AddPost() {
     const { user } = useAuth();
+    const t = useTranslations('feed');
+    const errorText = useErrorText();
     const queryClient = useQueryClient();
     const [images, setImages] = useState<File[]>([]);
     const [imageError, setImageError] = useState<string | null>(null);
@@ -36,7 +40,7 @@ export default function AddPost() {
         const selected = Array.from(event.target.files ?? []);
         event.target.value = '';
         if (images.length + selected.length > MAX_IMAGES) {
-            setImageError(`You can attach at most ${MAX_IMAGES} images`);
+            setImageError(t('maxImages', { max: MAX_IMAGES }));
             return;
         }
         setImageError(null);
@@ -56,7 +60,7 @@ export default function AddPost() {
         }
     });
 
-    const error = imageError ?? errors.content?.message ?? errors.root?.server?.message;
+    const error = imageError ?? errorText.field(errors.content, 'content') ?? errorText.form(errors.root?.server);
 
     return (
         <div className="addpost-container">
@@ -74,7 +78,7 @@ export default function AddPost() {
                     <div className="addpost-input">
                         <input
                             type="text"
-                            placeholder="Share your thoughts or a post"
+                            placeholder={t('placeholder')}
                             disabled={isPending}
                             {...register('content')}
                             onKeyDown={(event) => {
@@ -86,7 +90,7 @@ export default function AddPost() {
                         />
                         <div className="addpost-buttons">
                             <label style={{ cursor: 'pointer' }}>
-                                <Image src={uploadIcon} alt="Upload Photo" />
+                                <Image src={uploadIcon} alt={t('uploadPhoto')} />
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -96,10 +100,10 @@ export default function AddPost() {
                                 />
                             </label>
                             <button type="button">
-                                <Image src={gifIcon} alt="Upload GIF" />
+                                <Image src={gifIcon} alt={t('uploadGif')} />
                             </button>
                             <button type="button">
-                                <Image src={emojiIcon} alt="Choose Emoji" />
+                                <Image src={emojiIcon} alt={t('emoji')} />
                             </button>
                         </div>
                     </div>
@@ -110,11 +114,12 @@ export default function AddPost() {
                         {previews.map((src, i) => (
                             <div key={src} className="preview-item">
                                 {/* eslint-disable-next-line @next/next/no-img-element -- blob: previews gain nothing from next/image */}
-                                <img src={src} alt={`preview-${i}`} />
+                                <img src={src} alt="" />
                                 <button
                                     type="button"
+                                    aria-label={t('removeImage')}
                                     onClick={() => setImages(images.filter((_, index) => index !== i))}
-                                >&times;</button>
+                                >×</button>
                             </div>
                         ))}
                     </div>

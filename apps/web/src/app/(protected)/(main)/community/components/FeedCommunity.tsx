@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import {
-    getErrorMessage,
     getUsersMyCommunitiesQueryKey,
     useCommunitiesLeave,
     useCommunitiesListOwned,
@@ -12,7 +12,8 @@ import {
     type CommunitySummary,
 } from '@cm/api-client';
 import Modal from './modal/Modal';
-import { formatMembersCount } from '@/app/utils/FormatMembersCount';
+import { useCompactNumber } from '@/i18n/useCompactNumber';
+import { useErrorText } from '@/i18n/useErrorText';
 
 import '@/styles/feedCommunity.css';
 import arrowDown from '@images/icons/arrow-down.svg';
@@ -26,14 +27,16 @@ interface CommunityCardProps {
 }
 
 function CommunityCard({ community, owned = false, action }: CommunityCardProps) {
+    const t = useTranslations('common');
+    const compact = useCompactNumber();
     const withOwned = (base: string) => (owned ? `feedcommunity-${base} my-community-${base}` : `feedcommunity-${base}`);
     return (
         <div className={withOwned('item')}>
             <Image src={community.photo} alt={community.name} width={100} height={100} />
             <div className="feedcommunity-item-title">
-                <p className={withOwned('type')}>{community.privacy}</p>
+                <p className={withOwned('type')}>{t(community.privacy === 'private' ? 'privacy.private' : 'privacy.public')}</p>
                 <p className={withOwned('name')}>{community.name}</p>
-                <p className={withOwned('members')}>{formatMembersCount(community.membersCount)} Members</p>
+                <p className={withOwned('members')}>{t('members', { count: community.membersCount, formatted: compact(community.membersCount) })}</p>
             </div>
             {action ?? (
                 <div className="feedcommunity-arrow">
@@ -46,6 +49,8 @@ function CommunityCard({ community, owned = false, action }: CommunityCardProps)
 
 export default function FeedCommunity() {
     const queryClient = useQueryClient();
+    const t = useTranslations();
+    const errorText = useErrorText();
     const [isOpen, setIsOpen] = useState(false);
     const [leaveError, setLeaveError] = useState<string | null>(null);
     const owned = useCommunitiesListOwned({ owner: 'me' });
@@ -62,7 +67,7 @@ export default function FeedCommunity() {
             },
             onError: (err, _variables, context) => {
                 queryClient.setQueryData(memberListKey, context?.previous);
-                setLeaveError(getErrorMessage(err));
+                setLeaveError(errorText.request(err) ?? null);
             },
         },
     });
@@ -75,20 +80,20 @@ export default function FeedCommunity() {
         <div className="feedcomunnity-grey">
             <div className="feedcommunity-container">
                 <div className="button-feedcommunity">
-                    <button type="button" onClick={() => setIsOpen(true)}>Create a community</button>
+                    <button type="button" onClick={() => setIsOpen(true)}>{t('community.create')}</button>
                 </div>
 
-                {(owned.isPending || member.isPending) && <p className="feedcommunity-status">Loading communities...</p>}
+                {(owned.isPending || member.isPending) && <p className="feedcommunity-status">{t('community.loading')}</p>}
                 {loadError && (
                     <div className="feedcommunity-status">
-                        <p>{getErrorMessage(loadError)}</p>
-                        <button type="button" onClick={() => { void owned.refetch(); void member.refetch(); }}>Try again</button>
+                        <p>{errorText.request(loadError)}</p>
+                        <button type="button" onClick={() => { void owned.refetch(); void member.refetch(); }}>{t('common.tryAgain')}</button>
                     </div>
                 )}
 
                 {owned.data && owned.data.length > 0 && (
                     <div className="feedcommunity-my-community-container">
-                        <h2 className="feedcomunity-section-title">Created communities</h2>
+                        <h2 className="feedcomunity-section-title">{t('community.owned')}</h2>
                         <div className="feedcommunity-my-community-item">
                             {owned.data.map((community) => <CommunityCard key={community.id} community={community} owned />)}
                         </div>
@@ -97,7 +102,7 @@ export default function FeedCommunity() {
 
                 {joined.length > 0 && (
                     <div className="feedcommunity-my-community-container">
-                        <h2 className="feedcomunity-section-title">My communities</h2>
+                        <h2 className="feedcomunity-section-title">{t('community.joined')}</h2>
                         {leaveError && <p className="feedcommunity-error">{leaveError}</p>}
                         {joined.map((community) => (
                             <CommunityCard
@@ -110,7 +115,7 @@ export default function FeedCommunity() {
                                         disabled={leaving}
                                         onClick={() => leave({ communityId: community.id })}
                                     >
-                                        Leave
+                                        {t('community.leave')}
                                     </button>
                                 )}
                             />
@@ -119,7 +124,7 @@ export default function FeedCommunity() {
                 )}
 
                 {owned.isSuccess && member.isSuccess && owned.data.length === 0 && joined.length === 0 && (
-                    <p className="feedcommunity-status">You are not in any community yet. Create one!</p>
+                    <p className="feedcommunity-status">{t('community.empty')}</p>
                 )}
 
                 {isOpen && <Modal closeModal={() => setIsOpen(false)} />}

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { useFormContext } from '@cm/forms';
 import type { CreateCommunityRequest } from '@cm/contracts';
 import '@/styles/createCommunity.css'
@@ -6,41 +7,60 @@ import Image from 'next/image';
 
 import searchIcon from '@/images/icons/search.svg';
 
-const themeData = [
+type ThemeKey = 'business' | 'cooking' | 'medicine' | 'realEstate' | 'programming' | 'design'
+    | 'software' | 'websites' | 'animation' | 'games' | 'concerts' | 'humor';
+
+// `value` is what the API stores, so it stays the same in every language.
+const themeGroups: { key: 'general' | 'computer' | 'entertainment'; themes: { key: ThemeKey; value: string }[] }[] = [
     {
-        title: '',
-        items: ['Business', 'Cooking and Recipes', 'Medicine', 'Real Estate']
+        key: 'general',
+        themes: [
+            { key: 'business', value: 'Business' },
+            { key: 'cooking', value: 'Cooking and Recipes' },
+            { key: 'medicine', value: 'Medicine' },
+            { key: 'realEstate', value: 'Real Estate' },
+        ],
     },
     {
-        title: 'Computer, Internet',
-        items: ['Programming', 'Design', 'Software', 'Websites']
+        key: 'computer',
+        themes: [
+            { key: 'programming', value: 'Programming' },
+            { key: 'design', value: 'Design' },
+            { key: 'software', value: 'Software' },
+            { key: 'websites', value: 'Websites' },
+        ],
     },
     {
-        title: 'Entertainment',
-        items: ['Animation', 'Games', 'Concerts', 'Humor']
+        key: 'entertainment',
+        themes: [
+            { key: 'animation', value: 'Animation' },
+            { key: 'games', value: 'Games' },
+            { key: 'concerts', value: 'Concerts' },
+            { key: 'humor', value: 'Humor' },
+        ],
     },
-]
+];
 
 const StepTwo = () => {
+    const t = useTranslations('community');
     const { register } = useFormContext<CreateCommunityRequest>();
     const [search, setSearch] = useState<string>('');
 
-    const normalized = (s: string) => s.trim().toLowerCase();
-
     const filtered = useMemo(() => {
-        return themeData.map((cat) => {
-            const items = cat.items.filter((it) =>
-                normalized(it).includes(normalized(search))
-            );
-            return items.length ? { ...cat, items } : null;
-        }).filter(Boolean) as { title: string; items: string[] }[];
-    }, [search]);
+        const query = search.trim().toLowerCase();
+        return themeGroups
+            .map((group) => ({
+                ...group,
+                themes: group.themes.filter((theme) => t(`themes.${theme.key}`).toLowerCase().includes(query)),
+            }))
+            .filter((group) => group.themes.length > 0);
+    }, [search, t]);
 
     return (
         <div>
             <div className='createcommunity-title'>
-                <h1>Choose a theme</h1>
-                <p>The choice does not affect the community&apos;s capabilities. You can change the theme at any time.</p>
+                <h1>{t('wizard.theme.title')}</h1>
+                <p>{t('wizard.theme.text')}</p>
             </div>
             <div className="createcommunity-type-content">
                 <div className="createcommunity-search-container">
@@ -50,23 +70,25 @@ const StepTwo = () => {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             type="text"
-                            placeholder="Search for a theme"
+                            placeholder={t('wizard.theme.search')}
                         />
                     </div>
                 </div>
                 <div className="createcommunity-theme-list">
-                    {filtered.map((cat) => (
-                        <div key={cat.title || 'root'}>
-                            {cat.title && <h3 className='createcommunity-theme-category-heading'>{cat.title}</h3>}
-                            {cat.items.map((item) => (
-                                <label key={item} className="createcommunity-theme-item">
+                    {filtered.map((group) => (
+                        <div key={group.key}>
+                            {group.key !== 'general' && (
+                                <h3 className='createcommunity-theme-category-heading'>{t(`themeGroups.${group.key}`)}</h3>
+                            )}
+                            {group.themes.map((theme) => (
+                                <label key={theme.key} className="createcommunity-theme-item">
                                     <input
                                         type="radio"
-                                        value={item}
+                                        value={theme.value}
                                         className="createcommunity-theme-radio"
                                         {...register('theme')}
                                     />
-                                    <span className='createcommunity-theme-item-span'>{item}</span>
+                                    <span className='createcommunity-theme-item-span'>{t(`themes.${theme.key}`)}</span>
                                 </label>
                             ))}
                         </div>

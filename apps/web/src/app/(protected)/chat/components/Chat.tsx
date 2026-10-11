@@ -10,6 +10,7 @@ import {
     type ChatMessage,
     type Conversation,
 } from '@cm/api-client';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@cm/auth';
 import ChatWindow from './ChatWindow';
 import ConversationList from './ConversationList';
@@ -18,6 +19,7 @@ import { useChatSocket } from './useChatSocket';
 
 export default function Chat({ initialPeerId }: { initialPeerId: number | null }) {
     const { user } = useAuth();
+    const t = useTranslations('chat');
     const router = useRouter();
     const queryClient = useQueryClient();
     const [peerId, setPeerId] = useState(initialPeerId);
@@ -68,7 +70,7 @@ export default function Chat({ initialPeerId }: { initialPeerId: number | null }
             />
             <div className="chat-main">
                 {peerId === null || !user
-                    ? <div className="chat-messages"><div className="chat-placeholder">Select a chat to start messaging</div></div>
+                    ? <div className="chat-messages"><div className="chat-placeholder">{t('select')}</div></div>
                     : <ChatWindow key={peerId} peerId={peerId} peer={peer} me={user} connected={connected} send={send} />}
             </div>
         </div>

@@ -141,5 +141,155 @@
     "TWO_FACTOR_NOT_SET_UP": "Nejprve spusťte nastavení dvoufázového ověření",
     "NOTHING_TO_UPDATE": "Není co uložit",
     "PHOTO_REQUIRED": "Fotka komunity je povinná"
+  },
+  "common": {
+    "loading": "Načítání...",
+    "tryAgain": "Zkusit znovu",
+    "close": "Zavřít",
+    "privacy": {
+      "public": "Veřejná",
+      "private": "Soukromá"
+    },
+    "members": "{count, plural, one {{formatted} člen} few {{formatted} členové} other {{formatted} členů}}"
+  },
+  "nav": {
+    "explore": "Objevovat",
+    "myCommunity": "Moje komunity",
+    "events": "Události",
+    "settings": "Nastavení",
+    "popularTags": "Oblíbené štítky",
+    "podcasts": "Podcasty"
+  },
+  "header": {
+    "search": "Hledat",
+    "chat": "Zprávy",
+    "notifications": "Oznámení",
+    "myProfile": "Můj profil",
+    "logOut": "Odhlásit se"
+  },
+  "events": {
+    "title": "Moje události",
+    "loading": "Načítání událostí...",
+    "empty": "Zatím se neúčastníte žádné události.",
+    "joined": "{count, plural, one {Přidal se {formatted} člověk} few {Přidali se {formatted} lidé} other {Přidalo se {formatted} lidí}}"
+  },
+  "feed": {
+    "placeholder": "Sdílejte své myšlenky nebo příspěvek",
+    "uploadPhoto": "Nahrát fotku",
+    "uploadGif": "Nahrát GIF",
+    "emoji": "Vybrat emoji",
+    "removeImage": "Odebrat obrázek",
+    "maxImages": "Můžete přiložit nejvýše {max} obrázků",
+    "loading": "Načítání příspěvků...",
+    "empty": "Zatím žádné příspěvky. Buďte první!",
+    "loadingMore": "Načítání dalších...",
+    "loadMoreFailed": "Další příspěvky se nepodařilo načíst.",
+    "viewMore": "... Zobrazit více",
+    "viewLess": "Zobrazit méně",
+    "image": "Obrázek příspěvku",
+    "options": "Možnosti příspěvku",
+    "delete": "Smazat příspěvek"
+  },
+  "community": {
+    "create": "Vytvořit komunitu",
+    "loading": "Načítání komunit...",
+    "owned": "Vytvořené komunity",
+    "joined": "Moje komunity",
+    "leave": "Opustit",
+    "join": "Přidat se",
+    "empty": "Zatím nejste v žádné komunitě. Vytvořte si vlastní!",
+    "wizard": {
+      "step": "Krok {current} z {total}",
+      "back": "Zpět",
+      "continue": "Pokračovat",
+      "create": "Vytvořit",
+      "creating": "Vytváření...",
+      "goal": {
+        "title": "Jaký je váš cíl?",
+        "text": "Monetizace, propagace a další funkce komunity jsou k dispozici v každém případě.",
+        "blogTitle": "Sdílet obsah a komunikovat",
+        "blogText": "Veďte blog, místní komunitu, tvůrčí projekt nebo zájmovou skupinu.",
+        "businessTitle": "Rozvíjet podnikání",
+        "businessText": "Prodávejte produkty, poskytujte služby nebo propagujte organizaci či značku.",
+        "eventsTitle": "Uspořádat akci",
+        "eventsText": "Pořádejte koncert, přednášku, večírek, workshop nebo konferenci."
+      },
+      "name": {
+        "title": "Vyberte název",
+        "text": "Použijte slova, která vystihují myšlenku vaší komunity. Název můžete později změnit.",
+        "label": "Název komunity",
+        "placeholder": "Zadejte název",
+        "privacy": "Soukromí komunity"
+      },
+      "theme": {
+        "title": "Vyberte téma",
+        "text": "Volba nemá vliv na možnosti komunity. Téma můžete kdykoli změnit.",
+        "search": "Hledat téma"
+      },
+      "description": {
+        "title": "Napište popis",
+        "text": "Stručně popište svou komunitu. Popis můžete později upravit.",
+        "label": "Popis"
+      },
+      "photo": {
+        "title": "Přidejte fotku",
+        "text": "Nahrajte obrázek, který vaši komunitu vystihuje. Později ho můžete změnit.",
+        "add": "Přidat fotku",
+        "selected": "Vybráno: {name}",
+        "preview": "Vybraná fotka"
+      },
+      "counter": "{current}/{max}"
+    },
+    "themeGroups": {
+      "general": "",
+      "computer": "Počítače, internet",
+      "entertainment": "Zábava"
+    },
+    "themes": {
+      "business": "Podnikání",
+      "cooking": "Vaření a recepty",
+      "medicine": "Medicína",
+      "realEstate": "Nemovitosti",
+      "programming": "Programování",
+      "design": "Design",
+      "software": "Software",
+      "websites": "Webové stránky",
+      "animation": "Animace",
+      "games": "Hry",
+      "concerts": "Koncerty",
+      "humor": "Humor"
+    }
+  },
+  "search": {
+    "title": "Výsledky hledání pro „{query}“",
+    "filters": {
+      "all": "Vše",
+      "users": "Uživatelé",
+      "communities": "Komunity"
+    },
+    "searching": "Hledání...",
+    "nothing": "Nic nenalezeno.",
+    "user": "Uživatel"
+  },
+  "chat": {
+    "select": "Vyberte konverzaci a začněte psát",
+    "connecting": "Připojování...",
+    "noConversations": "Začněte někoho sledovat a můžete si psát.",
+    "loadingMessages": "Načítání zpráv...",
+    "empty": "Zatím žádné zprávy. Pozdravte!",
+    "loadEarlier": "Načíst starší zprávy",
+    "attach": "Přiložit obrázek",
+    "unread": "Nepřečtené zprávy",
+    "placeholder": "Napište zprávu...",
+    "attachedImage": "Přiložený obrázek",
+    "unknownUser": "Uživatel {id}"
+  },
+  "profile": {
+    "followers": "{count, plural, one {# sledující} few {# sledující} other {# sledujících}}",
+    "follow": "Přidat do přátel",
+    "unfollow": "Odebrat z přátel",
+    "sendMessage": "Poslat zprávu",
+    "edit": "Upravit profil",
+    "handle": "@{username} · {followers}"
   }
 }
