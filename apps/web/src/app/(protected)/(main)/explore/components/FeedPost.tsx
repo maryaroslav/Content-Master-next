@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { Post } from '@cm/api-client';
 import { useAuth } from '@cm/auth';
 import PostOptionsModal from './PostOptionsModal';
+import { useDateText } from '@/i18n/useDateText';
 
 import userImg from '@images/icons/user.svg';
 
@@ -18,6 +19,7 @@ interface FeedPostProps {
 export default function FeedPost({ post, onDelete, deleteError }: FeedPostProps) {
     const { user } = useAuth();
     const t = useTranslations('feed');
+    const dates = useDateText();
     const [expanded, setExpanded] = useState(false);
     const [orientation, setOrientation] = useState<'vertical' | 'horizontal' | null>(null);
 
@@ -44,16 +46,9 @@ export default function FeedPost({ post, onDelete, deleteError }: FeedPostProps)
                 <div className="feed-info" style={{ position: 'relative' }}>
                     <p className="feed-info-p p-blue">{post.author.username}</p>
                     <div className="separator"></div>
-                    <p className="feed-info-p p-grey">
-                        {new Date(post.createdAt).toLocaleString('cs-CZ', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                            timeZone: 'Europe/Prague',
-                        })}
-                    </p>
+                    <time className="feed-info-p p-grey" dateTime={post.createdAt} title={dates.dateTime(post.createdAt)}>
+                        {dates.relative(post.createdAt)}
+                    </time>
                     {user?.id === post.authorId && (
                         <PostOptionsModal onDelete={onDelete} />
                     )}

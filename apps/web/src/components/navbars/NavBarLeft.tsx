@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useUsersMyCommunities, useUsersMyEvents } from '@cm/api-client';
 import { useCompactNumber } from '@/i18n/useCompactNumber';
+import { useDateText } from '@/i18n/useDateText';
 
 import '@/styles/navBarLeft.css'
 
@@ -18,14 +19,7 @@ const NavBarLeft = () => {
   const { data: events = [] } = useUsersMyEvents();
   const t = useTranslations();
   const compact = useCompactNumber();
-
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    });
-  }
+  const dates = useDateText();
 
   return (
     <div className="sidebar-container">
@@ -57,7 +51,7 @@ const NavBarLeft = () => {
             <div key={event.id} className="event-item">
               <Image src={event.image} width={100} height={100} alt="" />
               <div key={index} className='item-title'>
-                <p className="event-date">{formatDate(event.createdAt)}</p>
+                <time className="event-date" dateTime={event.createdAt}>{dates.date(event.createdAt)}</time>
                 <p className="event-name">{event.title}</p>
                 <p className="event-attendees">{t('events.joined', { count: event.membersCount ?? 0, formatted: compact(event.membersCount ?? 0) })}</p>
               </div>

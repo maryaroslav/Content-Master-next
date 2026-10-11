@@ -291,5 +291,9 @@
     "sendMessage": "Send a message",
     "edit": "Edit profile",
     "handle": "@{username} · {followers}"
+  },
+  "dates": {
+    "today": "Today",
+    "yesterday": "Yesterday"
   }
 }

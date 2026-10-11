@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useUsersMyEvents } from '@cm/api-client';
 import { useCompactNumber } from '@/i18n/useCompactNumber';
+import { useDateText } from '@/i18n/useDateText';
 import { useErrorText } from '@/i18n/useErrorText';
 
 import '@/styles/feedCommunity.css';
@@ -14,6 +15,7 @@ export default function EventList() {
     const t = useTranslations();
     const errorText = useErrorText();
     const compact = useCompactNumber();
+    const dates = useDateText();
 
     return (
         <div className="feedcomunnity-grey">
@@ -35,7 +37,7 @@ export default function EventList() {
                             <div key={event.id} className="feedcommunity-item">
                                 <Image src={event.image} alt={event.title} width={100} height={100} />
                                 <div className="feedcommunity-item-title">
-                                    <p className="event-date">{new Date(event.createdAt).toLocaleDateString('cs-CZ')}</p>
+                                    <time className="event-date" dateTime={event.createdAt}>{dates.date(event.createdAt)}</time>
                                     <p className="feedcommunity-name">{event.title}</p>
                                     <p className="feedcommunity-members">{t('events.joined', { count: event.membersCount ?? 0, formatted: compact(event.membersCount ?? 0) })}</p>
                                 </div>

@@ -274,3 +274,32 @@ button.chat-user-item {
     cursor: not-allowed;
     opacity: 0.5;
 }
+
+.message-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    column-gap: 8px;
+}
+
+.chat-message-time {
+    margin-left: auto;
+    font-size: 11px;
+    opacity: 0.7;
+    white-space: nowrap;
+}
+
+.chat-day {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0 8px;
+}
+
+.chat-day time {
+    padding: 3px 12px;
+    border-radius: 12px;
+    background-color: #E4E4E4;
+    color: #10100E;
+    font-size: 13px;
+    font-weight: 600;
+}

@@ -2,6 +2,7 @@ import { cookies, headers } from 'next/headers';
 import { getRequestConfig } from 'next-intl/server';
 import type en from '../../messages/en.json';
 import { defaultLocale, isLocale, LOCALE_COOKIE, type Locale } from './config';
+import { formats, timeZone } from './formats';
 
 const messages: Record<Locale, () => Promise<typeof en>> = {
     en: () => import('../../messages/en.json').then((m) => m.default),
@@ -19,5 +20,5 @@ function fromAcceptLanguage(header: string | null): Locale {
 export default getRequestConfig(async () => {
     const saved = (await cookies()).get(LOCALE_COOKIE)?.value;
     const locale = isLocale(saved) ? saved : fromAcceptLanguage((await headers()).get('accept-language'));
-    return { locale, messages: await messages[locale]() };
+    return { locale, timeZone, formats, messages: await messages[locale]() };
 });

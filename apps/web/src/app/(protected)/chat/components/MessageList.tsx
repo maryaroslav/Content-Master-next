@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { Fragment, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { getChatMessagesInfiniteQueryKey, useChatMessagesInfinite } from '@cm/api-client';
+import { useDateText } from '@/i18n/useDateText';
 import { useErrorText } from '@/i18n/useErrorText';
 
 import userImg from '@images/icons/user.svg';
@@ -18,6 +19,7 @@ interface MessageListProps {
 export default function MessageList({ peerId, myId, myAvatar, peerAvatar }: MessageListProps) {
     const t = useTranslations();
     const errorText = useErrorText();
+    const dates = useDateText();
     const containerRef = useRef<HTMLDivElement>(null);
     const { data, error, status, fetchNextPage, hasNextPage, isFetchingNextPage } = useChatMessagesInfinite(peerId, undefined, {
         query: {
@@ -45,25 +47,35 @@ export default function MessageList({ peerId, myId, myAvatar, peerAvatar }: Mess
                 </button>
             )}
             {status === 'success' && messages.length === 0 && <p className="chat-status">{t('chat.empty')}</p>}
-            {messages.map((message) => {
+            {messages.map((message, index) => {
                 const mine = message.fromUserId === myId;
+                const previous = messages[index - 1];
+                const newDay = !previous || dates.dayKey(previous.createdAt) !== dates.dayKey(message.createdAt);
                 return (
-                    <div key={message.id} className={`chat-message ${mine ? 'chat-message-self' : 'chat-message-other'}`}>
-                        <div className="chat-message-author">
-                            <Image
-                                src={(mine ? myAvatar : peerAvatar) ?? userImg}
-                                alt=""
-                                width={32}
-                                height={32}
-                                style={{ borderRadius: '50%', marginRight: 8 }}
-                            />
-                            <div className="message-container">
-                                {message.type === 'image' && message.mediaUrl
-                                    ? <Image src={message.mediaUrl} alt={t('chat.attachedImage')} width={200} height={200} style={{ borderRadius: 8 }} />
-                                    : <span>{message.content}</span>}
+                    <Fragment key={message.id}>
+                        {newDay && (
+                            <div className="chat-day">
+                                <time dateTime={message.createdAt}>{dates.dayLabel(message.createdAt)}</time>
+                            </div>
+                        )}
+                        <div className={`chat-message ${mine ? 'chat-message-self' : 'chat-message-other'}`}>
+                            <div className="chat-message-author">
+                                <Image
+                                    src={(mine ? myAvatar : peerAvatar) ?? userImg}
+                                    alt=""
+                                    width={32}
+                                    height={32}
+                                    style={{ borderRadius: '50%', marginRight: 8 }}
+                                />
+                                <div className="message-container">
+                                    {message.type === 'image' && message.mediaUrl
+                                        ? <Image src={message.mediaUrl} alt={t('chat.attachedImage')} width={200} height={200} style={{ borderRadius: 8 }} />
+                                        : <span>{message.content}</span>}
+                                    <time className="chat-message-time" dateTime={message.createdAt}>{dates.time(message.createdAt)}</time>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </Fragment>
                 );
             })}
         </div>

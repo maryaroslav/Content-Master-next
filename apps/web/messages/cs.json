@@ -291,5 +291,9 @@
     "sendMessage": "Poslat zprávu",
     "edit": "Upravit profil",
     "handle": "@{username} · {followers}"
+  },
+  "dates": {
+    "today": "Dnes",
+    "yesterday": "Včera"
   }
 }
