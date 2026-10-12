@@ -33,11 +33,24 @@ async function toWebp(input: Buffer, preset: Preset): Promise<Buffer> {
         .toBuffer();
 }
 
-export async function saveImage(file: Express.Multer.File, folder: ImageFolder): Promise<string> {
+export interface SavedImage {
+    key: string;
+    size: number;
+    width: number | null;
+    height: number | null;
+}
+
+export async function saveImageWithInfo(file: Express.Multer.File, folder: ImageFolder): Promise<SavedImage> {
     const data = await toWebp(file.buffer, folder === 'avatars' ? 'avatar' : 'content');
+    const { width, height, pageHeight } = await sharp(data).metadata();
     const key = `${folder}/${crypto.randomUUID()}.webp`;
     await storage.save(key, data);
-    return key;
+    // An animated image reports the height of all its frames stacked; one frame is what is displayed.
+    return { key, size: data.length, width: width ?? null, height: pageHeight ?? height ?? null };
+}
+
+export async function saveImage(file: Express.Multer.File, folder: ImageFolder): Promise<string> {
+    return (await saveImageWithInfo(file, folder)).key;
 }
 
 export async function saveImages(files: Express.Multer.File[], folder: ImageFolder): Promise<string[]> {

@@ -1,7 +1,10 @@
 import { Op, fn, col } from 'sequelize';
-import { Follow, Message, User } from '../../models';
+import { Attachment, Follow, Message, User, sequelize } from '../../models';
+import { AppError } from '../../lib/errors';
 import { storage } from '../../storage/storage';
-import { saveImage } from '../../storage/images';
+import { deleteFiles, saveImageWithInfo } from '../../storage/images';
+
+const withAttachments = { model: Attachment, as: 'attachments', separate: true, order: [['id', 'ASC']] as [string, string][] };
 
 interface Conversation {
     user: User;
@@ -58,23 +61,70 @@ export async function listMessages(userId: number, otherUserId: number, { cursor
             cursor ? { message_id: { [Op.lt]: cursor } } : {},
         ],
     };
-    const include = [{ model: User, as: 'FromUser', attributes: ['user_id', 'username', 'profile_picture'] }];
-
-    const newest = await Message.findAll({ where, include, order: [['message_id', 'DESC']], limit: limit + 1 });
+    const newest = await Message.findAll({ where, include: [withAttachments], order: [['message_id', 'DESC']], limit: limit + 1 });
     const page = newest.slice(0, limit).reverse();
     return { messages: page, nextCursor: newest.length > limit ? page[0]!.message_id : null };
 }
 
-export async function saveAttachment(file: Express.Multer.File): Promise<string> {
-    return storage.url(await saveImage(file, 'chat_images'));
+export async function saveAttachment(uploaderId: number, file: Express.Multer.File): Promise<Attachment> {
+    const { key, size, width, height } = await saveImageWithInfo(file, 'chat_images');
+    try {
+        return await Attachment.create({ uploader_id: uploaderId, storage_key: key, mime_type: 'image/webp', size, width, height });
+    } catch (err) {
+        await deleteFiles([key]);
+        throw err;
+    }
 }
+
+interface NewMessage {
+    toUserId: number;
+    text?: string | null;
+    attachmentIds?: number[];
+}
+
+export async function sendMessage(fromUserId: number, { toUserId, text, attachmentIds = [] }: NewMessage): Promise<Message> {
+    if (toUserId === fromUserId) throw new AppError(400, 'CANNOT_MESSAGE_SELF', 'You cannot message yourself');
+    if (!(await User.findByPk(toUserId, { attributes: ['user_id'] }))) throw new AppError(404, 'USER_NOT_FOUND', 'User not found');
+
+    const content = text?.trim() || null;
+    const ids = [...new Set(attachmentIds)];
+    if (!content && ids.length === 0) throw new AppError(400, 'EMPTY_MESSAGE', 'The message is empty');
+
+    const messageId = await sequelize.transaction(async (transaction) => {
+        // Locked so that two messages sent at once cannot claim the same attachment.
+        const attachments = ids.length
+            ? await Attachment.findAll({ where: { id: ids, uploader_id: fromUserId, message_id: null }, transaction, lock: transaction.LOCK.UPDATE })
+            : [];
+        if (attachments.length !== ids.length) {
+            throw new AppError(400, 'INVALID_ATTACHMENT', 'The attachment does not exist or was already sent');
+        }
+
+        const message = await Message.create(
+            { from_user_id: fromUserId, to_user_id: toUserId, content, type: ids.length ? 'image' : 'text' },
+            { transaction }
+        );
+        if (ids.length) await Attachment.update({ message_id: message.message_id }, { where: { id: ids }, transaction });
+        return message.message_id;
+    });
+
+    return (await Message.findByPk(messageId, { include: [withAttachments] }))!;
+}
+
+export const toAttachment = (attachment: Attachment) => ({
+    id: attachment.id,
+    url: storage.url(attachment.storage_key),
+    mimeType: attachment.mime_type,
+    size: attachment.size ?? null,
+    width: attachment.width ?? null,
+    height: attachment.height ?? null,
+});
 
 export const toChatMessage = (message: Message) => ({
     id: message.message_id,
     fromUserId: message.from_user_id,
     toUserId: message.to_user_id,
     content: message.content ?? null,
-    mediaUrl: message.media_url ?? null,
+    attachments: (message.attachments ?? []).map(toAttachment),
     type: message.type,
     createdAt: message.created_at,
 });

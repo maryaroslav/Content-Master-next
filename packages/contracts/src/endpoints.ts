@@ -29,7 +29,7 @@ import {
     MembershipStatusSchema,
 } from './community';
 import { EventSummarySchema } from './event';
-import { AttachmentResponseSchema, ChatMessagePageSchema, ConversationSchema } from './chat';
+import { AttachmentSchema, ChatMessagePageSchema, ConversationSchema } from './chat';
 import { SearchQuerySchema, SearchResponseSchema } from './search';
 
 export const authEndpoints = {
@@ -165,7 +165,7 @@ export const chatEndpoints = {
     }),
     uploadAttachment: defineEndpoint({
         method: 'post', path: '/chat/attachments', tag: 'chat', auth: true, summary: 'Upload an image for a message',
-        upload: { field: 'image', maxCount: 1 }, response: { status: 201, schema: AttachmentResponseSchema },
+        upload: { field: 'image', maxCount: 1 }, response: { status: 201, schema: AttachmentSchema },
     }),
 };
 

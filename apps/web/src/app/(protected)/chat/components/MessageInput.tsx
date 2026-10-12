@@ -25,7 +25,7 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
 
     const upload = useChatUploadAttachment({
         mutation: {
-            onSuccess: ({ url }) => send({ toUserId: peerId, type: 'image', media_url: url }),
+            onSuccess: ({ id }) => send({ toUserId: peerId, attachmentIds: [id] }),
             onError: (err) => setError(errorText.request(err) ?? null),
         },
     });
@@ -39,7 +39,7 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
 
     const sendText = () => {
         if (!connected || !text.trim()) return;
-        send({ toUserId: peerId, type: 'text', message: text });
+        send({ toUserId: peerId, text });
         setText('');
     };
 

@@ -68,9 +68,17 @@ export default function MessageList({ peerId, myId, myAvatar, peerAvatar }: Mess
                                     style={{ borderRadius: '50%', marginRight: 8 }}
                                 />
                                 <div className="message-container">
-                                    {message.type === 'image' && message.mediaUrl
-                                        ? <Image src={message.mediaUrl} alt={t('chat.attachedImage')} width={200} height={200} style={{ borderRadius: 8 }} />
-                                        : <span>{message.content}</span>}
+                                    {message.attachments.map((attachment) => (
+                                        <Image
+                                            key={attachment.id}
+                                            src={attachment.url}
+                                            alt={t('chat.attachedImage')}
+                                            width={200}
+                                            height={attachment.width && attachment.height ? Math.round(200 * attachment.height / attachment.width) : 200}
+                                            style={{ borderRadius: 8 }}
+                                        />
+                                    ))}
+                                    {message.content && <span>{message.content}</span>}
                                     <time className="chat-message-time" dateTime={message.createdAt}>{dates.time(message.createdAt)}</time>
                                 </div>
                             </div>

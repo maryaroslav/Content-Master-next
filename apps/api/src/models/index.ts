@@ -10,6 +10,7 @@ import { Message } from './Message';
 import { Post } from './Post';
 import { RefreshToken } from './RefreshToken';
 import { PostImage } from './PostImage';
+import { Attachment } from './Attachment';
 
 const models = {
     User: User.initModel(sequelize),
@@ -22,10 +23,11 @@ const models = {
     Post: Post.initModel(sequelize),
     RefreshToken: RefreshToken.initModel(sequelize),
     PostImage: PostImage.initModel(sequelize),
+    Attachment: Attachment.initModel(sequelize),
 };
 
 export type Models = typeof models;
 
 Object.values(models).forEach((model) => model.associate(models));
 
-export { sequelize, User, Community, UserCommunity, Event, UserEvent, Follow, Message, Post, RefreshToken, PostImage };
+export { sequelize, User, Community, UserCommunity, Event, UserEvent, Follow, Message, Post, RefreshToken, PostImage, Attachment };

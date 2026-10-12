@@ -8,26 +8,27 @@ import {
     type ForeignKey,
     type NonAttribute,
 } from 'sequelize';
+import type { Attachment } from './Attachment';
 import type { User } from './User';
 import type { Models } from './index';
 
 export type MessageType = 'text' | 'image';
 
 export class Message extends Model<
-    InferAttributes<Message, { omit: 'FromUser' | 'ToUser' }>,
-    InferCreationAttributes<Message, { omit: 'FromUser' | 'ToUser' }>
+    InferAttributes<Message, { omit: 'FromUser' | 'ToUser' | 'attachments' }>,
+    InferCreationAttributes<Message, { omit: 'FromUser' | 'ToUser' | 'attachments' }>
 > {
     declare message_id: CreationOptional<number>;
     declare from_user_id: ForeignKey<User['user_id']>;
     declare to_user_id: ForeignKey<User['user_id']>;
     declare content: CreationOptional<string | null>;
-    declare media_url: CreationOptional<string | null>;
     declare type: CreationOptional<MessageType>;
     declare created_at: CreationOptional<Date>;
     declare updated_at: CreationOptional<Date>;
 
     declare FromUser?: NonAttribute<User>;
     declare ToUser?: NonAttribute<User>;
+    declare attachments?: NonAttribute<Attachment[]>;
 
     static initModel(sequelize: Sequelize) {
         Message.init(
@@ -47,10 +48,6 @@ export class Message extends Model<
                 },
                 content: {
                     type: DataTypes.TEXT,
-                    allowNull: true,
-                },
-                media_url: {
-                    type: DataTypes.STRING,
                     allowNull: true,
                 },
                 type: {
@@ -88,5 +85,6 @@ export class Message extends Model<
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
         });
+        Message.hasMany(models.Attachment, { foreignKey: 'message_id', as: 'attachments' });
     }
 }

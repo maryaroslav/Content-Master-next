@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ChatMessagePageSchema, ConversationSchema, EventSummarySchema } from '@cm/contracts';
-import { Event, Message, UserEvent } from '../../src/models';
-import { api, createUser, resetDatabase, testImage, uploadedFileExists } from './helpers';
+import { AttachmentSchema, ChatMessagePageSchema, ConversationSchema, EventSummarySchema } from '@cm/contracts';
+import { Attachment, Event, Message, UserEvent } from '../../src/models';
+import { sendMessage } from '../../src/modules/chat/service';
+import { api, createUser, resetDatabase, testImage, uploadedFileExists, type TestUser } from './helpers';
 
 beforeEach(resetDatabase);
 
-// Messages are sent over Socket.IO, so the tests write them straight to the database.
 const message = (from: number, to: number, content: string, at: string) =>
     Message.create({ from_user_id: from, to_user_id: to, content, type: 'text', created_at: new Date(at) });
 
@@ -60,12 +60,19 @@ describe('GET /api/v1/chat/conversations/:userId/messages', () => {
     });
 });
 
+const upload = async (user: TestUser, width = 64, height = 64) => {
+    const res = await api().post('/api/v1/chat/attachments').set(user.auth).attach('image', await testImage(width, height), 'x.png').expect(201);
+    return AttachmentSchema.parse(res.body);
+};
+
 describe('POST /api/v1/chat/attachments', () => {
-    it('stores an image and returns its URL', async () => {
+    it('stores an image as an unsent attachment of the uploader', async () => {
         const me = await createUser('myself');
-        const res = await api().post('/api/v1/chat/attachments').set(me.auth).attach('image', await testImage(), 'x.png').expect(201);
-        expect(res.body.url).toMatch(/^\/uploads\/chat_images\/.+\.webp$/);
-        expect(await uploadedFileExists(res.body.url)).toBe(true);
+        const attachment = await upload(me, 80, 40);
+        expect(attachment).toMatchObject({ mimeType: 'image/webp', width: 80, height: 40 });
+        expect(attachment.url).toMatch(/^\/uploads\/chat_images\/.+\.webp$/);
+        expect(await uploadedFileExists(attachment.url)).toBe(true);
+        expect(await Attachment.findByPk(attachment.id)).toMatchObject({ uploader_id: me.id, message_id: null });
     });
 
     it('requires a file', async () => {
@@ -74,8 +81,40 @@ describe('POST /api/v1/chat/attachments', () => {
     });
 });
 
+describe('sendMessage', () => {
+    it('attaches uploaded images and returns them in the history', async () => {
+        const [me, bob] = [await createUser('myself'), await createUser('bob')];
+        const [first, second] = [await upload(me), await upload(me)];
+
+        await sendMessage(me.id, { toUserId: bob.id, text: ' look ', attachmentIds: [second.id, first.id] });
+
+        const res = await api().get(`/api/v1/chat/conversations/${me.id}/messages`).set(bob.auth).expect(200);
+        const [sent] = ChatMessagePageSchema.parse(res.body).items;
+        expect(sent).toMatchObject({ content: 'look', type: 'image' });
+        expect(sent!.attachments.map((a) => a.id)).toEqual([first.id, second.id]);
+    });
+
+    it('rejects attachments of another user or already sent ones', async () => {
+        const [me, bob] = [await createUser('myself'), await createUser('bob')];
+        const mine = await upload(me);
+        const bobs = await upload(bob);
+
+        await expect(sendMessage(me.id, { toUserId: bob.id, attachmentIds: [bobs.id] })).rejects.toMatchObject({ code: 'INVALID_ATTACHMENT' });
+        await sendMessage(me.id, { toUserId: bob.id, attachmentIds: [mine.id] });
+        await expect(sendMessage(me.id, { toUserId: bob.id, attachmentIds: [mine.id] })).rejects.toMatchObject({ code: 'INVALID_ATTACHMENT' });
+        expect(await Message.count()).toBe(1);
+    });
+
+    it('rejects empty messages, unknown recipients and messages to oneself', async () => {
+        const [me, bob] = [await createUser('myself'), await createUser('bob')];
+        await expect(sendMessage(me.id, { toUserId: bob.id, text: '   ' })).rejects.toMatchObject({ code: 'EMPTY_MESSAGE' });
+        await expect(sendMessage(me.id, { toUserId: 999999, text: 'hi' })).rejects.toMatchObject({ code: 'USER_NOT_FOUND' });
+        await expect(sendMessage(me.id, { toUserId: me.id, text: 'hi' })).rejects.toMatchObject({ code: 'CANNOT_MESSAGE_SELF' });
+        expect(await Message.count()).toBe(0);
+    });
+});
+
 describe('GET /api/v1/users/me/events', () => {
-    // Events have no create endpoint yet, so they are inserted directly.
     it('lists the events the user takes part in', async () => {
         const me = await createUser('myself');
         const event = await Event.create({ title: 'Meetup', image: 'events/meetup.webp', owner_id: me.id });

@@ -24,6 +24,6 @@ export function mountChatRoutes(router: Router): void {
 
     mount(router, chatEndpoints.uploadAttachment, async (_input, req) => {
         if (!req.file) throw new AppError(400, 'VALIDATION_ERROR', 'No file uploaded');
-        return { url: await chatService.saveAttachment(req.file) };
+        return chatService.toAttachment(await chatService.saveAttachment(currentUserId(req), req.file));
     });
 }

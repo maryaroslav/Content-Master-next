@@ -7,8 +7,8 @@ import { getFreshAccessToken } from '@cm/auth';
 import { publicEnv } from '@cm/env';
 
 export type OutgoingMessage =
-    | { toUserId: number; type: 'text'; message: string }
-    | { toUserId: number; type: 'image'; media_url: string };
+    | { toUserId: number; text: string }
+    | { toUserId: number; attachmentIds: number[] };
 
 export function useChatSocket(onMessage: (message: ChatMessage) => void) {
     const socketRef = useRef<Socket | null>(null);
