@@ -1,0 +1,35 @@
+{
+  "name": "@cm/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./openapi.json": "./dist/openapi.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node dist/openapi/write.js",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "circular": "depcruise src --config ../../.dependency-cruiser.cjs --ts-config tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@cm/config-eslint": "workspace:*",
+    "@cm/config-ts": "workspace:*",
+    "@types/node": "24.19.1",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "zod-openapi": "6.0.2"
+  }
+}

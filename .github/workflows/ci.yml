@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # On pull requests only the affected packages are checked; on main everything is.
+      - name: Resolve turbo filter
+        id: scope
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "filter=--filter=...[origin/${{ github.base_ref }}]" >> "$GITHUB_OUTPUT"
+          else
+            echo "filter=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - run: pnpm turbo run typecheck lint circular test build ${{ steps.scope.outputs.filter }}
+
+      # The tests create and drop their own database on this server; the secrets are CI-only throwaways.
+      - name: Integration tests
+        run: pnpm turbo run test:integration ${{ steps.scope.outputs.filter }}
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASS: root
+          DB_NAME: unused
+          JWT_SECRET: ci-only-jwt-secret-used-by-integration-tests
+          # Quoted: unquoted, YAML reads the all-zero key as the number 0.
+          TWOFA_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+
+      - run: pnpm knip
+
+      - run: pnpm syncpack lint

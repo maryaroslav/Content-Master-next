@@ -1,0 +1,44 @@
+{
+  "name": "@cm/forms",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "lint": "eslint src test",
+    "test": "vitest run",
+    "circular": "depcruise src --config ../../.dependency-cruiser.cjs --ts-config tsconfig.json"
+  },
+  "dependencies": {
+    "@cm/api-client": "workspace:*",
+    "@hookform/resolvers": "5.9.1",
+    "react-hook-form": "7.89.0"
+  },
+  "devDependencies": {
+    "@cm/config-eslint": "workspace:*",
+    "@cm/config-ts": "workspace:*",
+    "@types/react": "19.3.0",
+    "eslint": "9.39.5",
+    "react": "19.2.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "zod": "4.6.5"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "zod": "^4.0.0"
+  }
+}
