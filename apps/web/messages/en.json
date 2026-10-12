@@ -140,7 +140,12 @@
     "TWO_FACTOR_NOT_ENABLED": "Two-factor authentication is off",
     "TWO_FACTOR_NOT_SET_UP": "Start the two-factor setup first",
     "NOTHING_TO_UPDATE": "Nothing to update",
-    "PHOTO_REQUIRED": "Community photo is required"
+    "PHOTO_REQUIRED": "Community photo is required",
+    "CANNOT_MESSAGE_SELF": "You cannot message yourself",
+    "EMPTY_MESSAGE": "The message is empty",
+    "INVALID_ATTACHMENT": "The image could not be sent, please upload it again",
+    "NOT_CONNECTED": "No connection to the chat, please wait",
+    "TIMEOUT": "The server did not respond, please try again"
   },
   "common": {
     "loading": "Loading...",

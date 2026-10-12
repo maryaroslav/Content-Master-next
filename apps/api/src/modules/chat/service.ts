@@ -32,7 +32,6 @@ async function latestMessageByPartner(userId: number): Promise<Map<number, Date>
     return byPartner;
 }
 
-// Chat partners are the users you follow: those with recent messages first, the rest alphabetically.
 export async function listConversations(userId: number): Promise<Conversation[]> {
     const [follows, latest] = await Promise.all([
         Follow.findAll({
@@ -91,7 +90,6 @@ export async function sendMessage(fromUserId: number, { toUserId, text, attachme
     if (!content && ids.length === 0) throw new AppError(400, 'EMPTY_MESSAGE', 'The message is empty');
 
     const messageId = await sequelize.transaction(async (transaction) => {
-        // Locked so that two messages sent at once cannot claim the same attachment.
         const attachments = ids.length
             ? await Attachment.findAll({ where: { id: ids, uploader_id: fromUserId, message_id: null }, transaction, lock: transaction.LOCK.UPDATE })
             : [];
@@ -126,5 +124,5 @@ export const toChatMessage = (message: Message) => ({
     content: message.content ?? null,
     attachments: (message.attachments ?? []).map(toAttachment),
     type: message.type,
-    createdAt: message.created_at,
+    createdAt: message.created_at.toISOString(),
 });

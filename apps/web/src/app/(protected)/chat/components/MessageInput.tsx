@@ -5,14 +5,15 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useChatUploadAttachment } from '@cm/api-client';
 import { useErrorText } from '@/i18n/useErrorText';
-import type { OutgoingMessage } from './useChatSocket';
+import type { SendMessage } from '@cm/contracts';
+import type { SendResult } from './useChatSocket';
 
 import clipSVG from '@images/icons/clip.svg';
 
 interface MessageInputProps {
     peerId: number;
     connected: boolean;
-    send: (message: OutgoingMessage) => void;
+    send: (message: SendMessage) => Promise<SendResult>;
 }
 
 export default function MessageInput({ peerId, connected, send }: MessageInputProps) {
@@ -20,12 +21,13 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
     const errorText = useErrorText();
     const [text, setText] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [sending, setSending] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const upload = useChatUploadAttachment({
         mutation: {
-            onSuccess: ({ id }) => send({ toUserId: peerId, attachmentIds: [id] }),
+            onSuccess: ({ id }) => void submit({ toUserId: peerId, attachmentIds: [id] }),
             onError: (err) => setError(errorText.request(err) ?? null),
         },
     });
@@ -37,10 +39,18 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
         textarea.style.height = `${textarea.scrollHeight}px`;
     }, [text]);
 
-    const sendText = () => {
-        if (!connected || !text.trim()) return;
-        send({ toUserId: peerId, text });
-        setText('');
+    const submit = async (message: SendMessage) => {
+        setError(null);
+        setSending(true);
+        const result = await send(message);
+        setSending(false);
+        if (!result.ok) setError(errorText.form({ type: result.error.code, message: result.error.message }) ?? null);
+        return result.ok;
+    };
+
+    const sendText = async () => {
+        if (!connected || sending || !text.trim()) return;
+        if (await submit({ toUserId: peerId, text })) setText('');
     };
 
     const handleFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +70,7 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
                     type="button"
                     className="chat-attach"
                     aria-label={t('attach')}
-                    disabled={!connected || upload.isPending}
+                    disabled={!connected || sending || upload.isPending}
                     onClick={() => fileInputRef.current?.click()}
                 >
                     <Image src={clipSVG} alt="" width={25} height={25} />
@@ -72,7 +82,7 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
                     onKeyDown={(event) => {
                         if (event.key === 'Enter' && !event.shiftKey) {
                             event.preventDefault();
-                            sendText();
+                            void sendText();
                         }
                     }}
                     placeholder={connected ? t('placeholder') : t('connecting')}

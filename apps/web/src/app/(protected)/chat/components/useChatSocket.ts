@@ -2,16 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, type Socket } from 'socket.io-client';
-import type { ChatMessage } from '@cm/api-client';
+import type { Ack, ChatMessage, ClientToServerEvents, SendMessage, ServerToClientEvents } from '@cm/contracts';
 import { getFreshAccessToken } from '@cm/auth';
 import { publicEnv } from '@cm/env';
 
-export type OutgoingMessage =
-    | { toUserId: number; text: string }
-    | { toUserId: number; attachmentIds: number[] };
+export type SendResult = Ack<ChatMessage>;
 
 export function useChatSocket(onMessage: (message: ChatMessage) => void) {
-    const socketRef = useRef<Socket | null>(null);
+    const socketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
     const onMessageRef = useRef(onMessage);
     const [connected, setConnected] = useState(false);
 
@@ -20,7 +18,7 @@ export function useChatSocket(onMessage: (message: ChatMessage) => void) {
     });
 
     useEffect(() => {
-        const socket = io(publicEnv().REALTIME_URL, {
+        const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(publicEnv().REALTIME_URL, {
             auth: (cb) => {
                 void getFreshAccessToken().then((token) => cb({ token: token ? `Bearer ${token}` : '' }));
             },
@@ -38,7 +36,7 @@ export function useChatSocket(onMessage: (message: ChatMessage) => void) {
                 socket.connect();
             }
         });
-        socket.on('private_message', (message: ChatMessage) => onMessageRef.current(message));
+        socket.on('message:new', (message) => onMessageRef.current(message));
 
         socketRef.current = socket;
         return () => {
@@ -47,8 +45,16 @@ export function useChatSocket(onMessage: (message: ChatMessage) => void) {
         };
     }, []);
 
-    const send = useCallback((message: OutgoingMessage) => {
-        socketRef.current?.emit('private_message', message);
+    const send = useCallback(async (message: SendMessage): Promise<SendResult> => {
+        const socket = socketRef.current;
+        if (!socket?.connected) return { ok: false, error: { code: 'NOT_CONNECTED', message: 'Not connected' } };
+        try {
+            const result = await socket.timeout(10_000).emitWithAck('message:send', message);
+            if (result.ok) onMessageRef.current(result.data);
+            return result;
+        } catch {
+            return { ok: false, error: { code: 'TIMEOUT', message: 'The server did not respond' } };
+        }
     }, []);
 
     return { connected, send };

@@ -6,5 +6,6 @@ export * from './community';
 export * from './search';
 export * from './event';
 export * from './chat';
+export * from './realtime';
 export * from './endpoint';
 export * from './endpoints';

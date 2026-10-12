@@ -140,7 +140,12 @@
     "TWO_FACTOR_NOT_ENABLED": "Dvoufázové ověření je vypnuté",
     "TWO_FACTOR_NOT_SET_UP": "Nejprve spusťte nastavení dvoufázového ověření",
     "NOTHING_TO_UPDATE": "Není co uložit",
-    "PHOTO_REQUIRED": "Fotka komunity je povinná"
+    "PHOTO_REQUIRED": "Fotka komunity je povinná",
+    "CANNOT_MESSAGE_SELF": "Nemůžete psát sami sobě",
+    "EMPTY_MESSAGE": "Zpráva je prázdná",
+    "INVALID_ATTACHMENT": "Obrázek se nepodařilo odeslat, nahrajte ho prosím znovu",
+    "NOT_CONNECTED": "Chat není připojen, chvíli počkejte",
+    "TIMEOUT": "Server neodpověděl, zkuste to prosím znovu"
   },
   "common": {
     "loading": "Načítání...",

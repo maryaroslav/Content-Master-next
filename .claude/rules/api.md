@@ -44,9 +44,18 @@
   tokens, secrets, or password hashes.
 
 ## Realtime
-- Socket handlers live in sockets/handlers/ and are registered in
-  sockets/index.ts. Sockets are authenticated by socketAuthMiddleware;
-  never trust a user id sent by the client.
+- Events are defined in the @cm/contracts catalog (realtime.ts): `clientEvents` with
+  payload and ack schemas, `serverEvents`. The server is typed with the derived
+  `ClientToServerEvents` / `ServerToClientEvents` (sockets/types.ts).
+- Handlers live in sockets/handlers/ and are registered on connection in
+  sockets/index.ts; register client events only with on(socket, event, handler)
+  from sockets/on.ts. It validates the payload with zod, acks `{ ok: true, data }`
+  or `{ ok: false, error }` (AppError → its code, anything else → INTERNAL_ERROR
+  and a log), and checks the ack against the schema outside production. Throw
+  AppError as in HTTP handlers; never socket.on directly for client events.
+- Sockets are authenticated by sockets/auth.ts at the handshake; the user is
+  `socket.data.userId`, each socket joins `userRoom(userId)`. Never trust a user
+  id sent by the client.
 
 ## Logging and style
 - Use `logger` from lib/logger.ts or `req.log`. No console.*.
