@@ -9,7 +9,7 @@ interface ConversationListProps {
     conversations: Conversation[] | undefined;
     error: unknown;
     activeId: number | null;
-    unread: ReadonlySet<number>;
+    unread: readonly number[];
     onSelect: (userId: number) => void;
 }
 
@@ -31,7 +31,7 @@ export default function ConversationList({ conversations, error, activeId, unrea
                         >
                             <Image src={user.profilePicture ?? userImg} alt="" width={32} height={32} />
                             {user.username}
-                            {unread.has(user.id) && <span className="chat-unread" aria-label={t('chat.unread')} />}
+                            {unread.includes(user.id) && <span className="chat-unread" aria-label={t('chat.unread')} />}
                         </button>
                     </li>
                 ))}

@@ -16,13 +16,13 @@
     "@cm/contracts": "workspace:*",
     "@cm/env": "workspace:*",
     "@cm/forms": "workspace:*",
+    "@cm/realtime": "workspace:*",
     "@tanstack/react-query": "5.104.1",
     "axios": "1.20.0",
     "next": "16.0.1",
     "next-intl": "4.14.9",
     "react": "19.2.0",
-    "react-dom": "19.2.0",
-    "socket.io-client": "4.8.4"
+    "react-dom": "19.2.0"
   },
   "devDependencies": {
     "@cm/config-eslint": "workspace:*",

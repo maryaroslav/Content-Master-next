@@ -3,6 +3,7 @@ import type { ClientToServerEvents, ServerToClientEvents } from '@cm/contracts';
 
 interface SocketData {
     userId: number;
+    tokenExpiresAt: number;
 }
 
 export type AppServer = Server<ClientToServerEvents, ServerToClientEvents, Record<string, never>, SocketData>;

@@ -303,3 +303,31 @@ button.chat-user-item {
     font-size: 13px;
     font-weight: 600;
 }
+
+.chat-message-sending .message-container {
+    opacity: 0.6;
+}
+
+.chat-message-failed .message-container {
+    background-color: #f3c9c5;
+}
+
+.chat-message-failure {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+    font-size: 13px;
+}
+
+.chat-message-failure .chat-error {
+    margin-bottom: 0;
+}
+
+.chat-message-failure button {
+    border: none;
+    background: none;
+    color: #1a73e8;
+    cursor: pointer;
+    font-size: 13px;
+}

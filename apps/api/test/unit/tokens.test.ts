@@ -12,7 +12,10 @@ const user = { user_id: 42, email: 'alice@example.com' };
 
 describe('tokens', () => {
     it('verifies an access token', () => {
-        expect(verifyAccessToken(signAccessToken(user))).toEqual({ userId: 42, email: 'alice@example.com' });
+        const before = Date.now();
+        const payload = verifyAccessToken(signAccessToken(user));
+        expect(payload).toEqual({ userId: 42, email: 'alice@example.com', expiresAt: expect.any(Number) });
+        expect(payload.expiresAt).toBeGreaterThan(before);
     });
 
     it('verifies a 2FA challenge', () => {

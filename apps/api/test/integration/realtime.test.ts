@@ -1,9 +1,11 @@
 import http from 'http';
+import jwt from 'jsonwebtoken';
 import type { AddressInfo } from 'net';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { io as connect, type Socket } from 'socket.io-client';
 import { ChatMessageSchema, type ChatMessage, type ClientToServerEvents, type ServerToClientEvents } from '@cm/contracts';
 import { app } from '../../src/app';
+import { env } from '../../src/config/env';
 import initializeSocket from '../../src/sockets';
 import { Message } from '../../src/models';
 import { api, createUser, resetDatabase, testImage, type TestUser } from './helpers';
@@ -50,6 +52,16 @@ describe('socket connection', () => {
     it('rejects a missing or invalid token', async () => {
         await expect(open('')).rejects.toThrow('No token provided');
         await expect(open('Bearer nope')).rejects.toThrow('Invalid token');
+    });
+
+    it('ends the connection when the access token expires', async () => {
+        const me = await createUser('myself');
+        const shortLived = jwt.sign({ type: 'access', email: me.email }, env.JWT_SECRET, { subject: String(me.id), expiresIn: 1 });
+        const client = await open(`Bearer ${shortLived}`);
+
+        const reason = await new Promise((resolve) => client.once('disconnect', resolve));
+
+        expect(reason).toBe('io server disconnect');
     });
 });
 

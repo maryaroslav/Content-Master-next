@@ -5,18 +5,16 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useChatUploadAttachment } from '@cm/api-client';
 import { useErrorText } from '@/i18n/useErrorText';
-import type { SendMessage } from '@cm/contracts';
-import type { SendResult } from './useChatSocket';
+import type { ChatSender } from '@/chat/useChatSender';
 
 import clipSVG from '@images/icons/clip.svg';
 
 interface MessageInputProps {
-    peerId: number;
     connected: boolean;
-    send: (message: SendMessage) => Promise<SendResult>;
+    sender: ChatSender;
 }
 
-export default function MessageInput({ peerId, connected, send }: MessageInputProps) {
+export default function MessageInput({ connected, sender }: MessageInputProps) {
     const t = useTranslations('chat');
     const errorText = useErrorText();
     const [text, setText] = useState('');
@@ -27,7 +25,7 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
 
     const upload = useChatUploadAttachment({
         mutation: {
-            onSuccess: ({ id }) => void submit({ toUserId: peerId, attachmentIds: [id] }),
+            onSuccess: ({ id }) => void sendImage(id),
             onError: (err) => setError(errorText.request(err) ?? null),
         },
     });
@@ -39,18 +37,17 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
         textarea.style.height = `${textarea.scrollHeight}px`;
     }, [text]);
 
-    const submit = async (message: SendMessage) => {
-        setError(null);
+    const sendImage = async (attachmentId: number) => {
         setSending(true);
-        const result = await send(message);
+        const result = await sender.sendAttachment(attachmentId);
         setSending(false);
         if (!result.ok) setError(errorText.form({ type: result.error.code, message: result.error.message }) ?? null);
-        return result.ok;
     };
 
-    const sendText = async () => {
-        if (!connected || sending || !text.trim()) return;
-        if (await submit({ toUserId: peerId, text })) setText('');
+    const sendText = () => {
+        if (!connected || !text.trim()) return;
+        sender.sendText(text);
+        setText('');
     };
 
     const handleFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,7 +79,7 @@ export default function MessageInput({ peerId, connected, send }: MessageInputPr
                     onKeyDown={(event) => {
                         if (event.key === 'Enter' && !event.shiftKey) {
                             event.preventDefault();
-                            void sendText();
+                            sendText();
                         }
                     }}
                     placeholder={connected ? t('placeholder') : t('connecting')}

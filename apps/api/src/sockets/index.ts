@@ -17,11 +17,16 @@ export default function initializeSocket(server: http.Server): AppServer {
     io.use(socketAuth);
 
     io.on('connection', (socket) => {
-        const { userId } = socket.data;
+        const { userId, tokenExpiresAt } = socket.data;
         logger.debug({ userId }, '[socket.io] Connected');
         void socket.join(userRoom(userId));
         registerChatHandlers(socket);
-        socket.on('disconnect', () => logger.debug({ userId }, '[socket.io] Disconnected'));
+
+        const expiry = setTimeout(() => socket.disconnect(true), Math.max(0, tokenExpiresAt - Date.now()));
+        socket.on('disconnect', () => {
+            clearTimeout(expiry);
+            logger.debug({ userId }, '[socket.io] Disconnected');
+        });
     });
 
     return io;

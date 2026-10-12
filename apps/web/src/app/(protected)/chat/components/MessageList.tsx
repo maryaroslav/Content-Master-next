@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { getChatMessagesInfiniteQueryKey, useChatMessagesInfinite } from '@cm/api-client';
 import { useDateText } from '@/i18n/useDateText';
 import { useErrorText } from '@/i18n/useErrorText';
+import type { ChatSender } from '@/chat/useChatSender';
 
 import userImg from '@images/icons/user.svg';
 
@@ -14,9 +15,10 @@ interface MessageListProps {
     myId: number;
     myAvatar: string | null;
     peerAvatar: string | null;
+    sender: ChatSender;
 }
 
-export default function MessageList({ peerId, myId, myAvatar, peerAvatar }: MessageListProps) {
+export default function MessageList({ peerId, myId, myAvatar, peerAvatar, sender }: MessageListProps) {
     const t = useTranslations();
     const errorText = useErrorText();
     const dates = useDateText();
@@ -31,11 +33,12 @@ export default function MessageList({ peerId, myId, myAvatar, peerAvatar }: Mess
 
     const messages = data ? [...data.pages].reverse().flatMap((page) => page.items) : [];
     const lastId = messages.at(-1)?.id;
+    const pendingCount = sender.pending.length;
 
     useEffect(() => {
         const container = containerRef.current;
         if (container) container.scrollTop = container.scrollHeight;
-    }, [lastId]);
+    }, [lastId, pendingCount]);
 
     return (
         <div className="chat-messages" ref={containerRef}>
@@ -46,7 +49,7 @@ export default function MessageList({ peerId, myId, myAvatar, peerAvatar }: Mess
                     {isFetchingNextPage ? t('common.loading') : t('chat.loadEarlier')}
                 </button>
             )}
-            {status === 'success' && messages.length === 0 && <p className="chat-status">{t('chat.empty')}</p>}
+            {status === 'success' && messages.length === 0 && pendingCount === 0 && <p className="chat-status">{t('chat.empty')}</p>}
             {messages.map((message, index) => {
                 const mine = message.fromUserId === myId;
                 const previous = messages[index - 1];
@@ -86,6 +89,24 @@ export default function MessageList({ peerId, myId, myAvatar, peerAvatar }: Mess
                     </Fragment>
                 );
             })}
+            {sender.pending.map((message) => (
+                <div key={message.clientId} className={`chat-message chat-message-self chat-message-${message.status}`}>
+                    <div className="chat-message-author">
+                        <Image src={myAvatar ?? userImg} alt="" width={32} height={32} style={{ borderRadius: '50%', marginRight: 8 }} />
+                        <div className="message-container">
+                            <span>{message.text}</span>
+                            <span className="chat-message-time">{message.status === 'sending' ? t('chat.sending') : t('chat.notSent')}</span>
+                        </div>
+                    </div>
+                    {message.status === 'failed' && (
+                        <div className="chat-message-failure">
+                            {message.error && <span className="chat-error">{errorText.form({ type: message.error.code, message: message.error.message })}</span>}
+                            <button type="button" onClick={() => sender.retry(message.clientId)}>{t('chat.retry')}</button>
+                            <button type="button" aria-label={t('chat.discard')} onClick={() => sender.dismiss(message.clientId)}>×</button>
+                        </div>
+                    )}
+                </div>
+            ))}
         </div>
     );
 }

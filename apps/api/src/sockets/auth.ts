@@ -11,7 +11,9 @@ export function socketAuth(socket: AppSocket, next: (err?: ExtendedError) => voi
     }
 
     try {
-        socket.data.userId = verifyAccessToken(token.replace(/^Bearer /, '')).userId;
+        const { userId, expiresAt } = verifyAccessToken(token.replace(/^Bearer /, ''));
+        socket.data.userId = userId;
+        socket.data.tokenExpiresAt = expiresAt;
         next();
     } catch (err) {
         logger.debug({ err }, '[socket.io] Invalid token');

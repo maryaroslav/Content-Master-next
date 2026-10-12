@@ -5,9 +5,9 @@ import { AppError } from '../lib/errors';
 export interface AccessTokenPayload {
     userId: number;
     email: string;
+    expiresAt: number;
 }
 
-// `type` keeps a 2FA challenge from being accepted as an access token (same signing key).
 type TokenType = 'access' | '2fa_challenge';
 
 function sign(type: TokenType, userId: number, claims: object, expiresIn: SignOptions['expiresIn']) {
@@ -28,13 +28,12 @@ function verify(type: TokenType, token: string): jwt.JwtPayload {
 }
 
 export function signAccessToken(user: { user_id: number; email: string }): string {
-    // `user_id` stays in the payload: the current chat page reads it from the token.
     return sign('access', user.user_id, { user_id: user.user_id, email: user.email }, env.ACCESS_TOKEN_TTL as SignOptions['expiresIn']);
 }
 
 export function verifyAccessToken(token: string): AccessTokenPayload {
     const payload = verify('access', token);
-    return { userId: Number(payload.sub), email: String(payload.email) };
+    return { userId: Number(payload.sub), email: String(payload.email), expiresAt: (payload.exp ?? 0) * 1000 };
 }
 
 export function signTwoFactorChallenge(userId: number): string {

@@ -54,8 +54,9 @@
   and a log), and checks the ack against the schema outside production. Throw
   AppError as in HTTP handlers; never socket.on directly for client events.
 - Sockets are authenticated by sockets/auth.ts at the handshake; the user is
-  `socket.data.userId`, each socket joins `userRoom(userId)`. Never trust a user
-  id sent by the client.
+  `socket.data.userId`, each socket joins `userRoom(userId)`. The server ends the
+  connection when the access token expires (`socket.data.tokenExpiresAt`), and the
+  client reconnects with a fresh token. Never trust a user id sent by the client.
 
 ## Logging and style
 - Use `logger` from lib/logger.ts or `req.log`. No console.*.

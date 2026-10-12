@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { SearchQuerySchema } from "@cm/contracts";
 import { useZodForm } from "@cm/forms";
 import { useTranslations } from "next-intl";
+import { useUnread } from "@/chat/chatCache";
 import UserMenu from "./UserMenu";
 
 import '@/styles/headerMain.css';
@@ -17,6 +18,7 @@ import kolokolchik from '@images/icons/notification.svg';
 const HeaderMain = () => {
     const router = useRouter();
     const t = useTranslations('header');
+    const hasUnread = useUnread().length > 0;
     const { register, handleSubmit } = useZodForm(SearchQuerySchema, { defaultValues: { q: '' } });
     const onSearch = handleSubmit(({ q }) => router.push(`/search?q=${encodeURIComponent(q)}`));
 
@@ -38,7 +40,10 @@ const HeaderMain = () => {
                 </form>
             </div>
             <nav className='nav'>
-                <Link href="/chat" className='link' aria-label={t('chat')}><Image src={message} alt="" /></Link>
+                <Link href="/chat" className='link header-chat' aria-label={hasUnread ? t('chatUnread') : t('chat')}>
+                    <Image src={message} alt="" />
+                    {hasUnread && <span className="header-unread" />}
+                </Link>
                 <Link href="/" className='link' aria-label={t('notifications')}><Image src={kolokolchik} alt="" /></Link>
                 <UserMenu />
             </nav>

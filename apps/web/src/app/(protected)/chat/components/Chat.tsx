@@ -1,21 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-    getChatConversationsQueryKey,
-    getChatMessagesInfiniteQueryKey,
-    useChatConversations,
-    type ChatMessage,
-    type Conversation,
-} from '@cm/api-client';
+import { useChatConversations } from '@cm/api-client';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@cm/auth';
+import { setActivePeer, useUnread } from '@/chat/chatCache';
 import ChatWindow from './ChatWindow';
 import ConversationList from './ConversationList';
-import { appendMessage, touchConversation, type MessagesData } from './chatCache';
-import { useChatSocket } from './useChatSocket';
 
 export default function Chat({ initialPeerId }: { initialPeerId: number | null }) {
     const { user } = useAuth();
@@ -24,36 +17,21 @@ export default function Chat({ initialPeerId }: { initialPeerId: number | null }
     const queryClient = useQueryClient();
     const [peerId, setPeerId] = useState(initialPeerId);
     const [urlPeerId, setUrlPeerId] = useState(initialPeerId);
-    const [unread, setUnread] = useState<ReadonlySet<number>>(new Set());
+    const conversations = useChatConversations();
+    const unread = useUnread();
 
     if (initialPeerId !== urlPeerId) {
         setUrlPeerId(initialPeerId);
         setPeerId(initialPeerId);
     }
-    const peerIdRef = useRef(peerId);
-    const conversations = useChatConversations();
 
     useEffect(() => {
-        peerIdRef.current = peerId;
-    }, [peerId]);
-
-    const { connected, send } = useChatSocket((message: ChatMessage) => {
-        if (!user) return;
-        const peer = message.fromUserId === user.id ? message.toUserId : message.fromUserId;
-        queryClient.setQueryData<MessagesData>(getChatMessagesInfiniteQueryKey(peer), (data) => appendMessage(data, message));
-        queryClient.setQueryData<Conversation[]>(getChatConversationsQueryKey(), (list) => touchConversation(list, peer, message.createdAt));
-        if (peer !== peerIdRef.current && message.fromUserId !== user.id) {
-            setUnread((current) => new Set(current).add(peer));
-        }
-    });
+        setActivePeer(queryClient, peerId);
+        return () => setActivePeer(queryClient, null);
+    }, [queryClient, peerId]);
 
     const selectPeer = (id: number) => {
         setPeerId(id);
-        setUnread((current) => {
-            const next = new Set(current);
-            next.delete(id);
-            return next;
-        });
         router.replace(`/chat?to=${id}`, { scroll: false });
     };
 
@@ -71,7 +49,7 @@ export default function Chat({ initialPeerId }: { initialPeerId: number | null }
             <div className="chat-main">
                 {peerId === null || !user
                     ? <div className="chat-messages"><div className="chat-placeholder">{t('select')}</div></div>
-                    : <ChatWindow key={peerId} peerId={peerId} peer={peer} me={user} connected={connected} send={send} />}
+                    : <ChatWindow key={peerId} peerId={peerId} peer={peer} me={user} />}
             </div>
         </div>
     );
