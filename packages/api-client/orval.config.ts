@@ -10,6 +10,7 @@ export default defineConfig({
             client: 'react-query',
             httpClient: 'axios',
             clean: true,
+            mock: { generators: [{ type: 'msw' }] },
             override: {
                 mutator: { path: 'src/http/mutator.ts', name: 'apiRequest' },
                 // Global useQuery/useMutation flags would force both hook kinds on every operation;

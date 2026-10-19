@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./mocks": {
+      "types": "./dist/mocks.d.ts",
+      "default": "./dist/mocks.js"
     }
   },
   "files": [
@@ -29,9 +33,11 @@
   "devDependencies": {
     "@cm/config-eslint": "workspace:*",
     "@cm/config-ts": "workspace:*",
+    "@faker-js/faker": "10.6.0",
     "@tanstack/react-query": "5.104.1",
     "@types/react": "19.3.0",
     "eslint": "9.39.5",
+    "msw": "2.15.0",
     "orval": "8.40.0",
     "react": "19.2.0",
     "typescript": "5.9.3",

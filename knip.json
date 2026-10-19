@@ -29,7 +29,9 @@
       "ignoreDependencies": [
         "@tanstack/react-query",
         "react",
-        "@types/react"
+        "@types/react",
+        "@faker-js/faker",
+        "msw"
       ]
     },
     "packages/*": {}
