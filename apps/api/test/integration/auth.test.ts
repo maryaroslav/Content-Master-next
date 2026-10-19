@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { AuthSessionSchema, TwoFactorChallengeSchema, UserSchema } from '@cm/contracts';
+import speakeasy from 'speakeasy';
+import { AuthSessionSchema, TwoFactorChallengeSchema, TwoFactorSetupResponseSchema, UserSchema } from '@cm/contracts';
 import { User } from '../../src/models';
 import { api, cookieValue, createUser, enableTwoFactor, refreshCookie, resetDatabase, totpFor } from './helpers';
 
@@ -90,13 +91,16 @@ describe('two-factor authentication', () => {
 
     it('is enabled only with a valid code', async () => {
         const alice = await createUser('alice');
-        const setup = await api().post('/api/v1/auth/2fa/setup').set(alice.auth).expect(200);
-        expect(setup.body.qrCode).toMatch(/^data:image\/png;base64,/);
+        const setup = TwoFactorSetupResponseSchema.parse((await api().post('/api/v1/auth/2fa/setup').set(alice.auth).expect(200)).body);
+        expect(setup.qrCode).toMatch(/^data:image\/png;base64,/);
+        expect(setup.secret).toMatch(/^[A-Z2-7]+$/);
 
         const wrong = await api().post('/api/v1/auth/2fa/enable').set(alice.auth).send({ code: '000000' });
         expect([wrong.status, wrong.body.code]).toEqual([401, 'INVALID_2FA_CODE']);
 
-        const ok = await api().post('/api/v1/auth/2fa/enable').set(alice.auth).send({ code: await totpFor(alice.id) }).expect(200);
+        const code = speakeasy.totp({ secret: setup.secret, encoding: 'base32' });
+        expect(code).toBe(await totpFor(alice.id));
+        const ok = await api().post('/api/v1/auth/2fa/enable').set(alice.auth).send({ code }).expect(200);
         expect(UserSchema.parse(ok.body).twoFactorEnabled).toBe(true);
 
         const again = await api().post('/api/v1/auth/2fa/setup').set(alice.auth);

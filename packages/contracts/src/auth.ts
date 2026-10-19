@@ -48,5 +48,6 @@ export type TwoFactorCodeRequest = z.infer<typeof TwoFactorCodeRequestSchema>;
 
 export const TwoFactorSetupResponseSchema = z.object({
     qrCode: z.string(),
+    secret: z.string(),
 }).meta({ id: 'TwoFactorSetupResponse' });
 export type TwoFactorSetupResponse = z.infer<typeof TwoFactorSetupResponseSchema>;

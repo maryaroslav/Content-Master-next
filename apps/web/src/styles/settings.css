@@ -106,6 +106,15 @@
     gap: 10px;
 }
 
+.settings-secret {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    word-break: break-all;
+    user-select: all;
+}
+
 .settings-code-input {
     width: 160px;
     padding: 6px 10px;

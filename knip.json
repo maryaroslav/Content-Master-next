@@ -34,6 +34,16 @@
         "msw"
       ]
     },
+    "e2e": {
+      "entry": [
+        "support/prepare-database.ts"
+      ],
+      "ignoreDependencies": [
+        "@cm/api",
+        "@cm/web",
+        "tsx"
+      ]
+    },
     "packages/*": {}
   }
 }

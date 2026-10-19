@@ -2,15 +2,15 @@ import { z } from 'zod';
 
 // Everything in this schema is sent to the browser: never add secrets here.
 const publicEnvSchema = z.object({
-    // Base URL of API v1 as seen by the browser: same-origin path through the Next rewrite or the gateway.
+    // Base URL of API v1 as seen by the browser: same-origin path through the web app's proxy or the gateway.
     API_URL: z.string().min(1).default('/api/v1'),
     APP_ENV: z.enum(['development', 'test', 'production']).default('development'),
-    // Socket.IO origin as seen by the browser; a direct connection, since Next rewrites do not proxy WebSockets.
+    // Socket.IO origin as seen by the browser; a direct connection, since the Next proxy does not carry WebSockets.
     REALTIME_URL: z.url().default('http://localhost:5001'),
 });
 
 const serverEnvSchema = z.object({
-    // Where the Express API runs; used by the Next rewrites and by server-side requests.
+    // Where the Express API runs; used by src/proxy.ts of the web app and by server-side requests.
     API_ORIGIN: z.url().default('http://localhost:5001'),
 });
 

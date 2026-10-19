@@ -13,7 +13,7 @@ import { TwoFactorCodeRequestSchema } from '@cm/contracts';
 import { applyServerErrors, useZodForm } from '@cm/forms';
 import { useErrorText } from '@/i18n/useErrorText';
 
-type Step = { kind: 'idle' } | { kind: 'enabling'; qrCode: string } | { kind: 'disabling' };
+type Step = { kind: 'idle' } | { kind: 'enabling'; qrCode: string; secret: string } | { kind: 'disabling' };
 
 export default function TwoFactorSettings() {
     const { user } = useAuth();
@@ -27,7 +27,7 @@ export default function TwoFactorSettings() {
 
     const setup = useAuthTwoFactorSetup({
         mutation: {
-            onSuccess: ({ qrCode }) => setStep({ kind: 'enabling', qrCode }),
+            onSuccess: ({ qrCode, secret }) => setStep({ kind: 'enabling', qrCode, secret }),
             onError: (err) => setSetupError(errorText.request(err) ?? null),
         },
     });
@@ -72,6 +72,8 @@ export default function TwoFactorSettings() {
                         <>
                             <p className="settings-text">{t('scan')}</p>
                             <Image src={step.qrCode} alt={t('qrAlt')} width={150} height={150} />
+                            <p className="settings-text">{t('manualKey')}</p>
+                            <code className="settings-secret">{step.secret}</code>
                         </>
                     ) : (
                         <p className="settings-text">{t('disablePrompt')}</p>

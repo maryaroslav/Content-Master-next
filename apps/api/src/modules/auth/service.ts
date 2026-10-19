@@ -66,13 +66,13 @@ export async function refreshSession(refreshToken: string, userAgent?: string): 
     return { user, refreshToken: rotated.token };
 }
 
-export async function setupTwoFactor(userId: number): Promise<string> {
+export async function setupTwoFactor(userId: number): Promise<{ qrCode: string; secret: string }> {
     const user = await findUserOrThrow(userId);
     if (user.twoFactorEnabled) throw new AppError(409, 'TWO_FACTOR_ALREADY_ENABLED', '2FA is already enabled');
 
     const secret = speakeasy.generateSecret({ name: `Content-Master (${user.email})` });
     await user.update({ twoFactorSecret: encryptSecret(secret.base32) });
-    return qrcode.toDataURL(secret.otpauth_url ?? '');
+    return { qrCode: await qrcode.toDataURL(secret.otpauth_url ?? ''), secret: secret.base32 };
 }
 
 export async function enableTwoFactor(userId: number, code: string): Promise<User> {

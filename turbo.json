@@ -59,6 +59,21 @@
         "TWOFA_ENCRYPTION_KEY"
       ]
     },
+    "test:e2e": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false,
+      "passThroughEnv": [
+        "CI",
+        "DB_HOST",
+        "DB_PORT",
+        "DB_USER",
+        "DB_PASS",
+        "JWT_SECRET",
+        "TWOFA_ENCRYPTION_KEY"
+      ]
+    },
     "generate": {
       "dependsOn": [
         "^build"

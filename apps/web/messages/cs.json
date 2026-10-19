@@ -60,6 +60,7 @@
       "turnOff": "Vypnout",
       "scan": "Naskenujte QR kód ověřovací aplikací a zadejte kód, který zobrazí.",
       "qrAlt": "QR kód pro ověřovací aplikaci",
+      "manualKey": "Nejde to naskenovat? Zadejte do aplikace tento klíč:",
       "disablePrompt": "Pro vypnutí dvoufázového ověření zadejte kód z ověřovací aplikace.",
       "enable": "Zapnout",
       "cancel": "Zrušit"

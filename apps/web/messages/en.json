@@ -60,6 +60,7 @@
       "turnOff": "Turn off",
       "scan": "Scan the QR code with your authenticator app, then enter the code it shows.",
       "qrAlt": "QR code for the authenticator app",
+      "manualKey": "Can’t scan it? Enter this key in the app instead:",
       "disablePrompt": "Enter the code from your authenticator app to turn two-factor authentication off.",
       "enable": "Enable",
       "cancel": "Cancel"

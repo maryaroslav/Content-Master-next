@@ -55,9 +55,7 @@ export function mountAuthRoutes(router: Router): void {
         clearRefreshCookie(res);
     });
 
-    mount(router, authEndpoints.twoFactorSetup, async (_input, req) => ({
-        qrCode: await authService.setupTwoFactor(currentUserId(req)),
-    }));
+    mount(router, authEndpoints.twoFactorSetup, async (_input, req) => authService.setupTwoFactor(currentUserId(req)));
 
     mount(router, authEndpoints.twoFactorEnable, async ({ body }, req) =>
         toUserDto(await authService.enableTwoFactor(currentUserId(req), body.code))

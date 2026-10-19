@@ -13,6 +13,7 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "test:integration": "turbo run test:integration",
+    "test:e2e": "turbo run test:e2e",
     "knip": "knip",
     "syncpack:check": "syncpack lint",
     "circular": "turbo run circular",
