@@ -25,7 +25,7 @@
   "dependencies": {
     "@cm/api-client": "workspace:*",
     "@hookform/resolvers": "5.9.1",
-    "react-hook-form": "7.89.0"
+    "react-hook-form": "8.0.0-beta.4"
   },
   "devDependencies": {
     "@cm/config-eslint": "workspace:*",

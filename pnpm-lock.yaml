@@ -355,10 +355,10 @@ importers:
         version: link:../api-client
       '@hookform/resolvers':
         specifier: 5.9.1
-        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.2.0))(zod@4.6.5)
+        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@8.0.0-beta.4(@types/react@19.3.0)(react@19.2.0))(zod@4.6.5)
       react-hook-form:
-        specifier: 7.89.0
-        version: 7.89.0(@types/react@19.3.0)(react@19.2.0)
+        specifier: 8.0.0-beta.4
+        version: 8.0.0-beta.4(@types/react@19.3.0)(react@19.2.0)
     devDependencies:
       '@cm/config-eslint':
         specifier: workspace:*
@@ -3972,8 +3972,8 @@ packages:
     peerDependencies:
       react: ^19.2.0
 
-  react-hook-form@7.89.0:
-    resolution: {integrity: sha512-vKcoCfy8RKZDrhSdqsRFp0uEOdS1AhLjOL6hR7Wmfzg1akNxEhaPf5WORx8SgEQPVXakdDyDkqQp+KNxVnnPHg==}
+  react-hook-form@8.0.0-beta.4:
+    resolution: {integrity: sha512-kTdfgnDwiBFBRLqp7fIbxhIMHTco5H0QN5IJ6zYrtFqx8NQds8GZwXlStIsqK+L4TeAu0oQI7XhE0nO1pSwoKQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@types/react': '*'
@@ -5128,10 +5128,10 @@ snapshots:
     dependencies:
       '@formatjs/fast-memoize': 3.1.7
 
-  '@hookform/resolvers@5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.2.0))(zod@4.6.5)':
+  '@hookform/resolvers@5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@8.0.0-beta.4(@types/react@19.3.0)(react@19.2.0))(zod@4.6.5)':
     dependencies:
       '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.89.0(@types/react@19.3.0)(react@19.2.0)
+      react-hook-form: 8.0.0-beta.4(@types/react@19.3.0)(react@19.2.0)
     optionalDependencies:
       '@standard-schema/spec': 1.1.0
       ajv: 8.20.0
@@ -8295,7 +8295,7 @@ snapshots:
       react: 19.2.0
       scheduler: 0.27.0
 
-  react-hook-form@7.89.0(@types/react@19.3.0)(react@19.2.0):
+  react-hook-form@8.0.0-beta.4(@types/react@19.3.0)(react@19.2.0):
     dependencies:
       react: 19.2.0
     optionalDependencies:

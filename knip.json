@@ -33,11 +33,5 @@
       ]
     },
     "packages/*": {}
-  },
-  "rules": {
-    "files": "warn",
-    "exports": "warn",
-    "types": "warn",
-    "duplicates": "warn"
   }
 }

@@ -28,7 +28,7 @@ function verify(type: TokenType, token: string): jwt.JwtPayload {
 }
 
 export function signAccessToken(user: { user_id: number; email: string }): string {
-    return sign('access', user.user_id, { user_id: user.user_id, email: user.email }, env.ACCESS_TOKEN_TTL as SignOptions['expiresIn']);
+    return sign('access', user.user_id, { email: user.email }, env.ACCESS_TOKEN_TTL as SignOptions['expiresIn']);
 }
 
 export function verifyAccessToken(token: string): AccessTokenPayload {

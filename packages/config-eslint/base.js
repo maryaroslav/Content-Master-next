@@ -5,7 +5,7 @@ import globals from 'globals';
 /** Shared rules for every TypeScript package in the monorepo. */
 export const sharedRules = {
     rules: {
-        'no-console': ['warn', { allow: ['warn', 'error'] }],
+        'no-console': ['error', { allow: ['warn', 'error'] }],
         // `declare global { namespace Express { ... } }` is the standard way to augment Express types.
         '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
         // Existing debt: switched to "error" in migration phase 2 (api) / phase 5 (web).

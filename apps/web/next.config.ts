@@ -6,6 +6,7 @@ const { API_ORIGIN } = serverEnv();
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
+  reactCompiler: true,
   images: {
     unoptimized: true,
     remotePatterns: [
