@@ -28,6 +28,7 @@ packages/
   config-ts/      shared tsconfig presets
   config-eslint/  shared ESLint configs
 docs/adr/         architecture decision records
+docker-compose.yml  MySQL, API and web from apps/*/Dockerfile
 ```
 
 ## Requirements
@@ -71,4 +72,15 @@ pnpm --filter @cm/api db:migrate | db:rollback | db:status
 
 Before the first `pnpm test:e2e`, install the browser: `pnpm --filter @cm/e2e exec playwright install chromium`.
 
-The pre-commit hook runs typecheck, lint, circular and the unit tests for the changed packages. CI runs these plus build, integration tests, knip and syncpack, and the end-to-end tests in a parallel job.
+The pre-commit hook runs typecheck, lint, circular and the unit tests for the changed packages. CI runs these plus build, integration tests, knip and syncpack, and in parallel jobs the end-to-end tests and the Docker images (built, started with compose and tested with the same end-to-end suite).
+
+## Docker
+
+`apps/api/Dockerfile` and `apps/web/Dockerfile` build from the repository root. Each prunes the workspace to its app (`turbo prune`), installs the dependencies in a cached layer and builds; the final image runs as a non-root user and contains only what the app needs at runtime: the API's `dist/` with production dependencies (`pnpm deploy`), the web app's standalone Next.js server. The API container applies pending migrations before it starts. The web image takes its configuration at startup (`/env.js`, `proxy.ts`), so the same image runs in every environment.
+
+```sh
+cp .env.example .env     # passwords and secrets for compose
+docker compose up --build
+```
+
+Starts MySQL, the API on http://localhost:5001 (published for Socket.IO) and the web app on http://localhost:3000, with volumes for the database and the uploads. If you change the ports, change `WEB_ORIGIN` and `REALTIME_URL` with them.

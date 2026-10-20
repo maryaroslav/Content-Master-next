@@ -3,7 +3,8 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "dependsOn": ["^build", "generate", "typecheck"]
+      "dependsOn": ["^build", "generate", "typecheck"],
+      "env": ["NEXT_OUTPUT"]
     }
   }
 }

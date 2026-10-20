@@ -22,7 +22,7 @@ app.use(
             if (res.statusCode >= 400) return 'warn';
             return 'info';
         },
-        autoLogging: { ignore: (req) => req.url?.startsWith(UPLOAD_URL_PREFIX) ?? false },
+        autoLogging: { ignore: (req) => req.url === '/health' || (req.url?.startsWith(UPLOAD_URL_PREFIX) ?? false) },
         customSuccessMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
         customErrorMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
         serializers: {
@@ -49,6 +49,11 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json({ limit: '100kb' }));
+
+// Container health check: answers without the database or the rate limiter.
+app.get('/health', (_req, res) => {
+    res.json({ status: 'ok' });
+});
 
 app.use('/api', apiRateLimit);
 app.use('/api/v1', v1Routes);

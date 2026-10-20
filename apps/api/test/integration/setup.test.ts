@@ -14,4 +14,9 @@ describe('integration test setup', () => {
         const res = await api().post('/api/v1/auth/login').send({ email: 'alice@example.com', password: 'password123' });
         expect(res.status).toBe(401);
     });
+
+    it('answers the health check', async () => {
+        const res = await api().get('/health').expect(200);
+        expect(res.body).toEqual({ status: 'ok' });
+    });
 });

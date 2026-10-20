@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 import { API_PORT, WEB_PORT, WEB_URL, database, uploadDir } from './support/settings';
 
 const ci = !!process.env.CI;
+// The apps already run on WEB_PORT/API_PORT with their own database, e.g. the Docker images in CI.
+const external = !!process.env.E2E_EXTERNAL;
 
 export default defineConfig({
     testDir: 'tests',
@@ -9,7 +11,7 @@ export default defineConfig({
     forbidOnly: ci,
     retries: ci ? 1 : 0,
     reporter: ci ? [['github'], ['html', { open: 'never' }]] : [['list'], ['html', { open: 'never' }]],
-    globalTeardown: './support/global-teardown.ts',
+    globalTeardown: external ? undefined : './support/global-teardown.ts',
     use: {
         baseURL: WEB_URL,
         locale: 'en-US',
@@ -17,7 +19,7 @@ export default defineConfig({
         trace: 'retain-on-failure',
     },
     projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-    webServer: [
+    webServer: external ? undefined : [
         {
             name: 'api',
             command: 'tsx support/prepare-database.ts && pnpm --filter @cm/api db:migrate && pnpm --filter @cm/api start',
