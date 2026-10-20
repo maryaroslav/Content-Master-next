@@ -1,0 +1,310 @@
+{
+  "language": {
+    "label": "Jazyk"
+  },
+  "welcome": {
+    "title": "Přidejte se k Chatvoluci",
+    "text": "Ptejte se, sdílejte nápady a navazujte nová spojení.",
+    "join": "Připojit se ke komunitě Content Master",
+    "signIn": "Přihlásit se",
+    "signUp": "Registrovat se"
+  },
+  "auth": {
+    "email": "E-mail",
+    "password": "Heslo",
+    "username": "Uživatelské jméno",
+    "login": {
+      "title": "Přihlaste se ke svému účtu",
+      "submit": "Přihlásit se",
+      "noAccount": "Nemáte účet?",
+      "createAccount": "Vytvořit účet"
+    },
+    "register": {
+      "title": "Vytvořte si účet",
+      "submit": "Registrovat se",
+      "haveAccount": "Už máte účet?",
+      "signIn": "Přihlásit se"
+    },
+    "twoFactor": {
+      "hint": "Zadejte kód z ověřovací aplikace",
+      "code": "Kód 2FA",
+      "back": "Zpět k přihlášení"
+    }
+  },
+  "settings": {
+    "profile": {
+      "title": "Profil",
+      "uploadPhoto": "Nahrát fotku",
+      "removePhoto": "Odebrat",
+      "username": "Uživatelské jméno",
+      "fullName": "Celé jméno",
+      "bio": "O mně",
+      "save": "Uložit",
+      "saved": "Profil uložen",
+      "avatarUpdated": "Profilová fotka aktualizována",
+      "avatarRemoved": "Profilová fotka odebrána"
+    },
+    "account": {
+      "title": "Účet",
+      "signedInAs": "Přihlášen(a) jako {email}",
+      "newEmail": "Nový e-mail",
+      "currentPassword": "Současné heslo",
+      "submit": "Změnit e-mail",
+      "changed": "E-mail změněn"
+    },
+    "twoFactor": {
+      "title": "Dvoufázové ověření",
+      "on": "Zapnuto: přihlášení vyžaduje kód z ověřovací aplikace.",
+      "off": "Vypnuto: k přihlášení stačí heslo.",
+      "setUp": "Nastavit",
+      "turnOff": "Vypnout",
+      "scan": "Naskenujte QR kód ověřovací aplikací a zadejte kód, který zobrazí.",
+      "qrAlt": "QR kód pro ověřovací aplikaci",
+      "manualKey": "Nejde to naskenovat? Zadejte do aplikace tento klíč:",
+      "disablePrompt": "Pro vypnutí dvoufázového ověření zadejte kód z ověřovací aplikace.",
+      "enable": "Zapnout",
+      "cancel": "Zrušit"
+    }
+  },
+  "validation": {
+    "email": {
+      "invalid_format": "Zadejte platný e-mail",
+      "too_small": "E-mail je povinný",
+      "too_big": "E-mail je příliš dlouhý"
+    },
+    "password": {
+      "too_small": "Heslo musí mít alespoň 8 znaků",
+      "too_big": "Heslo je příliš dlouhé"
+    },
+    "login": {
+      "password": {
+        "too_small": "Heslo je povinné"
+      }
+    },
+    "username": {
+      "too_small": "Uživatelské jméno musí mít alespoň 3 znaky",
+      "too_big": "Uživatelské jméno může mít nejvýše 50 znaků",
+      "invalid_format": "Uživatelské jméno smí obsahovat jen písmena, číslice, „.“, „_“ a „-“"
+    },
+    "code": {
+      "invalid_format": "Kód musí mít 6 číslic"
+    },
+    "currentPassword": {
+      "too_small": "Současné heslo je povinné"
+    },
+    "fullName": {
+      "too_big": "Celé jméno je příliš dlouhé"
+    },
+    "bio": {
+      "too_big": "Text o vás je příliš dlouhý"
+    },
+    "name": {
+      "too_small": "Název je povinný",
+      "too_big": "Název je příliš dlouhý"
+    },
+    "theme": {
+      "too_small": "Vyberte téma"
+    },
+    "description": {
+      "too_big": "Popis je příliš dlouhý"
+    },
+    "content": {
+      "too_big": "Příspěvek je příliš dlouhý"
+    },
+    "q": {
+      "too_small": "Zadejte alespoň 2 znaky"
+    }
+  },
+  "errors": {
+    "server": "Něco se pokazilo, zkuste to prosím znovu.",
+    "INTERNAL_ERROR": "Něco se pokazilo, zkuste to prosím znovu.",
+    "TOO_MANY_REQUESTS": "Příliš mnoho požadavků, zkuste to prosím později.",
+    "NOT_FOUND": "Nenalezeno",
+    "UNAUTHORIZED": "Přihlaste se prosím znovu",
+    "INVALID_TOKEN": "Platnost přihlášení vypršela, přihlaste se prosím znovu",
+    "INVALID_REFRESH_TOKEN": "Platnost přihlášení vypršela, přihlaste se prosím znovu",
+    "INVALID_CREDENTIALS": "Nesprávný e-mail nebo heslo",
+    "INVALID_2FA_CODE": "Nesprávný kód 2FA",
+    "INVALID_PASSWORD": "Současné heslo je nesprávné",
+    "USER_EXISTS": "Uživatel s tímto e-mailem nebo jménem už existuje",
+    "USERNAME_TAKEN": "Toto uživatelské jméno je už obsazené",
+    "EMAIL_TAKEN": "Tento e-mail je už používán",
+    "USER_NOT_FOUND": "Uživatel nenalezen",
+    "CANNOT_FOLLOW_SELF": "Nemůžete sledovat sami sebe",
+    "COMMUNITY_NOT_FOUND": "Komunita nenalezena",
+    "PRIVATE_COMMUNITY": "Tato komunita je soukromá",
+    "OWNER_CANNOT_LEAVE": "Vlastník nemůže opustit vlastní komunitu",
+    "POST_NOT_FOUND": "Příspěvek nenalezen",
+    "FORBIDDEN": "K této akci nemáte oprávnění",
+    "INVALID_FILE_TYPE": "Povolené jsou pouze obrázky JPEG, PNG, GIF a WebP",
+    "TWO_FACTOR_ALREADY_ENABLED": "Dvoufázové ověření je už zapnuté",
+    "TWO_FACTOR_NOT_ENABLED": "Dvoufázové ověření je vypnuté",
+    "TWO_FACTOR_NOT_SET_UP": "Nejprve spusťte nastavení dvoufázového ověření",
+    "NOTHING_TO_UPDATE": "Není co uložit",
+    "PHOTO_REQUIRED": "Fotka komunity je povinná",
+    "CANNOT_MESSAGE_SELF": "Nemůžete psát sami sobě",
+    "EMPTY_MESSAGE": "Zpráva je prázdná",
+    "INVALID_ATTACHMENT": "Obrázek se nepodařilo odeslat, nahrajte ho prosím znovu",
+    "NOT_CONNECTED": "Chat není připojen, chvíli počkejte",
+    "TIMEOUT": "Server neodpověděl, zkuste to prosím znovu"
+  },
+  "common": {
+    "loading": "Načítání...",
+    "tryAgain": "Zkusit znovu",
+    "close": "Zavřít",
+    "privacy": {
+      "public": "Veřejná",
+      "private": "Soukromá"
+    },
+    "members": "{count, plural, one {{formatted} člen} few {{formatted} členové} other {{formatted} členů}}"
+  },
+  "nav": {
+    "explore": "Objevovat",
+    "myCommunity": "Moje komunity",
+    "events": "Události",
+    "settings": "Nastavení",
+    "popularTags": "Oblíbené štítky",
+    "podcasts": "Podcasty"
+  },
+  "header": {
+    "search": "Hledat",
+    "chat": "Zprávy",
+    "notifications": "Oznámení",
+    "myProfile": "Můj profil",
+    "logOut": "Odhlásit se",
+    "chatUnread": "Zprávy, máte nepřečtené"
+  },
+  "events": {
+    "title": "Moje události",
+    "loading": "Načítání událostí...",
+    "empty": "Zatím se neúčastníte žádné události.",
+    "joined": "{count, plural, one {Přidal se {formatted} člověk} few {Přidali se {formatted} lidé} other {Přidalo se {formatted} lidí}}"
+  },
+  "feed": {
+    "placeholder": "Sdílejte své myšlenky nebo příspěvek",
+    "uploadPhoto": "Nahrát fotku",
+    "uploadGif": "Nahrát GIF",
+    "emoji": "Vybrat emoji",
+    "removeImage": "Odebrat obrázek",
+    "maxImages": "Můžete přiložit nejvýše {max} obrázků",
+    "loading": "Načítání příspěvků...",
+    "empty": "Zatím žádné příspěvky. Buďte první!",
+    "loadingMore": "Načítání dalších...",
+    "loadMoreFailed": "Další příspěvky se nepodařilo načíst.",
+    "viewMore": "... Zobrazit více",
+    "viewLess": "Zobrazit méně",
+    "image": "Obrázek příspěvku",
+    "options": "Možnosti příspěvku",
+    "delete": "Smazat příspěvek"
+  },
+  "community": {
+    "create": "Vytvořit komunitu",
+    "loading": "Načítání komunit...",
+    "owned": "Vytvořené komunity",
+    "joined": "Moje komunity",
+    "leave": "Opustit",
+    "join": "Přidat se",
+    "empty": "Zatím nejste v žádné komunitě. Vytvořte si vlastní!",
+    "wizard": {
+      "step": "Krok {current} z {total}",
+      "back": "Zpět",
+      "continue": "Pokračovat",
+      "create": "Vytvořit",
+      "creating": "Vytváření...",
+      "goal": {
+        "title": "Jaký je váš cíl?",
+        "text": "Monetizace, propagace a další funkce komunity jsou k dispozici v každém případě.",
+        "blogTitle": "Sdílet obsah a komunikovat",
+        "blogText": "Veďte blog, místní komunitu, tvůrčí projekt nebo zájmovou skupinu.",
+        "businessTitle": "Rozvíjet podnikání",
+        "businessText": "Prodávejte produkty, poskytujte služby nebo propagujte organizaci či značku.",
+        "eventsTitle": "Uspořádat akci",
+        "eventsText": "Pořádejte koncert, přednášku, večírek, workshop nebo konferenci."
+      },
+      "name": {
+        "title": "Vyberte název",
+        "text": "Použijte slova, která vystihují myšlenku vaší komunity. Název můžete později změnit.",
+        "label": "Název komunity",
+        "placeholder": "Zadejte název",
+        "privacy": "Soukromí komunity"
+      },
+      "theme": {
+        "title": "Vyberte téma",
+        "text": "Volba nemá vliv na možnosti komunity. Téma můžete kdykoli změnit.",
+        "search": "Hledat téma"
+      },
+      "description": {
+        "title": "Napište popis",
+        "text": "Stručně popište svou komunitu. Popis můžete později upravit.",
+        "label": "Popis"
+      },
+      "photo": {
+        "title": "Přidejte fotku",
+        "text": "Nahrajte obrázek, který vaši komunitu vystihuje. Později ho můžete změnit.",
+        "add": "Přidat fotku",
+        "selected": "Vybráno: {name}",
+        "preview": "Vybraná fotka"
+      },
+      "counter": "{current}/{max}"
+    },
+    "themeGroups": {
+      "general": "",
+      "computer": "Počítače, internet",
+      "entertainment": "Zábava"
+    },
+    "themes": {
+      "business": "Podnikání",
+      "cooking": "Vaření a recepty",
+      "medicine": "Medicína",
+      "realEstate": "Nemovitosti",
+      "programming": "Programování",
+      "design": "Design",
+      "software": "Software",
+      "websites": "Webové stránky",
+      "animation": "Animace",
+      "games": "Hry",
+      "concerts": "Koncerty",
+      "humor": "Humor"
+    }
+  },
+  "search": {
+    "title": "Výsledky hledání pro „{query}“",
+    "filters": {
+      "all": "Vše",
+      "users": "Uživatelé",
+      "communities": "Komunity"
+    },
+    "searching": "Hledání...",
+    "nothing": "Nic nenalezeno.",
+    "user": "Uživatel"
+  },
+  "chat": {
+    "select": "Vyberte konverzaci a začněte psát",
+    "connecting": "Připojování...",
+    "noConversations": "Začněte někoho sledovat a můžete si psát.",
+    "loadingMessages": "Načítání zpráv...",
+    "empty": "Zatím žádné zprávy. Pozdravte!",
+    "loadEarlier": "Načíst starší zprávy",
+    "attach": "Přiložit obrázek",
+    "unread": "Nepřečtené zprávy",
+    "placeholder": "Napište zprávu...",
+    "attachedImage": "Přiložený obrázek",
+    "unknownUser": "Uživatel {id}",
+    "sending": "Odesílání...",
+    "notSent": "Neodesláno",
+    "retry": "Zkusit znovu",
+    "discard": "Zahodit zprávu"
+  },
+  "profile": {
+    "followers": "{count, plural, one {# sledující} few {# sledující} other {# sledujících}}",
+    "follow": "Přidat do přátel",
+    "unfollow": "Odebrat z přátel",
+    "sendMessage": "Poslat zprávu",
+    "edit": "Upravit profil",
+    "handle": "@{username} · {followers}"
+  },
+  "dates": {
+    "today": "Dnes",
+    "yesterday": "Včera"
+  }
+}

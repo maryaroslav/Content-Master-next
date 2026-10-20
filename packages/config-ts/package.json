@@ -1,0 +1,6 @@
+{
+  "name": "@cm/config-ts",
+  "version": "0.0.0",
+  "private": true,
+  "files": ["*.json"]
+}

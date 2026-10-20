@@ -1,0 +1,15 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "e2e"
+
+# Dependencies allowed to run install scripts (native builds / prebuilt binaries).
+onlyBuiltDependencies:
+  - bcrypt
+  - sharp
+  - unrs-resolver
+
+# @hookform/resolvers still declares react-hook-form ^7; v8 is needed for React Compiler support.
+peerDependencyRules:
+  allowedVersions:
+    "@hookform/resolvers>react-hook-form": "8.0.0-beta.4"

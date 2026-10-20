@@ -1,0 +1,193 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # On pull requests only the affected packages are checked; on main everything is.
+      - name: Resolve turbo filter
+        id: scope
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "filter=--filter=...[origin/${{ github.base_ref }}]" >> "$GITHUB_OUTPUT"
+          else
+            echo "filter=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - run: pnpm turbo run typecheck lint circular test build ${{ steps.scope.outputs.filter }}
+
+      # The tests create and drop their own database on this server; the secrets are CI-only throwaways.
+      - name: Integration tests
+        run: pnpm turbo run test:integration ${{ steps.scope.outputs.filter }}
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASS: root
+          DB_NAME: unused
+          JWT_SECRET: ci-only-jwt-secret-used-by-integration-tests
+          # Quoted: unquoted, YAML reads the all-zero key as the number 0.
+          TWOFA_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+
+      - run: pnpm knip
+
+      - run: pnpm syncpack lint
+
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - run: pnpm --filter @cm/e2e exec playwright install --with-deps chromium
+
+      # Builds the apps, then Playwright starts them on their own ports with a throwaway database.
+      - run: pnpm test:e2e
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASS: root
+          JWT_SECRET: ci-only-jwt-secret-used-by-integration-tests
+          TWOFA_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+          retention-days: 7
+
+  docker:
+    runs-on: ubuntu-latest
+    # Read by docker compose: the images built below, and the ports and origins the E2E tests expect.
+    # NODE_ENV=test only lifts the auth rate limits, which the suite exceeds by signing in many users from one address.
+    env:
+      API_IMAGE: content-master-api:ci
+      WEB_IMAGE: content-master-web:ci
+      MYSQL_ROOT_PASSWORD: root
+      DB_PASS: ci-only-db-password
+      JWT_SECRET: ci-only-jwt-secret-used-by-integration-tests
+      TWOFA_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      API_NODE_ENV: test
+      WEB_PORT: 3100
+      API_PORT: 5101
+      WEB_ORIGIN: http://localhost:3100
+      REALTIME_URL: http://localhost:5101
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build the API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          tags: ${{ env.API_IMAGE }}
+          load: true
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max
+
+      - name: Build the web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          tags: ${{ env.WEB_IMAGE }}
+          load: true
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+
+      - run: docker compose up --detach --no-build --wait --wait-timeout 180
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - run: pnpm --filter @cm/e2e exec playwright install --with-deps chromium
+
+      - run: pnpm --filter @cm/e2e exec playwright test
+        env:
+          CI: true
+          E2E_EXTERNAL: 1
+
+      - name: Container logs
+        if: failure()
+        run: docker compose logs --no-color
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-docker
+          path: e2e/playwright-report
+          retention-days: 7

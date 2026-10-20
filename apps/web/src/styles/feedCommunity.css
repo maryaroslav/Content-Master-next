@@ -1,0 +1,136 @@
+.feedcomunnity-grey {
+    flex-grow: 1;
+    background: #f4f4f4;
+    padding: 20px;
+}
+
+.feedcommunity-container {
+    display: flex;
+    flex-direction: column;
+    margin: 30px;
+    background-color: #fafafa;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+.button-feedcommunity {
+    display: flex;
+    margin-left: auto;
+    margin-top: 10px;
+    margin-bottom: 12px;
+}
+
+.button-feedcommunity button {
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #F3F3F3;
+    background: #479BD8;
+    padding: 10px 22px;
+}
+
+.feedcommunity-item-title {
+    margin-left: 16px;
+}
+
+
+.feedcommunity-item img {
+    height: 60px;
+    width: 60px;
+    border-radius: 10px;
+}
+
+.feedcommunity-item {
+    display: flex;
+    margin-bottom: 16px;
+    background-color: #ebebeb;
+    padding: 8px 25px 8px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.feedcommunity-item:hover {
+    background-color: #e7e7e7;
+}
+
+.feedcommunity-type,
+.feedcommunity-members {
+    font-size: 10px;
+    color: #A7A7A7;
+}
+
+.feedcommunity-type {
+    text-transform: uppercase;
+}
+
+.feedcommunity-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+}
+
+.feedcommunity-arrow img {
+    width: 20px;
+    height: 20px;
+    transform: rotate(0.75turn);
+}
+
+.feedcomunity-section-title {
+    margin: 20px 0px;
+    font-size: 20px;
+    text-align: left;
+}
+
+.feedcommunity-my-community-item {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+    overflow-x: auto;
+    max-height: 300px;
+    scrollbar-width: thin;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.my-community-item {
+  min-width: 300px;
+  max-width: 300px;
+  padding: 5px 20px 5px 10px;
+  box-sizing: border-box;
+}
+.feedcommunity-status {
+    padding: 20px;
+    text-align: center;
+    color: #6B6B6B;
+}
+
+.feedcommunity-status button,
+.feedcommunity-leave {
+    padding: 6px 14px;
+    border: 1px solid #CFCFCF;
+    border-radius: 12px;
+    background: #fff;
+    color: #10100E;
+    cursor: pointer;
+}
+
+.feedcommunity-leave {
+    align-self: center;
+    margin-left: auto;
+    margin-right: 16px;
+}
+
+.feedcommunity-leave:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.feedcommunity-error {
+    margin-bottom: 8px;
+    color: #D93025;
+    font-size: 14px;
+}
