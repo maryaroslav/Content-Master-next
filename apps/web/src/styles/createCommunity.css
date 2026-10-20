@@ -136,7 +136,7 @@
   border: none;
   border-radius: 10px;
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
-  font-family: "Poppins", serif;
+  font-family: var(--font-poppins), sans-serif;
   font-size: 13px;
   background-color: #E5E5E5;
 }
@@ -159,7 +159,7 @@
 
 .createcommunity-type-content select,
 .createcommunity-type-content select>option {
-  font-family: 'Poppins', sans-serif !important;
+  font-family: var(--font-poppins), sans-serif !important;
   background-color: #E5E5E5;
   border: none;
   color: #3C3C3C;
@@ -248,7 +248,7 @@
   padding: 10px;
   border: none;
   border-radius: 10px;
-  font-family: "Poppins", serif;
+  font-family: var(--font-poppins), sans-serif;
   font-size: 13px;
   background-color: #E5E5E5;
   resize: none;

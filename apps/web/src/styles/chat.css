@@ -158,7 +158,7 @@
     border: 0px;
     width: 100%;
     outline: none;
-    font-family: "Poppins", serif;
+    font-family: var(--font-poppins), sans-serif;
     color: #383838;
 }
 

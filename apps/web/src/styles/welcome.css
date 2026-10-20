@@ -1,7 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap');
-
 .body {
-    font-family: "Poppins", serif;
+    font-family: var(--font-poppins), sans-serif;
     background-color: #f4f4f4;
     overflow: hidden;
 }

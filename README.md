@@ -24,6 +24,7 @@ packages/
   auth/           client session: in-memory access token, refresh cookie, useAuth() (@cm/auth)
   realtime/       one app-wide Socket.IO connection with typed, validated events (@cm/realtime)
   forms/          useZodForm and server error mapping on react-hook-form (@cm/forms)
+  ui/             Material UI theme from the design tokens, components, Storybook (@cm/ui)
   env/            validated environment for the web app, runtime /env.js (@cm/env)
   config-ts/      shared tsconfig presets
   config-eslint/  shared ESLint configs
@@ -65,6 +66,7 @@ pnpm test                # unit and web component tests (no database)
 pnpm test:integration    # API tests against a throwaway MySQL database
 pnpm test:e2e            # Playwright against built apps on ports 3100/5101 and a throwaway database
 pnpm knip                # unused files, exports and dependencies
+pnpm --filter @cm/ui storybook   # component workshop on http://localhost:6006
 pnpm syncpack:check      # dependency version rules
 
 pnpm --filter @cm/api db:migrate | db:rollback | db:status

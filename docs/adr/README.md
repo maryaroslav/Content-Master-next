@@ -23,3 +23,4 @@ Each record states the context, the decision and its consequences. D1–D12 refe
 | 0017 | [React Compiler with react-hook-form 8](0017-react-compiler-rhf8.md) | Accepted |
 | 0018 | [Runtime configuration: /env.js and a request-time API proxy](0018-runtime-config.md) | Accepted |
 | 0019 | [Testing strategy](0019-testing-strategy.md) | Accepted |
+| 0020 | [@cm/ui: Material UI themed from the design-system tokens](0020-ui-package.md) | Accepted |

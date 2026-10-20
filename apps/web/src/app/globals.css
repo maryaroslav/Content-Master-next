@@ -1,22 +1,14 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap");
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
 }
 
+/* Until phase 10c moves every screen to @cm/ui, the old screens keep the white page and browser text size they were drawn for. */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: "Poppins", serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background: #ffffff;
+  font-size: 16px;
+  line-height: normal;
 }
 
 * {
