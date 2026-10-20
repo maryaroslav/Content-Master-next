@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Content Master is a social/community app (posts, communities, events, follows, private chat) being migrated from two separate projects into a pnpm + Turborepo monorepo on branch `migration/monorepo`. The step-by-step plan lives in `docs/MIGRATION_PLAN.md`, which is intentionally untracked and must not be committed. `Content Master SRS.docx` / `SDD.docx` are the original requirements and design documents.
+Content Master is a social/community app (posts, communities, events, follows, private chat) being migrated from two separate projects into a pnpm + Turborepo monorepo on branch `migration/monorepo`. The step-by-step plan lives in `docs/MIGRATION_PLAN.md`, which is intentionally untracked and must not be committed (only that file is excluded; `docs/adr/` is tracked). `Content Master SRS.docx` / `SDD.docx` are the requirements and design documents in Czech, rewritten for the current architecture in phase 8d; architecture decisions are recorded in `docs/adr/` (add a record for a new significant decision), and `README.md` / `CONTRIBUTING.md` are the entry points for people.
 
 - `apps/api` (`@cm/api`): Express 5 + Sequelize (MySQL 8) + Socket.IO, port 5001
 - `apps/web` (`@cm/web`): Next.js 16 App Router + React Compiler (`reactCompiler: true`) + `@cm/auth` + TanStack Query + next-intl, port 3000

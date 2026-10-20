@@ -30,7 +30,7 @@ export default function SearchResults({ query }: { query: string }) {
     const communities = filter === 'users' ? [] : data?.communities ?? [];
 
     return (
-        <div className="search-container">
+        <div className="search-results">
             <h1 className="search-title">{t('search.title', { query })}</h1>
             <div className="search-buttons-container">
                 {(['all', 'users', 'communities'] as const).map((value) => (
