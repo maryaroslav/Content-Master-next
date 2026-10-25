@@ -1,5 +1,4 @@
 import "./globals.css";
-import { UiProvider } from "@cm/ui";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import { Poppins } from "next/font/google";
 import Script from "next/script";
@@ -18,13 +17,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Script src="/env.js" strategy="beforeInteractive" />
         {/* enableCssLayer puts MUI's styles in a cascade layer, so the unlayered CSS of screens not yet migrated still wins. */}
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-          <UiProvider>
-            <NextIntlClientProvider>
-              <Providers>
-                {children}
-              </Providers>
-            </NextIntlClientProvider>
-          </UiProvider>
+          <NextIntlClientProvider>
+            <Providers>
+              {children}
+            </Providers>
+          </NextIntlClientProvider>
         </AppRouterCacheProvider>
       </body>
     </html>

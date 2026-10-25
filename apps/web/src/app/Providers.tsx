@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { isAxiosError } from "axios";
+import Link from "next/link";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { configureHttp } from "@cm/api-client";
 import { AuthProvider, authStore, getAccessToken, getFreshAccessToken, handleAuthFailure, refreshAccessToken, useAuth } from "@cm/auth";
 import { publicEnv } from "@cm/env";
 import { createRealtimeClient, RealtimeProvider } from "@cm/realtime";
+import { UiProvider } from "@cm/ui";
 
 configureHttp({
     getBaseUrl: () => publicEnv().API_URL,
@@ -44,10 +46,12 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     );
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-                <Realtime>{children}</Realtime>
-            </AuthProvider>
-        </QueryClientProvider>
+        <UiProvider linkComponent={Link}>
+            <QueryClientProvider client={queryClient}>
+                <AuthProvider>
+                    <Realtime>{children}</Realtime>
+                </AuthProvider>
+            </QueryClientProvider>
+        </UiProvider>
     );
 }

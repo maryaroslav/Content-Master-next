@@ -2,12 +2,14 @@ import type { ReactElement, ReactNode } from 'react';
 import { render, renderHook } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Link from 'next/link';
 import { NextIntlClientProvider } from 'next-intl';
 import { vi } from 'vitest';
 import type { User } from '@cm/api-client';
 import { getAuthLoginMockHandler } from '@cm/api-client/mocks';
 import { AuthProvider, login } from '@cm/auth';
 import { RealtimeProvider, type RealtimeClient } from '@cm/realtime';
+import { UiProvider } from '@cm/ui';
 import { formats, timeZone } from '@/i18n/formats';
 import cs from '../messages/cs.json';
 import en from '../messages/en.json';
@@ -45,13 +47,15 @@ interface Options {
 function providers({ locale = 'en', now, realtime = createTestRealtime().client }: Options = {}) {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
     const wrapper = ({ children }: { children: ReactNode }) => (
-        <QueryClientProvider client={queryClient}>
-            <NextIntlClientProvider locale={locale} messages={messages[locale]} timeZone={timeZone} formats={formats} now={now}>
-                <AuthProvider>
-                    <RealtimeProvider client={realtime} enabled>{children}</RealtimeProvider>
-                </AuthProvider>
-            </NextIntlClientProvider>
-        </QueryClientProvider>
+        <UiProvider linkComponent={Link}>
+            <QueryClientProvider client={queryClient}>
+                <NextIntlClientProvider locale={locale} messages={messages[locale]} timeZone={timeZone} formats={formats} now={now}>
+                    <AuthProvider>
+                        <RealtimeProvider client={realtime} enabled>{children}</RealtimeProvider>
+                    </AuthProvider>
+                </NextIntlClientProvider>
+            </QueryClientProvider>
+        </UiProvider>
     );
     return { queryClient, wrapper };
 }
