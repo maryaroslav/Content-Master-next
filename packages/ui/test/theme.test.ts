@@ -17,7 +17,7 @@ describe('MUI theme', () => {
 
     it('puts every colour and shadow token into palette.cm', () => {
         const keys = Object.keys(theme.colorSchemes.light!.palette.cm).sort();
-        expect(keys).toHaveLength(32);
+        expect(keys).toHaveLength(33);
         expect(keys).toEqual(expect.arrayContaining(['canvas', 'surfaceSunken', 'onPrimary', 'lilacLight', 'shadowMd']));
     });
 

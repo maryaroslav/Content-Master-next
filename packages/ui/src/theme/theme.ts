@@ -1,5 +1,6 @@
 import { createTheme, type Shadows, type TypographyStyle } from '@mui/material/styles';
 import { designTokens } from '../tokens/model';
+import { components } from './components';
 import { buildPalette } from './palette';
 
 const px = (value: string) => Number.parseFloat(value);
@@ -77,6 +78,7 @@ export const theme = createTheme({
         button: { ...variant('body-strong'), textTransform: 'none' },
     },
     components: {
+        ...components,
         MuiTypography: {
             defaultProps: {
                 // MUI renders subtitles as <h6>; here they are text styles, not headings.

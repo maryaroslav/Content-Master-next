@@ -1,6 +1,6 @@
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vite';
 import pkg from './package.json' with { type: 'json' };
 
 const external = [...Object.keys(pkg.peerDependencies), 'react/jsx-runtime', 'react/compiler-runtime'];
@@ -20,8 +20,5 @@ export default defineConfig({
             output: { banner: "'use client';" },
         },
         sourcemap: true,
-    },
-    test: {
-        include: ['test/**/*.test.{ts,tsx}'],
     },
 });

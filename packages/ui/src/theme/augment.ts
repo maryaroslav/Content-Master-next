@@ -34,6 +34,7 @@ export interface CmColors {
     lilacLight: string;
     amber: string;
     butter: string;
+    onIllustration: string;
     shadowSm: string;
     shadowMd: string;
     shadowLg: string;
@@ -89,6 +90,9 @@ declare module '@mui/material/styles' {
 declare module '@mui/material/Button' {
     interface ButtonPropsColorOverrides {
         ink: true;
+    }
+    interface ButtonPropsVariantOverrides {
+        soft: true;
     }
 }
 

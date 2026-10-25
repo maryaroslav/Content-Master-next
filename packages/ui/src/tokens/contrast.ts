@@ -14,6 +14,7 @@ const CONTRAST_PAIRS: { fg: string; on: string[]; min: number }[] = [
     { fg: 'border-control', on: ['surface', 'canvas'], min: 3 },
     { fg: 'focus', on: ['surface', 'canvas', 'surface-sunken'], min: 3 },
     { fg: 'accent-bright', on: ['surface'], min: 3 },
+    { fg: 'on-illustration', on: ['lilac', 'lilac-light', 'amber', 'butter'], min: 4.5 },
 ];
 
 function luminance(hex: string): number {

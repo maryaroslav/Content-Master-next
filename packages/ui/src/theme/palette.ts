@@ -22,7 +22,7 @@ export function buildPalette(scheme: Theme): PaletteOptions {
         background: { default: c('canvas'), paper: c('surface') },
         text: { primary: c('text'), secondary: c('text-muted') },
         divider: c('border'),
-        action: { hover: c('surface-hover'), selected: c('accent-soft') },
+        action: { hover: c('surface-hover'), selected: c('accent-soft'), disabled: c('text-muted'), disabledBackground: c('surface-sunken') },
         // Built from tokens.json at runtime; a test checks it has exactly the keys of CmColors.
         cm: {
             ...Object.fromEntries(designTokens.color.tokens.map((t) => [camel(t.name), c(t.name)])),
