@@ -18,4 +18,11 @@ export { PostComposer, type PostComposerLabels, type PostComposerProps } from '.
 export { UserMenu, type UserMenuItem, type UserMenuProps } from './components/UserMenu';
 export { Header, type HeaderProps } from './components/Header';
 export { NavTabs, type NavTabsProps } from './components/NavTabs';
-export { AppShell, AuthLayout, ChatLayout, SettingsLayout, type AppShellProps, type AuthLayoutProps, type ChatLayoutProps, type SettingsLayoutProps } from './components/layouts';
+export { AppShell, AuthLayout, ChatLayout, SettingsLayout, TabsBar, type AppShellProps, type AuthLayoutProps, type ChatLayoutProps, type SettingsLayoutProps } from './components/layouts';
+export { Icon, iconNames, type IconName, type IconProps } from './kit/icons';
+export { Card, Form, Stack, Tag, Typography, type CardProps, type FormProps, type Space, type StackProps, type TagProps, type TypographyProps } from './kit/primitives';
+export { ActionMenu, Button, IconButton, TextLink, type ActionMenuItem, type ActionMenuProps, type ButtonProps, type IconButtonProps, type TextLinkProps } from './kit/actions';
+export { Alert, ErrorState, LoadingState, type AlertProps, type ErrorStateProps, type LoadingStateProps } from './kit/feedback';
+export { EntityList, EntityRow, type EntityListProps, type EntityRowProps } from './kit/lists';
+export { ConfirmDialog, WizardDialog, type ConfirmDialogProps, type WizardDialogProps } from './kit/dialogs';
+export { ChoiceCard, ImagePicker, RadioList, type ChoiceCardProps, type ImagePickerProps, type RadioListGroup, type RadioListProps } from './kit/choices';

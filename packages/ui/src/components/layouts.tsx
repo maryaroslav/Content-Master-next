@@ -18,17 +18,23 @@ export interface AppShellProps {
 }
 
 /** Signed-in pages: header, section tabs, then three columns (the right one hides under md, both sides under sm). */
+// The three columns and their gaps; tabs and columns share this width so their left edges line up.
+const contentWidth = (t: Theme) => `calc(${t.size.sidebarWidth} * 2 + ${t.size.feedWidth} + ${t.spacing(12)})`;
+
+/** The white band under the header that holds the section tabs, aligned with the app shell's columns. */
+export function TabsBar({ children }: { children: ReactNode }) {
+    return (
+        <Box sx={{ bgcolor: 'background.paper', px: { xs: 4, sm: 6 } }}>
+            <Box sx={(t) => ({ maxWidth: contentWidth(t), mx: 'auto' })}>{children}</Box>
+        </Box>
+    );
+}
+
 export function AppShell({ header, tabs, start, startLabel, end, endLabel, children }: AppShellProps) {
-    // The three columns and their gaps; tabs and columns share this width so their left edges line up.
-    const contentWidth = (t: Theme) => `calc(${t.size.sidebarWidth} * 2 + ${t.size.feedWidth} + ${t.spacing(12)})`;
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
             {header}
-            {tabs ? (
-                <Box sx={{ bgcolor: 'background.paper', px: { xs: 4, sm: 6 } }}>
-                    <Box sx={(t) => ({ maxWidth: contentWidth(t), mx: 'auto' })}>{tabs}</Box>
-                </Box>
-            ) : null}
+            {tabs ? <TabsBar>{tabs}</TabsBar> : null}
             <Box
                 sx={(t) => ({
                     display: 'grid',

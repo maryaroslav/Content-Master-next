@@ -1,49 +1,48 @@
-"use client";
+'use client';
 
-import '@/styles/createCommunity.css'
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { getCommunitiesListOwnedQueryKey, getUsersMyCommunitiesQueryKey, useCommunitiesCreate } from '@cm/api-client';
 import { CreateCommunityRequestSchema, type CreateCommunityRequest } from '@cm/contracts';
-import { useTranslations } from 'next-intl';
 import { applyServerErrors, FormProvider, useZodForm } from '@cm/forms';
+import { WizardDialog } from '@cm/ui';
 import { useErrorText } from '@/i18n/useErrorText';
+import StepDescription from './StepDescript';
 import StepGoal from './StepGoal';
 import StepName from './StepName';
-import StepTwo from './StepTwo';
-import StepDescription from './StepDescript';
 import StepPhoto from './StepPhoto';
+import StepTheme from './StepTheme';
 
+const STEPS = 4;
 const stepFields: Record<number, (keyof CreateCommunityRequest)[]> = {
     2: ['name', 'privacy'],
     3: ['theme'],
     4: ['description'],
 };
+const stepKeys = { 1: 'goal', 2: 'name', 3: 'theme', 4: 'description', 5: 'photo' } as const;
+const defaultValues: CreateCommunityRequest = { name: '', privacy: 'public', theme: '', description: '' };
 
-interface ModalProps {
-    closeModal: () => void;
+interface CreateCommunityDialogProps {
+    open: boolean;
+    onClose: () => void;
 }
 
-const Modal = ({ closeModal }: ModalProps) => {
+export default function CreateCommunityDialog({ open, onClose }: CreateCommunityDialogProps) {
     const queryClient = useQueryClient();
     const t = useTranslations();
     const errorText = useErrorText();
     const [step, setStep] = useState(1);
     const [photo, setPhoto] = useState<File | null>(null);
-    const form = useZodForm(CreateCommunityRequestSchema, {
-        mode: 'onChange',
-        defaultValues: { name: '', privacy: 'public', theme: '', description: '' },
-    });
-    const { handleSubmit, trigger, setError, clearErrors, formState: { errors, isSubmitting } } = form;
+    const form = useZodForm(CreateCommunityRequestSchema, { mode: 'onChange', defaultValues });
+    const { handleSubmit, trigger, setError, clearErrors, reset, formState: { errors, isSubmitting } } = form;
     const { mutateAsync: create } = useCommunitiesCreate();
 
-    useEffect(() => {
-        const closeOnEscape = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') closeModal();
-        };
-        document.addEventListener('keydown', closeOnEscape);
-        return () => document.removeEventListener('keydown', closeOnEscape);
-    }, [closeModal]);
+    const startOver = () => {
+        reset(defaultValues);
+        setPhoto(null);
+        setStep(1);
+    };
 
     const nextStep = async () => {
         if (await trigger(stepFields[step] ?? [])) setStep(step + 1);
@@ -63,57 +62,38 @@ const Modal = ({ closeModal }: ModalProps) => {
             await create({ data: { ...data, description: data.description || undefined, photo } });
             void queryClient.invalidateQueries({ queryKey: getCommunitiesListOwnedQueryKey({ owner: 'me' }) });
             void queryClient.invalidateQueries({ queryKey: getUsersMyCommunitiesQueryKey() });
-            closeModal();
+            onClose();
         } catch (err) {
             applyServerErrors(setError, err, ['name', 'privacy', 'theme', 'description']);
         }
     });
 
-    const error = (stepFields[step] ?? []).map((field) => errorText.field(errors[field], field)).find(Boolean)
-        ?? errorText.form(errors.root?.server);
+    const key = stepKeys[step as keyof typeof stepKeys];
 
     return (
-        <div className="createcommunity-modal-overlay">
-            <div className="createcommunity-modal-content">
-                {step > 1 && (
-                    <h2 className='createcommunity-step'>{t('community.wizard.step', { current: step - 1, total: 4 })}</h2>
-                )}
-
-                <FormProvider {...form}>
-                    <div className="createcommunity-step-content">
-                        {step === 1 && <StepGoal onSelect={() => setStep(2)} />}
-                        {step === 2 && <StepName />}
-                        {step === 3 && <StepTwo />}
-                        {step === 4 && <StepDescription />}
-                        {step === 5 && <StepPhoto photo={photo} onChange={setPhoto} />}
-                    </div>
-                </FormProvider>
-
-                {error && <p className="createcommunity-error">{error}</p>}
-
-                <div className="createcommunity-modal-footer">
-                    {step > 1 && (
-                        <button className="createcommunity-button-back" onClick={prevStep}>{t('community.wizard.back')}</button>
-                    )}
-                    {step > 1 && step < 5 && (
-                        <button className="createcommunity-button-continue" onClick={() => void nextStep()}>{t('community.wizard.continue')}</button>
-                    )}
-                    {step === 5 && (
-                        <button className="createcommunity-button-create" onClick={() => void createCommunity()} disabled={isSubmitting}>
-                            {isSubmitting ? t('community.wizard.creating') : t('community.wizard.create')}
-                        </button>
-                    )}
-                </div>
-            </div>
-            <div className='community-modal-close-container'>
-                <button className="button community-modal-close" onClick={closeModal} aria-label={t('common.close')}>
-                    <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6.99486 7.00636C6.60433 7.39689 6.60433 8.03005 6.99486 8.42058L10.58 12.0057L6.99486 15.5909C6.60433 15.9814 6.60433 16.6146 6.99486 17.0051C7.38538 17.3956 8.01855 17.3956 8.40907 17.0051L11.9942 13.4199L15.5794 17.0051C15.9699 17.3956 16.6031 17.3956 16.9936 17.0051C17.3841 16.6146 17.3841 15.9814 16.9936 15.5909L13.4084 12.0057L16.9936 8.42059C17.3841 8.03007 17.3841 7.3969 16.9936 7.00638C16.603 6.61585 15.9699 6.61585 15.5794 7.00638L11.9942 10.5915L8.40907 7.00636C8.01855 6.61584 7.38538 6.61584 6.99486 7.00636Z" fill="#BDBDBD" />
-                    </svg>
-                </button>
-            </div>
-        </div>
+        <WizardDialog
+            open={open}
+            onClose={onClose}
+            onExited={startOver}
+            closeLabel={t('common.close')}
+            title={t(`community.wizard.${key}.title`)}
+            description={t(`community.wizard.${key}.text`)}
+            progress={step > 1 ? { current: step - 1, total: STEPS, label: t('community.wizard.step', { current: step - 1, total: STEPS }) } : undefined}
+            error={errorText.form(errors.root?.server)}
+            back={step > 1 ? { label: t('community.wizard.back'), onClick: prevStep } : undefined}
+            next={
+                step === 1 ? undefined
+                    : step < 5 ? { label: t('community.wizard.continue'), onClick: () => void nextStep() }
+                        : { label: t('community.wizard.create'), onClick: () => void createCommunity(), loading: isSubmitting }
+            }
+        >
+            <FormProvider {...form}>
+                {step === 1 && <StepGoal onSelect={() => setStep(2)} />}
+                {step === 2 && <StepName />}
+                {step === 3 && <StepTheme />}
+                {step === 4 && <StepDescription />}
+                {step === 5 && <StepPhoto photo={photo} onChange={setPhoto} />}
+            </FormProvider>
+        </WizardDialog>
     );
-};
-
-export default Modal;
+}

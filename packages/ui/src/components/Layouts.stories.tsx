@@ -26,6 +26,7 @@ import { SectionCard } from './SectionCard';
 import { TextField } from './TextField';
 import { UserAvatar } from './UserAvatar';
 import { UserMenu } from './UserMenu';
+import { Form, Stack } from '../kit/primitives';
 
 const meta = preview.meta({ title: 'Layouts', parameters: { layout: 'fullscreen' } });
 
@@ -88,12 +89,12 @@ export const Auth = meta.story({
     name: 'AuthLayout',
     render: () => (
         <AuthLayout title="Sign in to your account">
-            <form noValidate>
-                <TextField label="Email" type="email" size="large" placeholder="name@example.com" sx={{ mb: 4 }} />
-                <TextField label="Password" type="password" size="large" sx={{ mb: 4 }} />
-                <Alert severity="error" sx={{ mb: 4 }}>Invalid email or password.</Alert>
+            <Form onSubmit={(e) => e.preventDefault()}>
+                <TextField label="Email" type="email" size="large" placeholder="name@example.com" />
+                <TextField label="Password" type="password" size="large" />
+                <Alert severity="error">Invalid email or password.</Alert>
                 <Button type="submit" size="large" fullWidth>Sign in</Button>
-            </form>
+            </Form>
             <Typography variant="body2" color="text.secondary">Don’t have an account? <Link href="#register">Create account</Link></Typography>
         </AuthLayout>
     ),
@@ -127,13 +128,17 @@ export const Settings = meta.story({
     render: () => (
         <SettingsLayout title="Settings">
             <SectionCard title="Account" description="Signed in as alex_demo@demo.test">
-                <TextField label="New email" type="email" sx={{ maxWidth: 400, mb: 4 }} />
-                <TextField label="Current password" type="password" sx={{ maxWidth: 400, mb: 4 }} />
-                <Button>Change email</Button>
+                <Form onSubmit={(e) => e.preventDefault()}>
+                    <TextField label="New email" type="email" />
+                    <TextField label="Current password" type="password" />
+                    <Button type="submit">Change email</Button>
+                </Form>
             </SectionCard>
             <SectionCard title="Two-factor authentication" action={<Chip label="On" color="success" />}>
-                <Alert severity="success" sx={{ mb: 4 }}>Signing in asks for a code from your authenticator app.</Alert>
-                <Button variant="soft">Turn off</Button>
+                <Stack gap={4} align="start">
+                    <Alert severity="success">Signing in asks for a code from your authenticator app.</Alert>
+                    <Button variant="soft">Turn off</Button>
+                </Stack>
             </SectionCard>
         </SettingsLayout>
     ),

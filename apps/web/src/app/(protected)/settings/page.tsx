@@ -1,5 +1,5 @@
-import Box from '@mui/material/Box';
 import AppHeader from '@/components/shell/AppHeader';
+import { TabsBar } from '@cm/ui';
 import AppNavTabs from '@/components/shell/AppNavTabs';
 import LanguageSwitcher from '@/components/language/LanguageSwitcher';
 import AccountSettings from './components/AccountSettings';
@@ -12,9 +12,9 @@ export default function SettingsPage() {
     return (
         <div>
             <AppHeader />
-            <Box sx={{ bgcolor: 'background.paper', px: { xs: 4, sm: 6 } }}>
+            <TabsBar>
                 <AppNavTabs />
-            </Box>
+            </TabsBar>
             <div className="settings-container">
                 <ProfileSettings />
                 <AccountSettings />

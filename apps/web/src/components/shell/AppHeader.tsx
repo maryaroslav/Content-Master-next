@@ -1,13 +1,10 @@
 'use client';
 
-import SmsRounded from '@mui/icons-material/SmsRounded';
-import Badge from '@mui/material/Badge';
-import IconButton from '@mui/material/IconButton';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { logout, useAuth } from '@cm/auth';
 import { SearchQuerySchema } from '@cm/contracts';
-import { Header, SearchField, UserMenu } from '@cm/ui';
+import { Header, IconButton, SearchField, UserMenu } from '@cm/ui';
 import { useUnread } from '@/chat/chatCache';
 
 export default function AppHeader() {
@@ -27,11 +24,7 @@ export default function AppHeader() {
             search={<SearchField placeholder={t('search')} onSearch={search} />}
             actions={
                 <>
-                    <IconButton href="/chat" aria-label={hasUnread ? t('chatUnread') : t('chat')}>
-                        <Badge variant="dot" overlap="circular" invisible={!hasUnread}>
-                            <SmsRounded />
-                        </Badge>
-                    </IconButton>
+                    <IconButton href="/chat" icon="messages" label={hasUnread ? t('chatUnread') : t('chat')} dot={hasUnread} />
                     {user && (
                         <UserMenu
                             user={{ username: user.username, avatar: user.profilePicture }}

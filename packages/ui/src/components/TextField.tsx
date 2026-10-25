@@ -1,12 +1,16 @@
 import FormControl from '@mui/material/FormControl';
+import InputAdornment from '@mui/material/InputAdornment';
 import FormHelperText from '@mui/material/FormHelperText';
 import FormLabel from '@mui/material/FormLabel';
 import OutlinedInput, { type OutlinedInputProps } from '@mui/material/OutlinedInput';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useId, useState, type ChangeEvent, type ReactNode, type Ref } from 'react';
+import { Icon, type IconName } from '../kit/icons';
 
-export interface TextFieldProps extends Omit<OutlinedInputProps, 'error' | 'size' | 'inputRef' | 'ref' | 'label'> {
+export interface TextFieldProps extends Omit<OutlinedInputProps, 'error' | 'size' | 'inputRef' | 'ref' | 'label' | 'sx' | 'style' | 'className' | 'startAdornment' | 'endAdornment' | 'slotProps' | 'slots' | 'inputComponent'> {
+    /** An icon at the start of the field, e.g. search. */
+    icon?: IconName;
     label?: ReactNode;
     hint?: ReactNode;
     /** The message shown under the field; the field is invalid while it is set. */
@@ -21,7 +25,7 @@ export interface TextFieldProps extends Omit<OutlinedInputProps, 'error' | 'size
 }
 
 /** MUI's TextField floats the label inside the outline; the design system puts it above, with a hint, an error and a counter. */
-export function TextField({ label, hint, error, size = 'medium', maxLength, showCount, code, ref, id, onChange, inputProps, sx, fullWidth = !code, ...rest }: TextFieldProps) {
+export function TextField({ label, hint, error, size = 'medium', maxLength, showCount, code, icon, ref, id, onChange, inputProps, fullWidth = !code, ...rest }: TextFieldProps) {
     const generated = useId();
     const inputId = id ?? generated;
     const [length, setLength] = useState(() => String(rest.value ?? rest.defaultValue ?? '').length);
@@ -34,7 +38,7 @@ export function TextField({ label, hint, error, size = 'medium', maxLength, show
     };
 
     return (
-        <FormControl error={Boolean(error)} fullWidth={fullWidth} sx={sx}>
+        <FormControl error={Boolean(error)} fullWidth={fullWidth}>
             {(label || showCount) && (
                 <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'baseline', mb: 1 }}>
                     {label ? <FormLabel htmlFor={inputId}>{label}</FormLabel> : <span />}
@@ -48,6 +52,7 @@ export function TextField({ label, hint, error, size = 'medium', maxLength, show
                 id={inputId}
                 inputRef={ref}
                 onChange={handleChange}
+                startAdornment={icon ? <InputAdornment position="start"><Icon name={icon} color="muted" /></InputAdornment> : undefined}
                 sx={(theme) => ({
                     '& .MuiOutlinedInput-input': {
                         ...(size === 'large' ? { py: '13px' } : null),

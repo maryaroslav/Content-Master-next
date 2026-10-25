@@ -1,16 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import ListItemText from '@mui/material/ListItemText';
-import Typography from '@mui/material/Typography';
 import { useTranslations } from 'next-intl';
 import { useUsersMyCommunities, useUsersMyEvents } from '@cm/api-client';
-import { SectionCard } from '@cm/ui';
+import { Button, EntityList, EntityRow, SectionCard } from '@cm/ui';
 import { useCompactNumber } from '@/i18n/useCompactNumber';
 import { useDateText } from '@/i18n/useDateText';
 
@@ -27,7 +20,7 @@ export default function MainSidebar() {
     const [allEvents, setAllEvents] = useState(false);
 
     const toggle = (count: number, shown: number, all: boolean, setAll: (all: boolean) => void) => count > shown ? (
-        <Button variant="text" size="small" onClick={() => setAll(!all)} aria-expanded={all} sx={{ ml: 1 }}>
+        <Button variant="ghost" size="small" onClick={() => setAll(!all)} aria-expanded={all}>
             {t(all ? 'nav.showLess' : 'nav.showAll')}
         </Button>
     ) : null;
@@ -35,49 +28,33 @@ export default function MainSidebar() {
     return (
         <>
             <SectionCard title={t('nav.myCommunity')} href="/community" flush>
-                <List aria-label={t('nav.myCommunity')}>
+                <EntityList label={t('nav.myCommunity')}>
                     {(allCommunities ? communities : communities.slice(0, COMMUNITIES_SHOWN)).map((community) => (
-                        <ListItem key={community.id} sx={{ gap: 3, px: 3 }}>
-                            <ListItemAvatar>
-                                <Avatar variant="rounded" src={community.photo} alt="" sx={{ width: 48, height: 48 }} />
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary={community.name}
-                                secondary={
-                                    <>
-                                        <Typography component="span" variant="overline" color="text.secondary" sx={{ display: 'block', lineHeight: '16px' }}>
-                                            {t(community.privacy === 'private' ? 'common.privacy.private' : 'common.privacy.public')}
-                                        </Typography>
-                                        {t('common.members', { count: community.membersCount, formatted: compact(community.membersCount) })}
-                                    </>
-                                }
-                                slotProps={{ secondary: { component: 'span' } }}
-                            />
-                        </ListItem>
+                        <EntityRow
+                            key={community.id}
+                            image={community.photo}
+                            overline={t(community.privacy === 'private' ? 'common.privacy.private' : 'common.privacy.public')}
+                            title={community.name}
+                            meta={t('common.members', { count: community.membersCount, formatted: compact(community.membersCount) })}
+                        />
                     ))}
-                </List>
+                </EntityList>
                 {toggle(communities.length, COMMUNITIES_SHOWN, allCommunities, setAllCommunities)}
             </SectionCard>
             <SectionCard title={t('nav.events')} href="/events" flush>
-                <List aria-label={t('nav.events')}>
+                <EntityList label={t('nav.events')}>
                     {(allEvents ? events : events.slice(0, EVENTS_SHOWN)).map((event) => (
-                        <ListItem key={event.id} sx={{ gap: 3, px: 3 }}>
-                            <ListItemAvatar>
-                                <Avatar variant="rounded" src={event.image} alt="" sx={{ width: 48, height: 48 }} />
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary={event.title}
-                                secondary={
-                                    <>
-                                        <time dateTime={event.createdAt} style={{ display: 'block' }}>{dates.date(event.createdAt)}</time>
-                                        {t('events.joined', { count: event.membersCount ?? 0, formatted: compact(event.membersCount ?? 0) })}
-                                    </>
-                                }
-                                slotProps={{ secondary: { component: 'span' } }}
-                            />
-                        </ListItem>
+                        <EntityRow
+                            key={event.id}
+                            image={event.image}
+                            title={event.title}
+                            meta={[
+                                <time key="date" dateTime={event.createdAt}>{dates.date(event.createdAt)}</time>,
+                                t('events.joined', { count: event.membersCount ?? 0, formatted: compact(event.membersCount ?? 0) }),
+                            ]}
+                        />
                     ))}
-                </List>
+                </EntityList>
                 {toggle(events.length, EVENTS_SHOWN, allEvents, setAllEvents)}
             </SectionCard>
         </>

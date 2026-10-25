@@ -211,13 +211,12 @@
     "joined": "My communities",
     "leave": "Leave",
     "join": "Join",
-    "empty": "You are not in any community yet. Create one!",
+    "empty": "You are not in any community yet",
     "wizard": {
       "step": "Step {current} of {total}",
       "back": "Back",
       "continue": "Continue",
       "create": "Create",
-      "creating": "Creating...",
       "goal": {
         "title": "What is your goal?",
         "text": "Monetization, promotion, and other community features are available in any case.",
@@ -232,13 +231,13 @@
         "title": "Choose a name",
         "text": "Use words that reflect the idea of your community. You can change the name later.",
         "label": "Community name",
-        "placeholder": "Enter a name",
         "privacy": "Community privacy"
       },
       "theme": {
         "title": "Choose a theme",
         "text": "The choice does not affect the community's capabilities. You can change the theme at any time.",
-        "search": "Search for a theme"
+        "search": "Search for a theme",
+        "label": "Theme"
       },
       "description": {
         "title": "Choose a description",
@@ -249,8 +248,8 @@
         "title": "Add a photo",
         "text": "Upload an image that represents your community. You can change it later.",
         "add": "Add photo",
-        "selected": "Selected: {name}",
-        "preview": "Selected photo"
+        "preview": "Selected photo",
+        "change": "Change photo"
       },
       "counter": "{current}/{max}"
     },
@@ -272,7 +271,9 @@
       "games": "Games",
       "concerts": "Concerts",
       "humor": "Humor"
-    }
+    },
+    "emptyText": "Create one, or join communities from search.",
+    "ownedEmpty": "You have not created a community yet."
   },
   "search": {
     "title": "Search results for “{query}”",

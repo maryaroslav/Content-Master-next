@@ -211,13 +211,12 @@
     "joined": "Moje komunity",
     "leave": "Opustit",
     "join": "Přidat se",
-    "empty": "Zatím nejste v žádné komunitě. Vytvořte si vlastní!",
+    "empty": "Zatím nejste v žádné komunitě",
     "wizard": {
       "step": "Krok {current} z {total}",
       "back": "Zpět",
       "continue": "Pokračovat",
       "create": "Vytvořit",
-      "creating": "Vytváření...",
       "goal": {
         "title": "Jaký je váš cíl?",
         "text": "Monetizace, propagace a další funkce komunity jsou k dispozici v každém případě.",
@@ -232,13 +231,13 @@
         "title": "Vyberte název",
         "text": "Použijte slova, která vystihují myšlenku vaší komunity. Název můžete později změnit.",
         "label": "Název komunity",
-        "placeholder": "Zadejte název",
         "privacy": "Soukromí komunity"
       },
       "theme": {
         "title": "Vyberte téma",
         "text": "Volba nemá vliv na možnosti komunity. Téma můžete kdykoli změnit.",
-        "search": "Hledat téma"
+        "search": "Hledat téma",
+        "label": "Téma"
       },
       "description": {
         "title": "Napište popis",
@@ -249,8 +248,8 @@
         "title": "Přidejte fotku",
         "text": "Nahrajte obrázek, který vaši komunitu vystihuje. Později ho můžete změnit.",
         "add": "Přidat fotku",
-        "selected": "Vybráno: {name}",
-        "preview": "Vybraná fotka"
+        "preview": "Vybraná fotka",
+        "change": "Změnit fotku"
       },
       "counter": "{current}/{max}"
     },
@@ -272,7 +271,9 @@
       "games": "Hry",
       "concerts": "Koncerty",
       "humor": "Humor"
-    }
+    },
+    "emptyText": "Vytvořte si vlastní nebo se přidejte ke komunitám z vyhledávání.",
+    "ownedEmpty": "Zatím jste žádnou komunitu nevytvořili."
   },
   "search": {
     "title": "Výsledky hledání pro „{query}“",

@@ -1,36 +1,35 @@
 import { useTranslations } from 'next-intl';
-import { useFormContext } from '@cm/forms';
 import type { CreateCommunityRequest } from '@cm/contracts';
+import { useFormContext } from '@cm/forms';
+import { SelectField, TextField } from '@cm/ui';
+import { useErrorText } from '@/i18n/useErrorText';
 
 const NAME_LIMIT = 48;
 
-const StepName = () => {
+export default function StepName() {
     const t = useTranslations();
-    const { register, watch } = useFormContext<CreateCommunityRequest>();
-    const name = watch('name') ?? '';
-
+    const errorText = useErrorText();
+    const { register, watch, setValue, formState: { errors } } = useFormContext<CreateCommunityRequest>();
     return (
-        <div>
-            <div className='createcommunity-title'>
-                <h1>{t('community.wizard.name.title')}</h1>
-                <p>{t('community.wizard.name.text')}</p>
-            </div>
-            <div className="createcommunity-type-content">
-                <form onSubmit={(e) => e.preventDefault()}>
-                    <div className='type-content-name-counter'>
-                        <label htmlFor="community-name">{t('community.wizard.name.label')}</label>
-                        <p>{t('community.wizard.counter', { current: name.length, max: NAME_LIMIT })}</p>
-                    </div>
-                    <input id="community-name" type="text" placeholder={t('community.wizard.name.placeholder')} maxLength={NAME_LIMIT} {...register('name')} />
-                    <label htmlFor="community-privacy">{t('community.wizard.name.privacy')}</label>
-                    <select id="community-privacy" {...register('privacy')}>
-                        <option value="public">{t('common.privacy.public')}</option>
-                        <option value="private">{t('common.privacy.private')}</option>
-                    </select>
-                </form>
-            </div>
-        </div>
+        <>
+            <TextField
+                label={t('community.wizard.name.label')}
+                maxLength={NAME_LIMIT}
+                showCount
+                autoFocus
+                error={errorText.field(errors.name, 'name')}
+                {...register('name')}
+            />
+            <SelectField
+                label={t('community.wizard.name.privacy')}
+                value={watch('privacy')}
+                onChange={(e) => setValue('privacy', e.target.value as CreateCommunityRequest['privacy'], { shouldValidate: true })}
+                error={errorText.field(errors.privacy, 'privacy')}
+                options={[
+                    { value: 'public', label: t('common.privacy.public') },
+                    { value: 'private', label: t('common.privacy.private') },
+                ]}
+            />
+        </>
     );
 }
-
-export default StepName;
