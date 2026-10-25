@@ -63,10 +63,45 @@ async function withRefreshLock<T>(refresh: () => Promise<T>): Promise<T> {
     return locks ? await locks.request('cm-auth-refresh', refresh) : refresh();
 }
 
+// Only the server's logout response can delete the httpOnly refresh cookie. When that request fails,
+// this flag (shared by the tabs) stops the cookie from restoring the session until a logout gets through.
+const PENDING_LOGOUT = 'cm-auth-logout-pending';
+
+function setLogoutPending(pending: boolean): void {
+    try {
+        if (pending) localStorage.setItem(PENDING_LOGOUT, '1');
+        else localStorage.removeItem(PENDING_LOGOUT);
+    } catch {
+        // No storage (private mode, server): the flag cannot outlive this page.
+    }
+}
+
+function isLogoutPending(): boolean {
+    try {
+        return localStorage.getItem(PENDING_LOGOUT) === '1';
+    } catch {
+        return false;
+    }
+}
+
+async function sendLogout(): Promise<void> {
+    try {
+        await authLogout();
+        setLogoutPending(false);
+    } catch {
+        setLogoutPending(true);
+    }
+}
+
 let refreshing: Promise<string | null> | null = null;
 
 export function refreshAccessToken(): Promise<string | null> {
     refreshing ??= withRefreshLock(async () => {
+        if (isLogoutPending()) {
+            await sendLogout();
+            clearSession();
+            return null;
+        }
         try {
             const session = await authRefresh();
             applySession(session);
@@ -98,17 +133,23 @@ export async function getFreshAccessToken(): Promise<string | null> {
     return refreshAccessToken();
 }
 
+// A login replaces the refresh cookie, so an unfinished logout no longer matters.
+function startSession(session: AuthSession): void {
+    setLogoutPending(false);
+    applySession(session);
+}
+
 export async function login(credentials: LoginRequest): Promise<LoginResult> {
     const result = await authLogin(credentials);
     if ('twoFactorRequired' in result) return { status: 'twoFactorRequired', challengeToken: result.challengeToken };
 
-    applySession(result);
+    startSession(result);
     channel?.postMessage('login');
     return { status: 'authenticated' };
 }
 
 export async function loginWithTwoFactor(input: TwoFactorLoginRequest): Promise<void> {
-    applySession(await authTwoFactorLogin(input));
+    startSession(await authTwoFactorLogin(input));
     channel?.postMessage('login');
 }
 
@@ -117,13 +158,11 @@ export async function register(input: RegisterRequest): Promise<LoginResult> {
     return login({ email: input.email, password: input.password });
 }
 
+// Never rejects: the local session ends and the other tabs are told even when the request fails.
 export async function logout(): Promise<void> {
-    try {
-        await authLogout();
-    } finally {
-        clearSession();
-        channel?.postMessage('logout');
-    }
+    await sendLogout();
+    clearSession();
+    channel?.postMessage('logout');
 }
 
 export function updateUser(user: User): void {

@@ -4,7 +4,7 @@ import { getChatMessagesMockHandler } from '@cm/api-client/mocks';
 import type { Ack, ChatMessage } from '@cm/contracts';
 import ChatWindow from '@/app/(protected)/chat/components/ChatWindow';
 import ChatRealtime from '@/chat/ChatRealtime';
-import HeaderMain from '@/components/headers/HeaderMain';
+import AppHeader from '@/components/shell/AppHeader';
 import { me, message } from './fixtures';
 import { createTestRealtime, renderWithProviders, signIn } from './render';
 import { server } from './server';
@@ -60,7 +60,7 @@ describe('chat', () => {
     it('lights the header dot when a message arrives on another page', async () => {
         await signIn();
         const realtime = createTestRealtime();
-        renderWithProviders(<><ChatRealtime /><HeaderMain /></>, { realtime: realtime.client });
+        renderWithProviders(<><ChatRealtime /><AppHeader /></>, { realtime: realtime.client });
         expect(screen.getByRole('link', { name: 'Messages' })).toBeInTheDocument();
 
         realtime.deliver('message:new', message(13, 2, me.id, 'ping'));

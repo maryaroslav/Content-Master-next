@@ -7,7 +7,7 @@ const fontSizes = { xs: 10, sm: 12, md: 14, lg: 18, xl: 32 } as const;
 export interface UserAvatarProps {
     name: string;
     src?: string | null;
-    /** Background behind the initials, usually one of the illustration colours (`cm.lilac`, `cm.amber`, ...). */
+    /** Background behind the initials; defaults to avatarColor(name). */
     color?: string;
     size?: keyof typeof sizes;
     /** Square corners, for communities. */
@@ -15,6 +15,15 @@ export interface UserAvatarProps {
     unread?: boolean;
     /** Hide from screen readers when the name is written next to the avatar anyway. */
     decorative?: boolean;
+}
+
+const illustrationColors = ['cm.lilac', 'cm.amber', 'cm.lilacLight', 'cm.butter'];
+
+/** A stable illustration colour per name, so a person keeps the same avatar colour everywhere. */
+export function avatarColor(name: string): string {
+    let hash = 0;
+    for (const char of name) hash = (hash * 31 + char.codePointAt(0)!) >>> 0;
+    return illustrationColors[hash % illustrationColors.length]!;
 }
 
 export function initials(name: string): string {
@@ -32,7 +41,7 @@ export function UserAvatar({ name, src, color, size = 'md', square, unread, deco
                 width: sizes[size],
                 height: sizes[size],
                 fontSize: fontSizes[size],
-                ...(color ? { bgcolor: color, color: 'cm.onIllustration' } : null),
+                ...(src ? null : { bgcolor: color ?? avatarColor(name), color: 'cm.onIllustration' }),
             }}
         >
             {src ? null : initials(name)}

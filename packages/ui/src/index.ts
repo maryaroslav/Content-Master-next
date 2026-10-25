@@ -7,7 +7,7 @@ export { TextField, type TextFieldProps } from './components/TextField';
 export { SelectField, type SelectFieldProps } from './components/SelectField';
 export { SearchField, type SearchFieldProps } from './components/SearchField';
 export { Logo, LogoMark, type LogoProps } from './components/Logo';
-export { UserAvatar, initials, type UserAvatarProps } from './components/UserAvatar';
+export { UserAvatar, avatarColor, initials, type UserAvatarProps } from './components/UserAvatar';
 export { SectionCard, type SectionCardProps } from './components/SectionCard';
 export { EmptyState, type EmptyStateProps } from './components/EmptyState';
 export { DaySeparator } from './components/DaySeparator';

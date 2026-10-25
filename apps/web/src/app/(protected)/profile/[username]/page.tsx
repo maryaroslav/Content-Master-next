@@ -1,4 +1,4 @@
-import HeaderMain from '@/components/headers/HeaderMain';
+import AppHeader from '@/components/shell/AppHeader';
 import ProfileView from './components/ProfileView';
 
 import '@/styles/profileUser.css';
@@ -7,7 +7,7 @@ export default async function ProfilePage({ params }: PageProps<'/profile/[usern
     const { username } = await params;
     return (
         <div>
-            <HeaderMain />
+            <AppHeader />
             <ProfileView username={username} />
         </div>
     );

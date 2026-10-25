@@ -51,9 +51,17 @@ async function loadSession() {
     return import('../src/session.js');
 }
 
+const storage = new Map<string, string>();
+
 beforeEach(() => {
     vi.resetAllMocks();
     lockRequests.length = 0;
+    storage.clear();
+    vi.stubGlobal('localStorage', {
+        getItem: (key: string) => storage.get(key) ?? null,
+        setItem: (key: string, value: string) => void storage.set(key, value),
+        removeItem: (key: string) => void storage.delete(key),
+    });
     vi.stubGlobal('BroadcastChannel', FakeChannel);
     vi.stubGlobal('navigator', {
         locks: {
@@ -166,10 +174,51 @@ describe('logout', () => {
         mocked.authLogout.mockRejectedValue(new Error('offline'));
         await auth.login({ email: 'alice@example.com', password: 'password123' });
 
-        await expect(auth.logout()).rejects.toThrow('offline');
+        await expect(auth.logout()).resolves.toBeUndefined();
         expect(auth.authStore.getState()).toEqual({ status: 'unauthenticated', user: null });
         expect(auth.getAccessToken()).toBeNull();
         expect(otherTabs().posted).toEqual(['login', 'logout']);
+    });
+
+    it('does not restore the session from a cookie whose logout did not reach the server', async () => {
+        const auth = await loadSession();
+        mocked.authLogin.mockResolvedValue(session('token-1'));
+        mocked.authLogout.mockRejectedValueOnce(new Error('offline'));
+        await auth.login({ email: 'alice@example.com', password: 'password123' });
+        await auth.logout();
+
+        // The next page load: the logout is sent again instead of using the cookie.
+        const reloaded = await loadSession();
+        mocked.authLogout.mockResolvedValueOnce(undefined as never);
+        await expect(reloaded.refreshAccessToken()).resolves.toBeNull();
+        expect(mocked.authRefresh).not.toHaveBeenCalled();
+        expect(mocked.authLogout).toHaveBeenCalledTimes(2);
+        expect(reloaded.authStore.getState().status).toBe('unauthenticated');
+
+        // Once the server confirmed the logout, a later restore uses the cookie as usual.
+        mocked.authRefresh.mockResolvedValue(session('token-2'));
+        await expect(reloaded.refreshAccessToken()).resolves.toBe('token-2');
+    });
+
+    it('keeps refusing the cookie while the logout keeps failing', async () => {
+        const auth = await loadSession();
+        mocked.authLogout.mockRejectedValue(new Error('offline'));
+        await auth.logout();
+
+        await expect(auth.refreshAccessToken()).resolves.toBeNull();
+        await expect(auth.refreshAccessToken()).resolves.toBeNull();
+        expect(mocked.authRefresh).not.toHaveBeenCalled();
+    });
+
+    it('forgets an unfinished logout after a new login', async () => {
+        const auth = await loadSession();
+        mocked.authLogout.mockRejectedValue(new Error('offline'));
+        await auth.logout();
+        mocked.authLogin.mockResolvedValue(session('token-1'));
+        await auth.login({ email: 'alice@example.com', password: 'password123' });
+
+        mocked.authRefresh.mockResolvedValue(session('token-2'));
+        await expect(auth.refreshAccessToken()).resolves.toBe('token-2');
     });
 
     it('follows a logout in another tab', async () => {

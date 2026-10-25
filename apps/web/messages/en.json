@@ -160,19 +160,24 @@
   },
   "nav": {
     "explore": "Explore",
-    "myCommunity": "My Community",
+    "myCommunity": "My communities",
     "events": "Events",
     "settings": "Settings",
-    "popularTags": "Popular Tags",
-    "podcasts": "Podcasts"
+    "popularTags": "Popular tags",
+    "podcasts": "Podcasts",
+    "label": "Sections",
+    "sidebar": "Your communities and events",
+    "discover": "Discover",
+    "showAll": "Show all",
+    "showLess": "Show less"
   },
   "header": {
     "search": "Search",
     "chat": "Messages",
-    "notifications": "Notifications",
     "myProfile": "My profile",
     "logOut": "Log out",
-    "chatUnread": "Messages, you have unread ones"
+    "chatUnread": "Messages, you have unread ones",
+    "home": "Content Master, home"
   },
   "events": {
     "title": "My events",

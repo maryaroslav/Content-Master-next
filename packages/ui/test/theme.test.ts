@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { avatarColor, initials } from '../src/components/UserAvatar';
 import { theme } from '../src/theme/theme';
 import { resolveColor } from '../src/tokens/model';
 
@@ -42,5 +43,18 @@ describe('MUI theme', () => {
         expect(theme.shadows[0]).toBe('none');
         expect(theme.shadows[8]).toBe('var(--mui-palette-cm-shadowMd)');
         expect(theme.shadows[24]).toBe('var(--mui-palette-cm-shadowLg)');
+    });
+});
+
+describe('UserAvatar helpers', () => {
+    it('takes initials from the words of a name or username', () => {
+        expect(initials('Tomáš Král')).toBe('TK');
+        expect(initials('alex_demo')).toBe('AD');
+        expect(initials('')).toBe('?');
+    });
+
+    it('gives a name the same illustration colour every time', () => {
+        expect(avatarColor('alex_demo')).toBe(avatarColor('alex_demo'));
+        expect(['cm.lilac', 'cm.amber', 'cm.lilacLight', 'cm.butter']).toContain(avatarColor('tomas.dev'));
     });
 });

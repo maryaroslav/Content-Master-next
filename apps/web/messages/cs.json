@@ -164,15 +164,20 @@
     "events": "Události",
     "settings": "Nastavení",
     "popularTags": "Oblíbené štítky",
-    "podcasts": "Podcasty"
+    "podcasts": "Podcasty",
+    "label": "Sekce",
+    "sidebar": "Vaše komunity a události",
+    "discover": "Objevujte",
+    "showAll": "Zobrazit vše",
+    "showLess": "Zobrazit méně"
   },
   "header": {
     "search": "Hledat",
     "chat": "Zprávy",
-    "notifications": "Oznámení",
     "myProfile": "Můj profil",
     "logOut": "Odhlásit se",
-    "chatUnread": "Zprávy, máte nepřečtené"
+    "chatUnread": "Zprávy, máte nepřečtené",
+    "home": "Content Master, domů"
   },
   "events": {
     "title": "Moje události",
