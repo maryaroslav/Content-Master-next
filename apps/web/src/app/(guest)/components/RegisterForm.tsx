@@ -1,12 +1,15 @@
 'use client';
 
-import Link from 'next/link';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import { useTranslations } from 'next-intl';
 import { register as registerAccount } from '@cm/auth';
 import { RegisterRequestSchema } from '@cm/contracts';
 import { applyServerErrors, useZodForm } from '@cm/forms';
-import Field from './Field';
-import FormMessage from './FormMessage';
+import { TextField } from '@cm/ui';
 import { useErrorText } from '@/i18n/useErrorText';
 
 export default function RegisterForm() {
@@ -24,36 +27,18 @@ export default function RegisterForm() {
         }
     });
 
-    const message = errorText.field(errors.email, 'email')
-        ?? errorText.field(errors.password, 'password')
-        ?? errorText.field(errors.username, 'username')
-        ?? errorText.form(errors.root?.server);
+    const formError = errorText.form(errors.root?.server);
 
     return (
-        <form onSubmit={onSubmit} noValidate>
-            <h1>{t('register.title')}</h1>
-            {message && <FormMessage message={message} />}
-            <Field label={t('email')} type="email" placeholder={t('email')} autoComplete="email" invalid={!!errors.email} {...register('email')} />
-            <Field
-                label={t('password')}
-                type="password"
-                placeholder={t('password')}
-                autoComplete="new-password"
-                invalid={!!errors.password}
-                {...register('password')}
-            />
-            <Field
-                label={t('username')}
-                type="text"
-                placeholder={t('username')}
-                autoComplete="username"
-                invalid={!!errors.username}
-                {...register('username')}
-            />
-            <button className="btn-authForm" type="submit" disabled={isSubmitting}>{t('register.submit')}</button>
-            <div className="register">
-                <p>{t('register.haveAccount')} <Link href="/login">{t('register.signIn')}</Link></p>
-            </div>
-        </form>
+        <Stack component="form" onSubmit={onSubmit} noValidate spacing={4}>
+            {formError && <Alert severity="error">{formError}</Alert>}
+            <TextField label={t('email')} type="email" size="large" autoComplete="email" error={errorText.field(errors.email, 'email')} {...register('email')} />
+            <TextField label={t('password')} type="password" size="large" autoComplete="new-password" error={errorText.field(errors.password, 'password')} {...register('password')} />
+            <TextField label={t('username')} size="large" autoComplete="username" error={errorText.field(errors.username, 'username')} {...register('username')} />
+            <Button type="submit" size="large" fullWidth loading={isSubmitting}>{t('register.submit')}</Button>
+            <Typography variant="body2" color="text.secondary">
+                {t('register.haveAccount')} <Link href="/login">{t('register.signIn')}</Link>
+            </Typography>
+        </Stack>
     );
 }

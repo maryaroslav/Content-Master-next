@@ -1,77 +1,78 @@
-/* .page-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    position: relative;
+/* Screens not yet on @cm/ui: below MUI (see globals.css). */
+@layer legacy {
+  /* .page-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+  }
+
+  .main-info-container {
+      display: flex;
+      min-height: 100vh;
+      flex-grow: 1;
+  } */
+
+  .main-info-container {
+      display: flex;
+      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
+  }
+
+  .sidebar-fixed {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+  }
+
+  .sidebar-fixed::-webkit-scrollbar {
+      display: none;
+  }
+
+  .content-scrollable {
+      flex-grow: 1;
+      overflow-y: auto;
+      height: 100vh;
+      scrollbar-width: none;
+  }
+
+  ::-webkit-scrollbar {
+      width: 0px;
+  }
+
+  /* .main-info-container {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+  }
+
+  .scroll-wrapper {
+      width: 260px;
+      flex-shrink: 0;
+      position: relative;
+      background: #f8f8f8;
+  }
+
+  .sidebar-scroll {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      box-sizing: border-box;
+      padding: 10px;
+  }
+
+  .content-scrollable {
+      flex-grow: 1;
+      overflow-y: auto;
+      height: 100vh;
+      box-sizing: border-box;
+      padding: 20px;
+      background: #fff;
+  } */
 }
-
-.main-info-container {
-    display: flex;
-    min-height: 100vh;
-    flex-grow: 1;
-} */
-
-.main-info-container {
-    display: flex;
-    min-height: 100vh;
-    height: 100vh;
-    overflow: hidden;
-}
-
-.sidebar-fixed {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    flex-shrink: 0;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.sidebar-fixed::-webkit-scrollbar {
-    display: none;
-}
-
-.content-scrollable {
-    flex-grow: 1;
-    overflow-y: auto;
-    height: 100vh;
-    scrollbar-width: none;
-}
-
-::-webkit-scrollbar {
-    width: 0px;
-}
-
-/* .main-info-container {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-}
-
-.scroll-wrapper {
-    width: 260px;
-    flex-shrink: 0;
-    position: relative;
-    background: #f8f8f8;
-}
-
-.sidebar-scroll {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    box-sizing: border-box;
-    padding: 10px;
-}
-
-.content-scrollable {
-    flex-grow: 1;
-    overflow-y: auto;
-    height: 100vh;
-    box-sizing: border-box;
-    padding: 20px;
-    background: #fff;
-} */
-
-

@@ -10,9 +10,9 @@ import { apiError, server } from './server';
 
 async function submit(email: string, password: string) {
     const view = renderWithProviders(<LoginForm />);
-    if (email) await view.user.type(screen.getByPlaceholderText('Email'), email);
-    if (password) await view.user.type(screen.getByPlaceholderText('Password'), password);
-    await view.user.click(screen.getByRole('button', { name: 'Sign In' }));
+    if (email) await view.user.type(screen.getByLabelText('Email'), email);
+    if (password) await view.user.type(screen.getByLabelText('Password'), password);
+    await view.user.click(screen.getByRole('button', { name: 'Sign in' }));
     return view;
 }
 
@@ -20,6 +20,8 @@ describe('LoginForm', () => {
     it('validates before calling the API', async () => {
         await submit('', '');
         expect(await screen.findByText('Email is required')).toBeInTheDocument();
+        expect(screen.getByLabelText('Email')).toBeInvalid();
+        expect(screen.getByLabelText('Email')).toHaveAccessibleDescription('Email is required');
     });
 
     it('shows the translated API error', async () => {
@@ -37,7 +39,7 @@ describe('LoginForm', () => {
     it('asks for the 2FA code when the account has it on', async () => {
         server.use(getAuthLoginMockHandler({ twoFactorRequired: true, challengeToken: 'challenge' }));
         await submit(me.email, 'password123');
-        expect(await screen.findByText('Enter the code from your authenticator app')).toBeInTheDocument();
+        expect(await screen.findByLabelText('2FA code')).toHaveAccessibleDescription('Enter the code from your authenticator app');
         expect(authStore.getState().status).not.toBe('authenticated');
     });
 });

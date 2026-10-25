@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import { useTranslations } from 'next-intl';
 import { login } from '@cm/auth';
 import { LoginRequestSchema } from '@cm/contracts';
 import { applyServerErrors, useZodForm } from '@cm/forms';
-import Field from './Field';
-import FormMessage from './FormMessage';
+import { TextField } from '@cm/ui';
 import TwoFactorStep from './TwoFactorStep';
 import { useErrorText } from '@/i18n/useErrorText';
 
@@ -32,25 +35,17 @@ export default function LoginForm() {
         }
     });
 
-    const message = errorText.field(errors.email, 'email') ?? errorText.field(errors.password, 'password') ?? errorText.form(errors.root?.server);
+    const formError = errorText.form(errors.root?.server);
 
     return (
-        <form onSubmit={onSubmit} noValidate>
-            <h1>{t('login.title')}</h1>
-            {message && <FormMessage message={message} />}
-            <Field label={t('email')} type="email" placeholder={t('email')} autoComplete="email" invalid={!!errors.email} {...register('email')} />
-            <Field
-                label={t('password')}
-                type="password"
-                placeholder={t('password')}
-                autoComplete="current-password"
-                invalid={!!errors.password}
-                {...register('password')}
-            />
-            <button className="btn-authForm" type="submit" disabled={isSubmitting}>{t('login.submit')}</button>
-            <div className="register">
-                <p>{t('login.noAccount')} <Link href="/register">{t('login.createAccount')}</Link></p>
-            </div>
-        </form>
+        <Stack component="form" onSubmit={onSubmit} noValidate spacing={4}>
+            {formError && <Alert severity="error">{formError}</Alert>}
+            <TextField label={t('email')} type="email" size="large" autoComplete="email" error={errorText.field(errors.email, 'email')} {...register('email')} />
+            <TextField label={t('password')} type="password" size="large" autoComplete="current-password" error={errorText.field(errors.password, 'password')} {...register('password')} />
+            <Button type="submit" size="large" fullWidth loading={isSubmitting}>{t('login.submit')}</Button>
+            <Typography variant="body2" color="text.secondary">
+                {t('login.noAccount')} <Link href="/register">{t('login.createAccount')}</Link>
+            </Typography>
+        </Stack>
     );
 }

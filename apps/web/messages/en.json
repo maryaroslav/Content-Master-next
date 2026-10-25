@@ -14,14 +14,14 @@
     "password": "Password",
     "username": "Username",
     "login": {
-      "title": "Sign In to your account",
-      "submit": "Sign In",
+      "title": "Sign in to your account",
+      "submit": "Sign in",
       "noAccount": "Don’t have an account?",
       "createAccount": "Create account"
     },
     "register": {
       "title": "Create your account",
-      "submit": "Sign Up",
+      "submit": "Sign up",
       "haveAccount": "Already have an account?",
       "signIn": "Sign in"
     },

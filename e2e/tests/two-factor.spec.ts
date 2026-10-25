@@ -16,13 +16,13 @@ test('two-factor authentication is set up with the manual key and asked for at t
     await expect(page.getByText('On: signing in asks for a code from your authenticator app.')).toBeVisible();
 
     await signOut(page, user.username);
-    await page.getByPlaceholder('Email').fill(user.email);
-    await page.getByPlaceholder('Password').fill(user.password);
-    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
-    await expect(page.getByText('Enter the code from your authenticator app')).toBeVisible();
+    await page.getByLabel('Email').fill(user.email);
+    await page.getByLabel('Password').fill(user.password);
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await expect(page.getByLabel('2FA code')).toBeVisible();
     await expect(page).toHaveURL(/\/login$/);
 
-    await page.getByPlaceholder('123456').fill(code());
-    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    await page.getByLabel('2FA code').fill(code());
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(page).toHaveURL(/\/explore$/);
 });

@@ -14,13 +14,14 @@ describe('RegisterForm', () => {
         })));
         const { user } = renderWithProviders(<RegisterForm />);
 
-        await user.type(screen.getByPlaceholderText('Email'), 'new@example.com');
-        await user.type(screen.getByPlaceholderText('Password'), 'password123');
-        await user.type(screen.getByPlaceholderText('Username'), 'taken');
-        await user.click(screen.getByRole('button', { name: 'Sign Up' }));
+        await user.type(screen.getByLabelText('Email'), 'new@example.com');
+        await user.type(screen.getByLabelText('Password'), 'password123');
+        await user.type(screen.getByLabelText('Username'), 'taken');
+        await user.click(screen.getByRole('button', { name: 'Sign up' }));
 
         expect(await screen.findByText('This username is already taken')).toBeInTheDocument();
-        expect(screen.getByPlaceholderText('Username')).toHaveClass('input-error');
-        expect(screen.getByPlaceholderText('Email')).not.toHaveClass('input-error');
+        expect(screen.getByLabelText('Username')).toBeInvalid();
+        expect(screen.getByLabelText('Username')).toHaveAccessibleDescription('This username is already taken');
+        expect(screen.getByLabelText('Email')).not.toBeInvalid();
     });
 });

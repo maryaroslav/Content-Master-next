@@ -7,10 +7,10 @@ test('a new user registers, signs out and signs in again', async ({ page }) => {
     const account = { email: `${username}@e2e.test`, password: 'e2e-password-1' };
 
     await page.goto('/register');
-    await page.getByPlaceholder('Email').fill(account.email);
-    await page.getByPlaceholder('Password').fill(account.password);
-    await page.getByPlaceholder('Username').fill(username);
-    await page.getByRole('button', { name: 'Sign Up' }).click();
+    await page.getByLabel('Email').fill(account.email);
+    await page.getByLabel('Password').fill(account.password);
+    await page.getByLabel('Username').fill(username);
+    await page.getByRole('button', { name: 'Sign up' }).click();
 
     await expect(page).toHaveURL(/\/explore$/);
     await expect(page.getByRole('button', { name: username })).toBeVisible();
