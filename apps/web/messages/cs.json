@@ -186,21 +186,23 @@
     "joined": "{count, plural, one {Přidal se {formatted} člověk} few {Přidali se {formatted} lidé} other {Přidalo se {formatted} lidí}}"
   },
   "feed": {
-    "placeholder": "Sdílejte své myšlenky nebo příspěvek",
-    "uploadPhoto": "Nahrát fotku",
-    "uploadGif": "Nahrát GIF",
-    "emoji": "Vybrat emoji",
+    "placeholder": "Sdílejte své myšlenky nebo nápady",
+    "uploadPhoto": "Přidat obrázky",
     "removeImage": "Odebrat obrázek",
     "maxImages": "Můžete přiložit nejvýše {max} obrázků",
     "loading": "Načítání příspěvků...",
-    "empty": "Zatím žádné příspěvky. Buďte první!",
+    "empty": "Zatím žádné příspěvky",
     "loadingMore": "Načítání dalších...",
     "loadMoreFailed": "Další příspěvky se nepodařilo načíst.",
-    "viewMore": "... Zobrazit více",
-    "viewLess": "Zobrazit méně",
     "image": "Obrázek příspěvku",
     "options": "Možnosti příspěvku",
-    "delete": "Smazat příspěvek"
+    "delete": "Smazat příspěvek",
+    "text": "Nový příspěvek",
+    "submit": "Zveřejnit",
+    "deleteTitle": "Smazat tento příspěvek?",
+    "deleteText": "Zmizí z feedu pro všechny. Tuto akci nelze vrátit.",
+    "cancel": "Zrušit",
+    "emptyText": "Tady se zobrazují příspěvky všech, nejnovější nahoře. Sdílejte první."
   },
   "community": {
     "create": "Vytvořit komunitu",

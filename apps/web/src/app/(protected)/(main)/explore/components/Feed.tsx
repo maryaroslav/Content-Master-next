@@ -2,14 +2,18 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CircularProgress from '@mui/material/CircularProgress';
+import Stack from '@mui/material/Stack';
 import { useTranslations } from 'next-intl';
 import { usePostsDelete, usePostsListInfinite } from '@cm/api-client';
+import { EmptyState } from '@cm/ui';
 import { useErrorText } from '@/i18n/useErrorText';
 import AddPost from './AddPost';
 import FeedPost from './FeedPost';
 import { feedQueryKey, removePost, type FeedData } from './feedCache';
-
-import '@/styles/feed.css';
 
 export default function Feed() {
     const {
@@ -65,37 +69,39 @@ export default function Feed() {
 
     const posts = data?.pages.flatMap((page) => page.items) ?? [];
 
+    const retry = (onRetry: () => void) => (
+        <Button variant="soft" size="small" onClick={onRetry}>{t('common.tryAgain')}</Button>
+    );
+
     return (
-        <div className="feed-container">
+        <Stack spacing={4}>
             <AddPost />
-            <div className="feed-posts-container">
-                {status === 'pending' && <p className="feed-status">{t('feed.loading')}</p>}
-                {status === 'error' && (
-                    <div className="feed-status">
-                        <p>{errorText.request(error)}</p>
-                        <button type="button" onClick={() => void refetch()}>{t('common.tryAgain')}</button>
-                    </div>
-                )}
-                {status === 'success' && posts.length === 0 && (
-                    <p className="feed-status">{t('feed.empty')}</p>
-                )}
-                {posts.map((post) => (
-                    <FeedPost
-                        key={post.id}
-                        post={post}
-                        onDelete={() => deletePost({ postId: post.id })}
-                        deleteError={deleteError?.postId === post.id ? deleteError.message : undefined}
-                    />
-                ))}
-                <div ref={sentinelRef} />
-                {isFetchingNextPage && <p className="feed-status">{t('feed.loadingMore')}</p>}
-                {isFetchNextPageError && (
-                    <div className="feed-status">
-                        <p>{t('feed.loadMoreFailed')}</p>
-                        <button type="button" onClick={() => void fetchNextPage()}>{t('common.tryAgain')}</button>
-                    </div>
-                )}
-            </div>
-        </div>
+            {status === 'pending' && (
+                <Stack sx={{ alignItems: 'center', py: 8 }} role="status" aria-label={t('feed.loading')}>
+                    <CircularProgress size={28} />
+                </Stack>
+            )}
+            {status === 'error' && <Alert severity="error" action={retry(() => void refetch())}>{errorText.request(error)}</Alert>}
+            {status === 'success' && posts.length === 0 && (
+                <Card>
+                    <EmptyState title={t('feed.empty')}>{t('feed.emptyText')}</EmptyState>
+                </Card>
+            )}
+            {posts.map((post) => (
+                <FeedPost
+                    key={post.id}
+                    post={post}
+                    onDelete={() => deletePost({ postId: post.id })}
+                    deleteError={deleteError?.postId === post.id ? deleteError.message : undefined}
+                />
+            ))}
+            <div ref={sentinelRef} />
+            {isFetchingNextPage && (
+                <Stack sx={{ alignItems: 'center', py: 4 }} role="status" aria-label={t('feed.loadingMore')}>
+                    <CircularProgress size={24} />
+                </Stack>
+            )}
+            {isFetchNextPageError && <Alert severity="error" action={retry(() => void fetchNextPage())}>{t('feed.loadMoreFailed')}</Alert>}
+        </Stack>
     );
 }

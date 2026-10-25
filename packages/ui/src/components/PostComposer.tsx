@@ -3,10 +3,11 @@ import CloseRounded from '@mui/icons-material/CloseRounded';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
+import FormHelperText from '@mui/material/FormHelperText';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
 import Stack from '@mui/material/Stack';
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 
 export interface PostComposerLabels {
     text: string;
@@ -14,6 +15,8 @@ export interface PostComposerLabels {
     addImages: string;
     removeImage: string;
     submit: string;
+    /** Shown when a pick would go over maxImages; the pick is then ignored. */
+    tooManyImages: string;
 }
 
 export interface PostComposerProps {
@@ -21,15 +24,20 @@ export interface PostComposerProps {
     labels: PostComposerLabels;
     maxImages?: number;
     submitting?: boolean;
-    /** Resolve to clear the form; reject to keep the text and images for another try. */
-    onSubmit: (post: { text: string; images: File[] }) => Promise<unknown>;
+    /** A validation or server error, shown under the text. */
+    error?: ReactNode;
+    /** Return true to clear the form, false to keep the text and images (the caller shows why through `error`). */
+    onSubmit: (post: { text: string; images: File[] }) => boolean | Promise<boolean>;
 }
 
-export function PostComposer({ avatar, labels, maxImages = 5, submitting, onSubmit }: PostComposerProps) {
+export function PostComposer({ avatar, labels, maxImages = 5, submitting, error, onSubmit }: PostComposerProps) {
     const [text, setText] = useState('');
     const [images, setImages] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
+    const [tooMany, setTooMany] = useState(false);
     const fileInput = useRef<HTMLInputElement>(null);
+    const messageId = useId();
+    const message = tooMany ? labels.tooManyImages : error;
 
     useEffect(() => {
         const urls = images.map((file) => URL.createObjectURL(file));
@@ -37,31 +45,35 @@ export function PostComposer({ avatar, labels, maxImages = 5, submitting, onSubm
         return () => urls.forEach((url) => URL.revokeObjectURL(url));
     }, [images]);
 
-    const submit = async (event: FormEvent) => {
-        event.preventDefault();
-        if (!text.trim() && images.length === 0) return;
-        try {
-            await onSubmit({ text: text.trim(), images });
-            setText('');
-            setImages([]);
-        } catch {
-            // The caller shows the error; the draft stays.
-        }
+    const submit = async (event?: FormEvent) => {
+        event?.preventDefault();
+        if (submitting || (!text.trim() && images.length === 0)) return;
+        if (!(await onSubmit({ text: text.trim(), images }))) return;
+        setText('');
+        setImages([]);
+        setTooMany(false);
     };
 
     return (
         <Card component="form" onSubmit={submit} sx={{ p: 5, display: 'flex', flexDirection: 'column', gap: 3 }}>
             <Stack direction="row" spacing={3} sx={{ alignItems: 'flex-start' }}>
                 {avatar}
-                <InputBase
-                    multiline
-                    minRows={2}
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    placeholder={labels.placeholder}
-                    inputProps={{ 'aria-label': labels.text }}
-                    sx={(t) => ({ flex: 1, px: 3, py: 2, borderRadius: t.radius.md, bgcolor: 'cm.surfaceSunken' })}
-                />
+                <Stack sx={{ flex: 1, minWidth: 0 }}>
+                    <InputBase
+                        multiline
+                        minRows={2}
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) void submit();
+                        }}
+                        placeholder={labels.placeholder}
+                        error={Boolean(message)}
+                        inputProps={{ 'aria-label': labels.text, 'aria-invalid': Boolean(message), 'aria-describedby': message ? messageId : undefined }}
+                        sx={(t) => ({ px: 3, py: 2, borderRadius: t.radius.md, bgcolor: 'cm.surfaceSunken' })}
+                    />
+                    {message ? <FormHelperText id={messageId} error role="alert">{message}</FormHelperText> : null}
+                </Stack>
             </Stack>
             {previews.length > 0 ? (
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))', gap: 2 }}>
@@ -71,7 +83,10 @@ export function PostComposer({ avatar, labels, maxImages = 5, submitting, onSubm
                             <IconButton
                                 size="small"
                                 aria-label={labels.removeImage}
-                                onClick={() => setImages((all) => all.filter((_, j) => j !== i))}
+                                onClick={() => {
+                                    setTooMany(false);
+                                    setImages((all) => all.filter((_, j) => j !== i));
+                                }}
                                 sx={{ position: 'absolute', top: 4, right: 4, bgcolor: 'background.paper', '&:hover': { bgcolor: 'background.paper' } }}
                             >
                                 <CloseRounded fontSize="small" />
@@ -90,10 +105,16 @@ export function PostComposer({ avatar, labels, maxImages = 5, submitting, onSubm
                     accept="image/*"
                     multiple
                     hidden
+                    data-testid="post-images"
                     onChange={(e) => {
                         const picked = Array.from(e.target.files ?? []);
-                        setImages((all) => [...all, ...picked].slice(0, maxImages));
                         e.target.value = '';
+                        if (images.length + picked.length > maxImages) {
+                            setTooMany(true);
+                            return;
+                        }
+                        setTooMany(false);
+                        setImages((all) => [...all, ...picked]);
                     }}
                 />
                 <Button type="submit" size="small" loading={submitting} sx={{ ml: 'auto' }}>{labels.submit}</Button>

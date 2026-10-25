@@ -22,9 +22,10 @@ describe('AddPost', () => {
     it('puts the created post at the top of the feed and clears the input', async () => {
         server.use(getPostsCreateMockHandler(post(2, 'Hello there')));
         const { user, queryClient } = await setup();
-        const input = screen.getByPlaceholderText('Share your thoughts or a post');
+        const input = screen.getByRole('textbox', { name: 'New post' });
 
-        await user.type(input, 'Hello there{Enter}');
+        await user.type(input, 'Hello there');
+        await user.click(screen.getByRole('button', { name: 'Post' }));
 
         await waitFor(() => expect(queryClient.getQueryData<FeedData>(feedQueryKey)?.pages[0]?.items.map((p) => p.id)).toEqual([2, 1]));
         expect(input).toHaveValue('');
@@ -33,11 +34,13 @@ describe('AddPost', () => {
     it('keeps the text and shows the error when the post is rejected', async () => {
         server.use(http.post('*/posts', () => apiError(500, { code: 'INTERNAL_ERROR', message: 'Internal server error' })));
         const { user } = await setup();
-        const input = screen.getByPlaceholderText('Share your thoughts or a post');
+        const input = screen.getByRole('textbox', { name: 'New post' });
 
-        await user.type(input, 'Hello there{Enter}');
+        await user.type(input, 'Hello there');
+        await user.click(screen.getByRole('button', { name: 'Post' }));
 
-        expect(await screen.findByText('Something went wrong, please try again.')).toBeInTheDocument();
+        await waitFor(() => expect(input).toHaveAccessibleDescription('Something went wrong, please try again.'));
+        expect(input).toBeInvalid();
         expect(input).toHaveValue('Hello there');
     });
 });

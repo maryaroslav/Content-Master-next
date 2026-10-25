@@ -7,7 +7,8 @@ import type { ReactNode } from 'react';
 import { UserAvatar } from './UserAvatar';
 
 export interface PostCardProps {
-    author: { name: string; username: string; avatar?: string | null; color?: string; href?: string };
+    /** `username` is shown as @username next to the time; leave it out when `name` already is the username. */
+    author: { name: string; username?: string; avatar?: string | null; color?: string; href?: string };
     /** The formatted time, rendered in <time dateTime>. */
     time: string;
     dateTime: string;
@@ -29,7 +30,7 @@ export function PostCard({ author, time, dateTime, text, images = [], menu }: Po
                         <Typography variant="subtitle1">{author.name}</Typography>
                     )}
                     <Typography variant="caption" color="text.secondary" noWrap>
-                        {`@${author.username} · `}
+                        {author.username ? `@${author.username} · ` : null}
                         <time dateTime={dateTime}>{time}</time>
                     </Typography>
                 </Stack>

@@ -186,21 +186,23 @@
     "joined": "{count, plural, one {{formatted} person has joined this event} other {{formatted} people have joined this event}}"
   },
   "feed": {
-    "placeholder": "Share your thoughts or a post",
-    "uploadPhoto": "Upload photo",
-    "uploadGif": "Upload GIF",
-    "emoji": "Choose emoji",
+    "placeholder": "Share your thoughts or ideas",
+    "uploadPhoto": "Add images",
     "removeImage": "Remove image",
     "maxImages": "You can attach at most {max} images",
     "loading": "Loading posts...",
-    "empty": "No posts yet. Share the first one!",
+    "empty": "No posts yet",
     "loadingMore": "Loading more...",
     "loadMoreFailed": "Could not load more posts.",
-    "viewMore": "... View More",
-    "viewLess": "View Less",
     "image": "Post image",
     "options": "Post options",
-    "delete": "Delete post"
+    "delete": "Delete post",
+    "text": "New post",
+    "submit": "Post",
+    "deleteTitle": "Delete this post?",
+    "deleteText": "It disappears from the feed for everyone. This cannot be undone.",
+    "cancel": "Cancel",
+    "emptyText": "Posts from everyone appear here, newest first. Share the first one."
   },
   "community": {
     "create": "Create a community",

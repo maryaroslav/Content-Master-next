@@ -1,21 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
+import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { usePostsCreate } from '@cm/api-client';
 import { useAuth } from '@cm/auth';
 import { CreatePostRequestSchema, endpoints } from '@cm/contracts';
-import { applyServerErrors, useZodForm } from '@cm/forms';
+import { parseServerErrors } from '@cm/forms';
+import { PostComposer, UserAvatar } from '@cm/ui';
 import { feedQueryKey, prependPost, type FeedData } from './feedCache';
 import { useErrorText } from '@/i18n/useErrorText';
-
-import userImg from '@images/icons/user.svg';
-import uploadIcon from '@images/icons/imagesButton.svg';
-import gifIcon from '@images/icons/gifButton.svg';
-import emojiIcon from '@images/icons/emojiButton.svg';
-import '@/styles/addPost.css';
 
 const MAX_IMAGES = endpoints.posts.create.upload.maxCount;
 const PostFormSchema = CreatePostRequestSchema.pick({ content: true });
@@ -25,106 +19,45 @@ export default function AddPost() {
     const t = useTranslations('feed');
     const errorText = useErrorText();
     const queryClient = useQueryClient();
-    const [images, setImages] = useState<File[]>([]);
-    const [imageError, setImageError] = useState<string | null>(null);
-    const { register, handleSubmit, setError, reset, formState: { errors } } = useZodForm(PostFormSchema, {
-        defaultValues: { content: '' },
-    });
-
-    const previews = useMemo(() => images.map((file) => URL.createObjectURL(file)), [images]);
-    useEffect(() => () => previews.forEach((url) => URL.revokeObjectURL(url)), [previews]);
-
+    const [error, setError] = useState<string>();
     const { mutateAsync: createPost, isPending } = usePostsCreate();
 
-    const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selected = Array.from(event.target.files ?? []);
-        event.target.value = '';
-        if (images.length + selected.length > MAX_IMAGES) {
-            setImageError(t('maxImages', { max: MAX_IMAGES }));
-            return;
+    const submit = async ({ text, images }: { text: string; images: File[] }) => {
+        setError(undefined);
+        const parsed = PostFormSchema.safeParse({ content: text });
+        if (!parsed.success) {
+            const issue = parsed.error.issues[0]!;
+            setError(errorText.field({ type: issue.code, message: issue.message }, 'content'));
+            return false;
         }
-        setImageError(null);
-        setImages([...images, ...selected]);
-    };
-
-    const onSubmit = handleSubmit(async ({ content }) => {
-        if (!content) return;
+        const content = parsed.data.content ?? '';
+        const title = content.split(/\s+/).slice(0, 2).join(' ').slice(0, 100);
         try {
-            const title = content.split(/\s+/).slice(0, 2).join(' ').slice(0, 100);
             const post = await createPost({ data: { title, content, images } });
             queryClient.setQueryData<FeedData>(feedQueryKey, (data) => prependPost(data, post));
-            reset();
-            setImages([]);
+            return true;
         } catch (err) {
-            applyServerErrors(setError, err, ['content']);
+            const { fields, code, message } = parseServerErrors(err);
+            setError(fields.content ?? errorText.form({ type: code, message }));
+            return false;
         }
-    });
-
-    const error = imageError ?? errorText.field(errors.content, 'content') ?? errorText.form(errors.root?.server);
+    };
 
     return (
-        <div className="addpost-container">
-            <div className="addpost-input-wrapper">
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className="addpost-user-img">
-                        <Image
-                            src={user?.profilePicture ?? userImg}
-                            alt=""
-                            width={40}
-                            height={40}
-                            style={{ borderRadius: '50%' }}
-                        />
-                    </div>
-                    <div className="addpost-input">
-                        <input
-                            type="text"
-                            placeholder={t('placeholder')}
-                            disabled={isPending}
-                            {...register('content')}
-                            onKeyDown={(event) => {
-                                if (event.key === 'Enter') {
-                                    event.preventDefault();
-                                    void onSubmit();
-                                }
-                            }}
-                        />
-                        <div className="addpost-buttons">
-                            <label style={{ cursor: 'pointer' }}>
-                                <Image src={uploadIcon} alt={t('uploadPhoto')} />
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    onChange={handleImageSelect}
-                                    style={{ display: 'none' }}
-                                />
-                            </label>
-                            <button type="button">
-                                <Image src={gifIcon} alt={t('uploadGif')} />
-                            </button>
-                            <button type="button">
-                                <Image src={emojiIcon} alt={t('emoji')} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                {error && <p className="addpost-error">{error}</p>}
-                {previews.length > 0 && (
-                    <div className="addpost-previews">
-                        {previews.map((src, i) => (
-                            <div key={src} className="preview-item">
-                                {/* eslint-disable-next-line @next/next/no-img-element -- blob: previews gain nothing from next/image */}
-                                <img src={src} alt="" />
-                                <button
-                                    type="button"
-                                    aria-label={t('removeImage')}
-                                    onClick={() => setImages(images.filter((_, index) => index !== i))}
-                                >×</button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
+        <PostComposer
+            avatar={user ? <UserAvatar name={user.username} src={user.profilePicture} decorative /> : undefined}
+            maxImages={MAX_IMAGES}
+            submitting={isPending}
+            error={error}
+            onSubmit={submit}
+            labels={{
+                text: t('text'),
+                placeholder: t('placeholder'),
+                addImages: t('uploadPhoto'),
+                removeImage: t('removeImage'),
+                submit: t('submit'),
+                tooManyImages: t('maxImages', { max: MAX_IMAGES }),
+            }}
+        />
     );
 }

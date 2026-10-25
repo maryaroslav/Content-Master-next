@@ -20,5 +20,7 @@ export default defineConfig({
             output: { banner: "'use client';" },
         },
         sourcemap: true,
+        // tsc writes the declarations into dist too; emptying it on every watch rebuild would delete them.
+        emptyOutDir: false,
     },
 });

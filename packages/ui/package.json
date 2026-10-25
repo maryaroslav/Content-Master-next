@@ -16,7 +16,9 @@
   ],
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
-    "dev": "vite build --watch",
+    "dev": "pnpm run '/^dev:/'",
+    "dev:js": "vite build --watch",
+    "dev:types": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint src test .storybook",
     "test": "vitest run",
