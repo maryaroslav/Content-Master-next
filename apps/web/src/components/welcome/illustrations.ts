@@ -1,0 +1,15 @@
+export { default as bag } from '@images/first_page/bag.svg';
+export { default as ball } from '@images/first_page/ball.svg';
+export { default as bank } from '@images/first_page/bank.svg';
+export { default as fire } from '@images/first_page/fire.svg';
+export { default as gamepad } from '@images/first_page/gamepad.svg';
+export { default as green } from '@images/first_page/green.svg';
+export { default as guitar } from '@images/first_page/guitar.svg';
+export { default as hand } from '@images/first_page/hand.svg';
+export { default as hat } from '@images/first_page/hat.svg';
+export { default as heart } from '@images/first_page/heart.svg';
+export { default as light } from '@images/first_page/light.svg';
+export { default as like } from '@images/first_page/like.svg';
+export { default as ship } from '@images/first_page/ship.svg';
+export { default as smile } from '@images/first_page/smile.svg';
+export { default as tent } from '@images/first_page/tent.svg';

@@ -1,0 +1,72 @@
+# The whole stack from the Dockerfiles: cp .env.example .env, fill it in, docker compose up --build.
+name: content-master
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: content_master
+      MYSQL_USER: content_master
+      MYSQL_PASSWORD: ${DB_PASS:?set DB_PASS in .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      # TCP, not the socket: during initialization MySQL runs a temporary server without networking.
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u content_master -p$$MYSQL_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  api:
+    image: ${API_IMAGE:-content-master-api}
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${API_NODE_ENV:-production}
+      DB_HOST: mysql
+      DB_NAME: content_master
+      DB_USER: content_master
+      DB_PASS: ${DB_PASS}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      TWOFA_ENCRYPTION_KEY: ${TWOFA_ENCRYPTION_KEY:?set TWOFA_ENCRYPTION_KEY in .env}
+      CORS_ORIGINS: ${WEB_ORIGIN:-http://localhost:3000}
+    volumes:
+      - uploads:/data/uploads
+    # Published because the browser connects to Socket.IO directly (the Next proxy does not carry WebSockets).
+    ports:
+      - ${API_PORT:-5001}:5001
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5001/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  web:
+    image: ${WEB_IMAGE:-content-master-web}
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_ORIGIN: http://api:5001
+      API_URL: /api/v1
+      APP_ENV: ${APP_ENV:-production}
+      REALTIME_URL: ${REALTIME_URL:-http://localhost:5001}
+    ports:
+      - ${WEB_PORT:-3000}:3000
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/env.js').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  mysql-data:
+  uploads:

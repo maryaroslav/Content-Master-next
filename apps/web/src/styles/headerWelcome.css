@@ -1,0 +1,53 @@
+/* Screens not yet on @cm/ui: below MUI (see globals.css). */
+@layer legacy {
+  .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 30px 130px;
+      background-color: transparent;
+      color: black;
+  }
+
+  .logo {
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      z-index: 100;
+      cursor: pointer;
+  }
+
+  .logo p {
+      margin-left: 16px;
+  }
+
+  .nav {
+      display: flex;
+      gap: 70px;
+      z-index: 100;
+  }
+
+  .link {
+      text-decoration: none;
+      color: black;
+      font-size: 18px;
+      font-weight: 500;
+      padding: 10px;
+  }
+
+  .special {
+      background-color: #E5E5E5;
+      border-radius: 8px;
+      transition: background-color 0.3s ease-in, transform 0.3s ease-in;
+      border: 1px solid #E5E5E5;
+  }
+
+  .special:hover {
+      background-color: #cfcfcf;
+  }
+
+  .special:not(:hover) {
+      transition: background-color 0.7s ease-out, transform 0.7s ease-out;
+  }
+}

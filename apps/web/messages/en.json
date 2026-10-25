@@ -1,0 +1,318 @@
+{
+  "language": {
+    "label": "Language"
+  },
+  "welcome": {
+    "title": "Join the Chatvolution",
+    "text": "Ask questions, share ideas, and build connections with each other.",
+    "join": "Join Content Master Community",
+    "signIn": "Sign In",
+    "signUp": "Sign Up"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "login": {
+      "title": "Sign in to your account",
+      "submit": "Sign in",
+      "noAccount": "Don’t have an account?",
+      "createAccount": "Create account"
+    },
+    "register": {
+      "title": "Create your account",
+      "submit": "Sign up",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "twoFactor": {
+      "hint": "Enter the code from your authenticator app",
+      "code": "2FA code",
+      "back": "Back to sign in"
+    }
+  },
+  "settings": {
+    "profile": {
+      "title": "Profile",
+      "uploadPhoto": "Upload photo",
+      "removePhoto": "Remove",
+      "username": "Username",
+      "fullName": "Full name",
+      "bio": "Bio",
+      "save": "Save",
+      "saved": "Profile saved",
+      "avatarUpdated": "Avatar updated",
+      "avatarRemoved": "Avatar removed"
+    },
+    "account": {
+      "title": "Account",
+      "signedInAs": "Signed in as {email}",
+      "newEmail": "New email",
+      "currentPassword": "Current password",
+      "submit": "Change email",
+      "changed": "Email changed"
+    },
+    "twoFactor": {
+      "title": "Two-factor authentication",
+      "on": "On: signing in asks for a code from your authenticator app.",
+      "off": "Off: signing in needs only your password.",
+      "setUp": "Set up",
+      "turnOff": "Turn off",
+      "scan": "Scan the QR code with your authenticator app, then enter the code it shows.",
+      "qrAlt": "QR code for the authenticator app",
+      "manualKey": "Can’t scan it? Enter this key in the app instead:",
+      "disablePrompt": "Enter the code from your authenticator app to turn two-factor authentication off.",
+      "enable": "Enable",
+      "cancel": "Cancel"
+    }
+  },
+  "validation": {
+    "email": {
+      "invalid_format": "Please enter a valid email",
+      "too_small": "Email is required",
+      "too_big": "Email is too long"
+    },
+    "password": {
+      "too_small": "Password must be at least 8 characters long",
+      "too_big": "Password is too long"
+    },
+    "login": {
+      "password": {
+        "too_small": "Password is required"
+      }
+    },
+    "username": {
+      "too_small": "Username must be at least 3 characters long",
+      "too_big": "Username must be at most 50 characters long",
+      "invalid_format": "Username may contain only letters, digits, “.”, “_” and “-”"
+    },
+    "code": {
+      "invalid_format": "The code must consist of 6 digits"
+    },
+    "currentPassword": {
+      "too_small": "Current password is required"
+    },
+    "fullName": {
+      "too_big": "Full name is too long"
+    },
+    "bio": {
+      "too_big": "Bio is too long"
+    },
+    "name": {
+      "too_small": "Name is required",
+      "too_big": "Name is too long"
+    },
+    "theme": {
+      "too_small": "Theme is required"
+    },
+    "description": {
+      "too_big": "Description is too long"
+    },
+    "content": {
+      "too_big": "Post is too long"
+    },
+    "q": {
+      "too_small": "Enter at least 2 characters"
+    }
+  },
+  "errors": {
+    "server": "Something went wrong, please try again.",
+    "INTERNAL_ERROR": "Something went wrong, please try again.",
+    "TOO_MANY_REQUESTS": "Too many requests, please try again later.",
+    "NOT_FOUND": "Not found",
+    "UNAUTHORIZED": "Please sign in again",
+    "INVALID_TOKEN": "Your session has expired, please sign in again",
+    "INVALID_REFRESH_TOKEN": "Your session has expired, please sign in again",
+    "INVALID_CREDENTIALS": "Invalid email or password",
+    "INVALID_2FA_CODE": "Invalid 2FA code",
+    "INVALID_PASSWORD": "Current password is incorrect",
+    "USER_EXISTS": "A user with this email or username already exists",
+    "USERNAME_TAKEN": "This username is already taken",
+    "EMAIL_TAKEN": "This email is already taken",
+    "USER_NOT_FOUND": "User not found",
+    "CANNOT_FOLLOW_SELF": "You cannot follow yourself",
+    "COMMUNITY_NOT_FOUND": "Community not found",
+    "PRIVATE_COMMUNITY": "This community is private",
+    "OWNER_CANNOT_LEAVE": "The owner cannot leave their own community",
+    "POST_NOT_FOUND": "Post not found",
+    "FORBIDDEN": "You are not allowed to do this",
+    "INVALID_FILE_TYPE": "Only JPEG, PNG, GIF and WebP images are allowed",
+    "TWO_FACTOR_ALREADY_ENABLED": "Two-factor authentication is already on",
+    "TWO_FACTOR_NOT_ENABLED": "Two-factor authentication is off",
+    "TWO_FACTOR_NOT_SET_UP": "Start the two-factor setup first",
+    "NOTHING_TO_UPDATE": "Nothing to update",
+    "PHOTO_REQUIRED": "Community photo is required",
+    "CANNOT_MESSAGE_SELF": "You cannot message yourself",
+    "EMPTY_MESSAGE": "The message is empty",
+    "INVALID_ATTACHMENT": "The image could not be sent, please upload it again",
+    "NOT_CONNECTED": "No connection to the chat, please wait",
+    "TIMEOUT": "The server did not respond, please try again"
+  },
+  "common": {
+    "loading": "Loading...",
+    "tryAgain": "Try again",
+    "close": "Close",
+    "privacy": {
+      "public": "Public",
+      "private": "Private"
+    },
+    "members": "{count, plural, one {{formatted} member} other {{formatted} members}}"
+  },
+  "nav": {
+    "explore": "Explore",
+    "myCommunity": "My communities",
+    "events": "Events",
+    "settings": "Settings",
+    "popularTags": "Popular tags",
+    "podcasts": "Podcasts",
+    "label": "Sections",
+    "sidebar": "Your communities and events",
+    "discover": "Discover",
+    "showAll": "Show all",
+    "showLess": "Show less"
+  },
+  "header": {
+    "search": "Search",
+    "chat": "Messages",
+    "myProfile": "My profile",
+    "logOut": "Log out",
+    "chatUnread": "Messages, you have unread ones",
+    "home": "Content Master, home"
+  },
+  "events": {
+    "title": "My events",
+    "loading": "Loading events...",
+    "empty": "You have not joined any events yet.",
+    "joined": "{count, plural, one {{formatted} person has joined this event} other {{formatted} people have joined this event}}"
+  },
+  "feed": {
+    "placeholder": "Share your thoughts or ideas",
+    "uploadPhoto": "Add images",
+    "removeImage": "Remove image",
+    "maxImages": "You can attach at most {max} images",
+    "loading": "Loading posts...",
+    "empty": "No posts yet",
+    "loadingMore": "Loading more...",
+    "loadMoreFailed": "Could not load more posts.",
+    "image": "Post image",
+    "options": "Post options",
+    "delete": "Delete post",
+    "text": "New post",
+    "submit": "Post",
+    "deleteTitle": "Delete this post?",
+    "deleteText": "It disappears from the feed for everyone. This cannot be undone.",
+    "cancel": "Cancel",
+    "emptyText": "Posts from everyone appear here, newest first. Share the first one."
+  },
+  "community": {
+    "create": "Create a community",
+    "loading": "Loading communities...",
+    "owned": "Created communities",
+    "joined": "My communities",
+    "leave": "Leave",
+    "join": "Join",
+    "empty": "You are not in any community yet",
+    "wizard": {
+      "step": "Step {current} of {total}",
+      "back": "Back",
+      "continue": "Continue",
+      "create": "Create",
+      "goal": {
+        "title": "What is your goal?",
+        "text": "Monetization, promotion, and other community features are available in any case.",
+        "blogTitle": "Share content and communicate",
+        "blogText": "Run a blog, a local community, a creative project, or an interest group.",
+        "businessTitle": "Grow your business",
+        "businessText": "Sell products, provide services, or promote an organization or brand.",
+        "eventsTitle": "Organize an event",
+        "eventsText": "Host a concert, lecture, party, workshop, or conference."
+      },
+      "name": {
+        "title": "Choose a name",
+        "text": "Use words that reflect the idea of your community. You can change the name later.",
+        "label": "Community name",
+        "privacy": "Community privacy"
+      },
+      "theme": {
+        "title": "Choose a theme",
+        "text": "The choice does not affect the community's capabilities. You can change the theme at any time.",
+        "search": "Search for a theme",
+        "label": "Theme"
+      },
+      "description": {
+        "title": "Choose a description",
+        "text": "Provide a brief description of your community. This can be updated later.",
+        "label": "Description"
+      },
+      "photo": {
+        "title": "Add a photo",
+        "text": "Upload an image that represents your community. You can change it later.",
+        "add": "Add photo",
+        "preview": "Selected photo",
+        "change": "Change photo"
+      },
+      "counter": "{current}/{max}"
+    },
+    "themeGroups": {
+      "general": "",
+      "computer": "Computer, Internet",
+      "entertainment": "Entertainment"
+    },
+    "themes": {
+      "business": "Business",
+      "cooking": "Cooking and Recipes",
+      "medicine": "Medicine",
+      "realEstate": "Real Estate",
+      "programming": "Programming",
+      "design": "Design",
+      "software": "Software",
+      "websites": "Websites",
+      "animation": "Animation",
+      "games": "Games",
+      "concerts": "Concerts",
+      "humor": "Humor"
+    },
+    "emptyText": "Create one, or join communities from search.",
+    "ownedEmpty": "You have not created a community yet."
+  },
+  "search": {
+    "title": "Search results for “{query}”",
+    "filters": {
+      "all": "All",
+      "users": "Users",
+      "communities": "Communities"
+    },
+    "searching": "Searching...",
+    "nothing": "Nothing found.",
+    "user": "User"
+  },
+  "chat": {
+    "select": "Select a chat to start messaging",
+    "connecting": "Connecting...",
+    "noConversations": "Follow someone to start a chat.",
+    "loadingMessages": "Loading messages...",
+    "empty": "No messages yet. Say hi!",
+    "loadEarlier": "Load earlier messages",
+    "attach": "Attach an image",
+    "unread": "Unread messages",
+    "placeholder": "Write a message...",
+    "attachedImage": "Attached image",
+    "unknownUser": "User {id}",
+    "sending": "Sending...",
+    "notSent": "Not sent",
+    "retry": "Retry",
+    "discard": "Discard the message"
+  },
+  "profile": {
+    "followers": "{count, plural, one {# follower} other {# followers}}",
+    "follow": "Add to friends",
+    "unfollow": "Unfriend",
+    "sendMessage": "Send a message",
+    "edit": "Edit profile",
+    "handle": "@{username} · {followers}"
+  },
+  "dates": {
+    "today": "Today",
+    "yesterday": "Yesterday"
+  }
+}
